@@ -40,7 +40,7 @@ get_filename_component(OutputDirectoryAbsolute ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 
 # Find SDL2
 find_path(SDL2Include SDL2/SDL.h PATHS ${IncludeDirectoryAbsolute})
-set(SDL2Includes ${SDL2Include})
+set(SDL2Includes ${SDL2Include}/SDL2)
 
 set(SDL2LibraryDirectoryAbsolute "${LibraryDirectoryAbsolute}/SDL2")
 find_library(SDL2Library
