@@ -86,11 +86,6 @@ add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_DIRECTORIES})
 target_link_libraries(${CMAKE_PROJECT_NAME} ${SDL2Libraries})
 
 # Add postbuild scripts that moves DLL files to the directory of the executable
-#add_custom_command(TARGET ${CMAKE_PROJECT_NAME} POST_BUILD
-#    COMMAND ${CMAKE_COMMAND} -E copy_directory
-#        "${PROJECT_SOURCE_DIR}external/windows/$<CONFIGURATION>"
-#        "${TargetDir}")
-
 add_custom_command(TARGET ${CMAKE_PROJECT_NAME}
 	POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
