@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.0.2)
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 # Project name
-project(MBase)
+project(MEngine)
 
 # Variable declarations
 string(TOLOWER ${CMAKE_SYSTEM_NAME} OperatingSystemNameLowerCase)
@@ -14,15 +14,15 @@ if(WIN32)
 endif(WIN32)
 
 # Root directory
-set(ProjectRoot ${MBase_SOURCE_DIR}/../)
+set(ProjectRoot ${MEngine_SOURCE_DIR}/../)
 get_filename_component(ProjectRootAbsolute ${ProjectRoot} ABSOLUTE)
 
 # Include directory
-file(RELATIVE_PATH IncludeDirectoryRelative ${MBase_SOURCE_DIR} ${ProjectRootAbsolute}/include)
+file(RELATIVE_PATH IncludeDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/include)
 get_filename_component(IncludeDirectoryAbsolute ${IncludeDirectoryRelative} ABSOLUTE)
 
 # Library directory
-file(RELATIVE_PATH LibraryDirectoryRelative ${MBase_SOURCE_DIR} ${ProjectRootAbsolute}/lib/x64)
+file(RELATIVE_PATH LibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/lib/x64)
 get_filename_component(LibraryDirectoryAbsolute ${LibraryDirectoryRelative} ABSOLUTE)
 
 # Ensure build type set

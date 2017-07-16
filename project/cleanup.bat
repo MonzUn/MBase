@@ -1,5 +1,5 @@
 RMDIR /s /q CMakeFiles
-RMDIR /s /q Mbase.dir
+RMDIR /s /q MEngine.dir
 RMDIR /s /q x86
 RMDIR /s /q x64
 RMDIR /s /q Debug
