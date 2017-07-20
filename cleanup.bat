@@ -1,1 +1,1 @@
-RMDIR /s /q bin
+RMDIR /s /q output

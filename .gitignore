@@ -15,4 +15,4 @@ project/x86
 project/x64
 
 # Generated
-bin/
+output/

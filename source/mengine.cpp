@@ -1,12 +1,16 @@
-#include "mengine.h"
+#include "interface\mengine.h"
+#include "mengineData.h"
 
 #include <cassert>
 #include <iostream>
 #include <SDL.h>
 
+bool Initialized = false;
+bool QuitRequested = false;
+
 bool MEngine::Initialize()
 {
-	assert(!m_Initialized && "Calling SDLWrapper::Initialize but it has already been initialized");
+	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -14,35 +18,40 @@ bool MEngine::Initialize()
 		return false;
 	}
 
-	m_Window = SDL_CreateWindow("Hello World!", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
-	if (m_Window == nullptr)
+	g_SDLData.Window = SDL_CreateWindow("Hello World!", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+	if (g_SDLData.Window == nullptr)
 	{
 		std::cout << "SDL_CreateWindow Error: " << SDL_GetError() << std::endl;
 		return false;
 	}
 
-	m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (m_Renderer == nullptr)
+	g_SDLData.Renderer = SDL_CreateRenderer(g_SDLData.Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (g_SDLData.Renderer == nullptr)
 	{
 		std::cout << "SDL_CreateRenderer Error: " << SDL_GetError() << std::endl;
 		return false;
 	}
 
-	m_Initialized = true;
+	Initialized = true;
 	return true;
 }
 
 void MEngine::Shutdown()
 {
-	assert(m_Initialized && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
+	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
 
-	m_Initialized = false;
+	Initialized = false;
 	SDL_Quit();
 }
 
-bool MEngine::ShouldQuit() const
+bool MEngine::IsInitialized()
 {
-	return m_QuitRequested;
+	return Initialized;
+}
+
+bool MEngine::ShouldQuit()
+{
+	return QuitRequested;
 }
 
 void MEngine::Update()
@@ -51,12 +60,12 @@ void MEngine::Update()
 	while (SDL_PollEvent(&event) != 0)
 	{
 		if (event.type == SDL_QUIT)
-			m_QuitRequested = true;
+			QuitRequested = true;
 	};
 }
 
 void MEngine::Render()
 {
-	SDL_RenderClear(m_Renderer);
-	SDL_RenderPresent(m_Renderer);
+	SDL_RenderClear(g_SDLData.Renderer);
+	SDL_RenderPresent(g_SDLData.Renderer);
 }

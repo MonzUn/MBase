@@ -2,16 +2,15 @@ cmake_minimum_required(VERSION 3.0.2)
 set(CMAKE_CONFIGURATION_TYPES Debug Release)
 
 # Project name
-project(MEngine)
+project(MEngine CXX)
 
 # Variable declarations
 string(TOLOWER ${CMAKE_SYSTEM_NAME} OperatingSystemNameLowerCase)
 
 # Visual Studio settings
-if(WIN32)
-	#Paralell compilation
+if(MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /D \"_CRT_SECURE_NO_WARNINGS\"")
-endif(WIN32)
+endif(MSVC)
 
 # Root directory
 set(ProjectRoot ${MEngine_SOURCE_DIR}/../)
@@ -25,18 +24,13 @@ get_filename_component(IncludeDirectoryAbsolute ${IncludeDirectoryRelative} ABSO
 file(RELATIVE_PATH LibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/lib/x64)
 get_filename_component(LibraryDirectoryAbsolute ${LibraryDirectoryRelative} ABSOLUTE)
 
+# Set output directory
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ProjectRoot}/output/)
+
 # Ensure build type set
 if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Debug)
 endif()
-
-# Set output directory
-if(WIN32)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ProjectRoot}/bin/${OperatingSystemNameLowerCase}/)
-else()
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ProjectRoot}/bin/${OperatingSystemNameLowerCase}/${CMAKE_BUILD_TYPE})
-endif(WIN32)
-get_filename_component(OutputDirectoryAbsolute ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} ABSOLUTE)
 
 # Find SDL2
 find_path(SDL2Include SDL2/SDL.h PATHS ${IncludeDirectoryAbsolute})
@@ -48,13 +42,12 @@ find_library(SDL2Library
 	PATHS ${SDL2LibraryDirectoryAbsolute})
 set(SDL2Libraries ${SDL2Library})
 
-if (WIN32)
-	find_library(SDL2mainLibrary
-		NAMES SDL2main
-		PATHS ${SDL2LibraryDirectoryAbsolute})
-	list(APPEND SDL2Libraries ${SDL2mainLibrary})
-endif(WIN32)
+find_library(SDL2mainLibrary
+	NAMES SDL2main
+	PATHS ${SDL2LibraryDirectoryAbsolute})
+list(APPEND SDL2Libraries ${SDL2mainLibrary})
 
+# Set lib and include directories
 link_directories(
 	"${LibraryDirectoryRelative}/SDL2"
 )
@@ -69,31 +62,18 @@ file(GLOB_RECURSE SOURCE_DIRECTORIES
 	"../source/*.cpp"
 )
 
-# Generate Visual Studio filters from folder names
-#set(RELPATH ${ProjectRoot}/source/)
-#get_filename_component(RELPATH ${RELPATH} ABSOLUTE)
-#foreach(f ${SOURCE_DIRECTORIES})
-    #file(RELATIVE_PATH SRCGR ${RELPATH} ${f})
-    #string(REGEX REPLACE "(.*)(/[^/]*)$" "\\1" SRCGR ${SRCGR}) # Gets name of folder only
-    #string(REPLACE / \\ SRCGR ${SRCGR}) 						# Ensure that only \\ are used (source_group #expects \\, not /)
-    #source_group("${SRCGR}" FILES ${f})
-#endforeach()
+# Create static library
+ADD_LIBRARY( ${CMAKE_PROJECT_NAME} STATIC
+   	${SOURCE_DIRECTORIES}
+)
 
-# Create executable
-add_executable(${CMAKE_PROJECT_NAME} ${SOURCE_DIRECTORIES})
+# Make sure that the linker language gets set to C++
+set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
-# Link libraries to the executable
+# Link libraries to the output lib
 target_link_libraries(${CMAKE_PROJECT_NAME} ${SDL2Libraries})
 
-# Add postbuild scripts that moves DLL files to the directory of the executable
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME}
-	POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${ProjectRootAbsolute}/external/windows/$<CONFIGURATION>" 
-        ${OutputDirectoryAbsolute}/$<CONFIGURATION>)
 
-add_custom_command(TARGET ${CMAKE_PROJECT_NAME}
-	POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        "${ProjectRootAbsolute}/external/windows/shared" 
-        ${OutputDirectoryAbsolute}/$<CONFIGURATION>)
+
+# --- DEBUG COPY PASTE ---
+#message("|||--- TEST ---||| ${var}")
