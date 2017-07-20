@@ -4,17 +4,17 @@ set(CMAKE_CONFIGURATION_TYPES Debug Release)
 # Project name
 project(MEngine CXX)
 
-# Variable declarations
+# OS Name
 string(TOLOWER ${CMAKE_SYSTEM_NAME} OperatingSystemNameLowerCase)
+
+# Root directory
+set(ProjectRoot ${MEngine_SOURCE_DIR}/../)
+get_filename_component(ProjectRootAbsolute ${ProjectRoot} ABSOLUTE)
 
 # Visual Studio settings
 if(MSVC)
 	SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /D \"_CRT_SECURE_NO_WARNINGS\"")
 endif(MSVC)
-
-# Root directory
-set(ProjectRoot ${MEngine_SOURCE_DIR}/../)
-get_filename_component(ProjectRootAbsolute ${ProjectRoot} ABSOLUTE)
 
 # Include directory
 file(RELATIVE_PATH IncludeDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/include)
