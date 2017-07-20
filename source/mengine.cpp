@@ -1,16 +1,17 @@
 #include "interface\mengine.h"
-#include "mengineData.h"
 
-#include <cassert>
 #include <iostream>
 #include <SDL.h>
+
+#include "mengineAssert.h"
+#include "mengineData.h"
 
 bool Initialized = false;
 bool QuitRequested = false;
 
 bool MEngine::Initialize()
 {
-	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
+	assert(!IsInitialized() && "Calling MEngine::Initialize but it has already been initialized");
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
@@ -38,7 +39,7 @@ bool MEngine::Initialize()
 
 void MEngine::Shutdown()
 {
-	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
+	ASSERT_MEngine_INITIALIZED
 
 	Initialized = false;
 	SDL_Quit();
@@ -56,6 +57,8 @@ bool MEngine::ShouldQuit()
 
 void MEngine::Update()
 {
+	ASSERT_MEngine_INITIALIZED
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0)
 	{
@@ -66,6 +69,8 @@ void MEngine::Update()
 
 void MEngine::Render()
 {
+	ASSERT_MEngine_INITIALIZED
+
 	SDL_RenderClear(g_SDLData.Renderer);
 	SDL_RenderPresent(g_SDLData.Renderer);
 }
