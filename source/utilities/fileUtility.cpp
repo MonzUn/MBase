@@ -6,7 +6,6 @@
 #include "windowsInclude.h"
 
 #include <string>
-
 #include <direct.h>
 
 bool MEngineFileUtility::CreateFolder(const char* directoryPath)

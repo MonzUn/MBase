@@ -1,12 +1,10 @@
 #include "interface/mengine.h"
-
-#include "interface/mengineLog.h"
 #include "mengineData.h"
 #include "mengineLogInternal.h"
-
+#include "interface/mengineLog.h"
+#include <SDL.h>
 #include <cassert>
 #include <iostream>
-#include <SDL.h>
 
 #define MENGINE_LOG_CATEGORY_GENERAL "MEngine"
 
