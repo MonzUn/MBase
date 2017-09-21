@@ -16,7 +16,7 @@ namespace
 	bool QuitRequested = false;
 }
 
-bool MEngine::Initialize()
+bool MEngine::Initialize(const char* appName = "MEngineApp")
 {
 	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
 
@@ -29,15 +29,15 @@ bool MEngine::Initialize()
 		return false;
 	}
 
-	g_SDLData.Window = SDL_CreateWindow("BamboBlocks", 100, 100, 640, 480, SDL_WINDOW_SHOWN);
-	if (g_SDLData.Window == nullptr)
+	SDLData::GetInstance().Window = SDL_CreateWindow(appName, 100, 100, 640, 480, SDL_WINDOW_SHOWN);
+	if (SDLData::GetInstance().Window == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GENERAL);
 		return false;
 	}
 
-	g_SDLData.Renderer = SDL_CreateRenderer(g_SDLData.Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (g_SDLData.Renderer == nullptr)
+	SDLData::GetInstance().Renderer = SDL_CreateRenderer(SDLData::GetInstance().Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (SDLData::GetInstance().Renderer == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GENERAL);
 		return false;
@@ -82,6 +82,6 @@ void MEngine::Update()
 
 void MEngine::Render()
 {
-	SDL_RenderClear(g_SDLData.Renderer);
-	SDL_RenderPresent(g_SDLData.Renderer);
+	SDL_RenderClear(SDLData::GetInstance().Renderer);
+	SDL_RenderPresent(SDLData::GetInstance().Renderer);
 }

@@ -4,10 +4,13 @@
 struct SDL_Window;
 struct SDL_Renderer;
 
-struct SDLData
+class SDLData
 {
-	SDL_Window*			Window 		= nullptr;
-	SDL_Renderer*		Renderer 	= nullptr;
-};
+public:
+	static SDLData& GetInstance() { static SDLData instance; return instance; };
 
-SDLData g_SDLData;
+	SDL_Window*			Window		= nullptr;
+	SDL_Renderer*		Renderer	= nullptr;
+private:
+	SDLData() {};
+};

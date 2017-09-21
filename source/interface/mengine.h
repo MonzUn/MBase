@@ -2,7 +2,7 @@
 
 namespace MEngine
 {
-	bool				Initialize();
+	bool				Initialize(const char* appName);
 	void				Shutdown();
 	
 	bool				IsInitialized();
