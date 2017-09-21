@@ -1,8 +1,6 @@
 #include "interface/mengineLog.h"
-
 #include "mengineLogInternal.h"
 #include "utilities/fileUtility.h"
-
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -39,7 +37,7 @@ void MEngineLog::RegisterCategory(const char* categoryName, MEngineLogLevel::Log
 {
 	if (Logs.find(categoryName) != Logs.end())
 	{
-		MLOG_WARNING("Attempted to register logger category \"" + std::string(categoryName) + "\" multiple times; call ignored", MENGINE_LOG_CATEGORY_LOG);
+		MLOG_WARNING("Attempted to register logger category \"" << std::string(categoryName) + "\" multiple times; call ignored", MENGINE_LOG_CATEGORY_LOG);
 		return;
 	}
 
@@ -51,7 +49,7 @@ void MEngineLog::Log(const std::string& message, const std::string& category, ME
 	const auto iterator = Logs.find(category);
 	if (iterator == Logs.end())
 	{
-		MLOG_WARNING("Unregistered logging category \"" + category + "\" supplied; call ignored", MENGINE_LOG_CATEGORY_LOG);
+		MLOG_WARNING("Unregistered logging category \"" << category << "\" supplied; call ignored", MENGINE_LOG_CATEGORY_LOG);
 		return;
 	}
 
@@ -91,7 +89,6 @@ void MEngineLog::Log(const std::string& message, const std::string& category, ME
 	default:
 		MLOG_WARNING("Invalid logMode supplied; call ignored", MENGINE_LOG_CATEGORY_LOG);
 		return;
-		break;
 	}
 
 	const std::string fullMessage = localStream.str();
