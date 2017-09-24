@@ -8,24 +8,25 @@
 
 #define MENGINE_LOG_CATEGORY_LOG "MEngineLog"
 
-namespace
+struct MEngineLogValuePair
 {
-	struct MEngineLogValuePair
-	{
-		MEngineLogValuePair(MEngineLogLevel::LogLevel initialInterestLevels) : InterestLevels(initialInterestLevels) {}
+	MEngineLogValuePair(MEngineLogLevel::LogLevel initialInterestLevels) : InterestLevels(initialInterestLevels) {}
 
-		MEngineLogLevel::LogLevel	InterestLevels;
-		std::stringstream			Log;
-	};
+	MEngineLogLevel::LogLevel	InterestLevels;
+	std::stringstream			Log;
+};
 
-	std::unordered_map<std::string, MEngineLogValuePair> Logs;
-	std::stringstream MainLog;
-	std::stringstream FullInterestLog;
-}
+std::unordered_map<std::string, MEngineLogValuePair> Logs;
+std::stringstream MainLog;
+std::stringstream FullInterestLog;
+
+typedef std::unordered_map<std::string, MEngineLogValuePair>::iterator LogMapIterator;
+
+LogMapIterator RegisterCategory(const char* categoryName, MEngineLogLevel::LogLevel initialInterestLevels);
 
 void MEngineLog::Initialize()
 {
-	RegisterCategory(MENGINE_LOG_CATEGORY_LOG);
+	
 }
 
 void MEngineLog::Shutdown()
@@ -33,25 +34,20 @@ void MEngineLog::Shutdown()
 	FlushToDisk();
 }
 
-void MEngineLog::RegisterCategory(const char* categoryName, MEngineLogLevel::LogLevel initialInterestLevels)
+void MEngineLog::SetInterest(const std::string& category, MEngineLogLevel::LogLevel newInterestLevels)
 {
-	if (Logs.find(categoryName) != Logs.end())
-	{
-		MLOG_WARNING("Attempted to register logger category \"" << std::string(categoryName) + "\" multiple times; call ignored", MENGINE_LOG_CATEGORY_LOG);
-		return;
-	}
+	LogMapIterator iterator = Logs.find(category);
+	if (iterator == Logs.end())
+		iterator = RegisterCategory(category.c_str(), MEngineLogLevel::ALL); // If the category is not yet registered; register it.
 
-	Logs.emplace(categoryName, initialInterestLevels);
+	iterator->second.InterestLevels = newInterestLevels;
 }
 
 void MEngineLog::Log(const std::string& message, const std::string& category, MEngineLogLevel::LogLevel logLevel, MEngineLogMode logMode, const char* file, const char* line, const char* functionName)
 {
-	const auto iterator = Logs.find(category);
+	LogMapIterator iterator = Logs.find(category);
 	if (iterator == Logs.end())
-	{
-		MLOG_WARNING("Unregistered logging category \"" << category << "\" supplied; call ignored", MENGINE_LOG_CATEGORY_LOG);
-		return;
-	}
+		iterator = RegisterCategory(category.c_str(), MEngineLogLevel::ALL); // If the category is not yet registered; register it.
 
 	std::stringstream localStream;
 
@@ -132,4 +128,15 @@ void MEngineLog::FlushToDisk()
 			outStream.close();
 		}
 	}
+}
+
+LogMapIterator RegisterCategory(const char* categoryName, MEngineLogLevel::LogLevel initialInterestLevels)
+{
+	if (Logs.find(categoryName) != Logs.end())
+	{
+		MLOG_WARNING("Attempted to register logger category \"" << std::string(categoryName) + "\" multiple times; call ignored", MENGINE_LOG_CATEGORY_LOG);
+		return Logs.end();
+	}
+
+	return Logs.emplace(categoryName, initialInterestLevels).first;
 }

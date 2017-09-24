@@ -1,5 +1,6 @@
 #include "interface/mengine.h"
 #include "mengineData.h"
+#include "mengineGraphicsInternal.h"
 #include "mengineLogInternal.h"
 #include "interface/mengineLog.h"
 #include <SDL.h>
@@ -19,7 +20,6 @@ bool MEngine::Initialize(const char* appName = "MEngineApp")
 	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
 
 	MEngineLog::Initialize();
-	MEngineLog::RegisterCategory(MENGINE_LOG_CATEGORY_GENERAL);
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{

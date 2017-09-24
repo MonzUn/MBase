@@ -58,7 +58,7 @@ namespace MEngineLog
 	static std::stringstream InputStream; // Do not use externally! Only used for MEngine logging macros
 #endif
 
-	void RegisterCategory(const char* categoryName, MEngineLogLevel::LogLevel initialLogLevel = MEngineLogLevel::ALL);
+	void SetInterest(const std::string& category, MEngineLogLevel::LogLevel newInterestLevels);
 	void Log(const std::string& message, const std::string& category, MEngineLogLevel::LogLevel logLevel, MEngineLogMode logMode = MEngineLogMode::Normal, const char* file = nullptr, const char* line = nullptr, const char* functionName = nullptr);
 	void FlushToDisk();
 }
