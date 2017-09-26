@@ -9,11 +9,8 @@
 
 #define MENGINE_LOG_CATEGORY_GENERAL "MEngine"
 
-namespace
-{
-	bool Initialized = false;
-	bool QuitRequested = false;
-}
+bool Initialized = false;
+bool QuitRequested = false;
 
 bool MEngine::Initialize(const char* appName = "MEngineApp")
 {
@@ -81,5 +78,6 @@ void MEngine::Update()
 void MEngine::Render()
 {
 	SDL_RenderClear(SDLData::GetInstance().Renderer);
+	MEngineGraphics::RenderEntities();
 	SDL_RenderPresent(SDLData::GetInstance().Renderer);
 }
