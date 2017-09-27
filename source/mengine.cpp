@@ -1,5 +1,4 @@
 #include "interface/mengine.h"
-#include "mengineData.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineLogInternal.h"
 #include "interface/mengineLog.h"
@@ -12,7 +11,7 @@
 bool Initialized = false;
 bool QuitRequested = false;
 
-bool MEngine::Initialize(const char* appName = "MEngineApp")
+bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
 {
 	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
 
@@ -24,17 +23,9 @@ bool MEngine::Initialize(const char* appName = "MEngineApp")
 		return false;
 	}
 
-	SDLData::GetInstance().Window = SDL_CreateWindow(appName, 100, 100, 640, 480, SDL_WINDOW_SHOWN);
-	if (SDLData::GetInstance().Window == nullptr)
+	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GENERAL);
-		return false;
-	}
-
-	SDLData::GetInstance().Renderer = SDL_CreateRenderer(SDLData::GetInstance().Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (SDLData::GetInstance().Renderer == nullptr)
-	{
-		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("Failed to initialize MEngineGraphics; program will close", MENGINE_LOG_CATEGORY_GENERAL);
 		return false;
 	}
 
@@ -77,7 +68,5 @@ void MEngine::Update()
 
 void MEngine::Render()
 {
-	SDL_RenderClear(SDLData::GetInstance().Renderer);
-	MEngineGraphics::RenderEntities();
-	SDL_RenderPresent(SDLData::GetInstance().Renderer);
+	MEngineGraphics::Render();
 }

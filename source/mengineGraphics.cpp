@@ -99,8 +99,8 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
 		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
 		// Convert surface to display format
-		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(SDLData::GetInstance().Window), NULL);
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(SDLData::GetInstance().Renderer, convertedSurface);
+		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
 		
 		MEngineTextureID ID = MEngineGraphics::AddTexture(texture);
 
@@ -115,6 +115,25 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
 #endif
 }
 
+bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
+{
+	Window = SDL_CreateWindow(appName, 100, 100, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
+	if (Window == nullptr)
+	{
+		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GRAPHICS);
+		return false;
+	}
+
+	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (Renderer == nullptr)
+	{
+		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GRAPHICS);
+		return false;
+	}
+
+	return true;
+}
+
 MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture)
 {
 	MEngineTextureID ID = GetNextTextureID();
@@ -123,12 +142,19 @@ MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture)
 	return ID;
 }
 
+void MEngineGraphics::Render()
+{
+	SDL_RenderClear(Renderer);
+	RenderEntities();
+	SDL_RenderPresent(Renderer);
+}
+
 void MEngineGraphics::RenderEntities()
 {
 	const std::vector<MEngineObject*>& entites = MEngineEntityManager::GetEntities();
 	for (int i = 0; i < entites.size(); ++i)
 	{
-		int result = SDL_RenderCopy(SDLData::GetInstance().Renderer, Textures[entites[i]->TextureID]->texture, nullptr, nullptr);
+		int result = SDL_RenderCopy(Renderer, Textures[entites[i]->TextureID]->texture, nullptr, nullptr);
 		if (result != 0)
 			MLOG_WARNING("Failed to render texture with ID: " << entites[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n" , "MENGINE_LOG_CATEGORY_GRAPHICS");
 	}

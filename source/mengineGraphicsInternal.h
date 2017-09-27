@@ -1,5 +1,4 @@
 #pragma once
-#include "mengineData.h"
 #include "interface/mengineGraphics.h"
 #include <SDL.h>
 #include <vector>
@@ -22,7 +21,12 @@ namespace MEngineGraphics
 		int32_t			access;
 	};
 
+	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
 	MEngineTextureID AddTexture(SDL_Texture* texture);
 
+	void Render();
 	void RenderEntities();
+
+	static SDL_Window*			Window = nullptr;
+	static SDL_Renderer*		Renderer = nullptr;
 }
