@@ -34,7 +34,7 @@ void MEngineInput::SetFocusRequired(bool required)
 
 	if (!required)
 	{
-		if (hook = SetWindowsHookEx(WH_KEYBOARD_LL, HookCallback, NULL, 0))
+		if (hook = SetWindowsHookEx(WH_KEYBOARD, HookCallback, NULL, 0))
 			windowFocusRequired = false;
 		else
 			MLOG_ERROR("Failed to initialize non focus key input mode", MENGINE_LOG_CATEGORY_INPUT);
