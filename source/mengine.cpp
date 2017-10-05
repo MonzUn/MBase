@@ -1,6 +1,7 @@
 #include "interface/mengine.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineLogInternal.h"
+#include "mengineInputInternal.h"
 #include "interface/mengineLog.h"
 #include <SDL.h>
 #include <cassert>
@@ -28,6 +29,8 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		MLOG_ERROR("Failed to initialize MEngineGraphics; program will close", MENGINE_LOG_CATEGORY_GENERAL);
 		return false;
 	}
+
+	MEngineInput::Initialize();
 
 	MLOG_INFO("MEngine initialized successfully", MENGINE_LOG_CATEGORY_GENERAL);
 
@@ -64,6 +67,8 @@ void MEngine::Update()
 		if (event.type == SDL_QUIT)
 			QuitRequested = true;
 	};
+
+	MEngineInput::Update();
 }
 
 void MEngine::Render()
