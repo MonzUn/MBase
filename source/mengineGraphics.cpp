@@ -90,6 +90,15 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
 			pixelsWalker -= bytesPerRow;
 		}
 
+		// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
+		BYTE temp;
+		for (unsigned int i = 0; i < header.biSizeImage; i += 4)
+		{
+			temp = flippedPixels[i];
+			flippedPixels[i] = flippedPixels[i + 2];
+			flippedPixels[i + 2] = temp;
+		}
+
 		// Copy bits onto the surface
 		if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 		memcpy(surface->pixels, flippedPixels, header.biSizeImage);
