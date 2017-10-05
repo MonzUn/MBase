@@ -52,8 +52,7 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
 		int32_t screenWidth		= GetSystemMetrics(SM_CXSCREEN);
 		int32_t screenHeight	= GetSystemMetrics(SM_CYSCREEN);
 
-		HWND	desktopWindow			= GetDesktopWindow();
-		HDC		desktopDeviceContext	= GetDC(desktopWindow);
+		HDC		desktopDeviceContext	= GetDC(nullptr);
 		HDC		captureDeviceContext	= CreateCompatibleDC(desktopDeviceContext);
 
 		// Take screenshot
