@@ -3,11 +3,8 @@
 #include "interface/mengineLog.h"
 #include "interface/mengineObject.h"
 #include "utilities/platformDefinitions.h"
-#include <SDL.h>
-
-#if PLATFORM == PLATFORM_WINDOWS
 #include "utilities/windowsInclude.h"
-#endif
+#include <SDL.h>
 
 using namespace MEngineGraphics;
 
@@ -154,9 +151,12 @@ void MEngineGraphics::RenderEntities()
 	const std::vector<MEngineObject*>& entites = MEngineEntityManager::GetEntities();
 	for (int i = 0; i < entites.size(); ++i)
 	{
-		int result = SDL_RenderCopy(Renderer, Textures[entites[i]->TextureID]->texture, nullptr, nullptr);
-		if (result != 0)
-			MLOG_WARNING("Failed to render texture with ID: " << entites[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n" , "MENGINE_LOG_CATEGORY_GRAPHICS");
+		if (entites[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
+		{
+			int result = SDL_RenderCopy(Renderer, Textures[entites[i]->TextureID]->texture, nullptr, nullptr);
+			if (result != 0)
+				MLOG_WARNING("Failed to render texture with ID: " << entites[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", "MENGINE_LOG_CATEGORY_GRAPHICS");
+		}
 	}
 }
 

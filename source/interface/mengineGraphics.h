@@ -2,7 +2,7 @@
 #include <cstdint>
 #include <string>
 
-#define INVALID_MENGINE_TEXTURE_ID -1;
+#define INVALID_MENGINE_TEXTURE_ID -1
 
 namespace MEngineGraphics
 {
