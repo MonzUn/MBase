@@ -156,14 +156,20 @@ void MEngineGraphics::Render()
 
 void MEngineGraphics::RenderEntities()
 {
-	const std::vector<MEngineObject*>& entites = MEngineEntityManager::GetEntities();
-	for (int i = 0; i < entites.size(); ++i)
+	const std::vector<MEngineObject*>& entities = MEngineEntityManager::GetEntities();
+	for (int i = 0; i < entities.size(); ++i)
 	{
-		if (entites[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
+		if (entities[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
 		{
-			int result = SDL_RenderCopy(Renderer, Textures[entites[i]->TextureID]->texture, nullptr, nullptr);
+			SDL_Rect destinationRect = SDL_Rect();
+			destinationRect.x = entities[i]->PosX;
+			destinationRect.y = entities[i]->PosY;
+			destinationRect.w = entities[i]->Width;
+			destinationRect.h = entities[i]->Height;
+
+			int result = SDL_RenderCopy(Renderer, Textures[entities[i]->TextureID]->texture, nullptr, &destinationRect);
 			if (result != 0)
-				MLOG_WARNING("Failed to render texture with ID: " << entites[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", "MENGINE_LOG_CATEGORY_GRAPHICS");
+				MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", "MENGINE_LOG_CATEGORY_GRAPHICS");
 		}
 	}
 }
