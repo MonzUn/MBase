@@ -1,6 +1,6 @@
 #include "interface/mengineLog.h"
 #include "mengineLogInternal.h"
-#include "utilities/fileUtility.h"
+#include <MUtilityFile.h>
 #include <fstream>
 #include <iostream>
 #include <sstream>
@@ -101,7 +101,7 @@ void MEngineLog::Log(const std::string& message, const std::string& category, ME
 
 void MEngineLog::FlushToDisk()
 {
-	MEngineFileUtility::CreateFolder("logs");
+	MUtilityFile::CreateFolder("logs");
 
 	std::ofstream outStream;
 	outStream.open("logs/mainLog.txt", std::ofstream::out | std::ofstream::trunc);
@@ -118,7 +118,7 @@ void MEngineLog::FlushToDisk()
 		outStream.close();
 	}
 
-	MEngineFileUtility::CreateFolder("logs/categories");
+	MUtilityFile::CreateFolder("logs/categories");
 	for (auto it = Logs.begin(); it != Logs.end(); ++it)
 	{
 		outStream.open("logs/categories/" + it->first + ".txt", std::ofstream::out | std::ofstream::trunc);

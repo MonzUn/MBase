@@ -1,6 +1,6 @@
 #pragma once
 
-namespace MEngineFileUtility
+namespace MUtilityFile
 {
 	bool CreateFolder(const char* directoryPath);
 }

@@ -1,7 +1,7 @@
 #include "mengineInputInternal.h"
 #include "interface/mengineLog.h"
-#include "utilities/platformDefinitions.h"
-#include "utilities/windowsInclude.h"
+#include <MUtilityPlatformDefinitions.h>
+#include <MUtilityWindowsInclude.h>
 #include <unordered_map>
 
 using namespace MEngineInput;

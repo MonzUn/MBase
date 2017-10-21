@@ -47,13 +47,25 @@ find_library(SDL2mainLibrary
 	PATHS ${SDL2LibraryDirectoryAbsolute})
 list(APPEND SDL2Libraries ${SDL2mainLibrary})
 
+# Find MUtility
+find_path(MUtilityInclude MUtility/MUtilityByte.h PATHS ${IncludeDirectoryAbsolute})
+set(MUtilityIncludes ${MUtilityInclude}/MUtility)
+
+set(MUtilityLibraryDirectoryAbsolute "${LibraryDirectoryAbsolute}/MUtility")
+find_library(MUtilityLibrary
+	NAMES MUtility
+	PATHS ${MUtilityLibraryDirectoryAbsolute})
+set(MUtilityLibraries ${MUtilityLibrary})
+
 # Set lib and include directories
 link_directories(
 	"${LibraryDirectoryRelative}/SDL2"
+	${MUtilityLibraries}
 )
 
 include_directories(
 	${SDL2Includes}
+	${MUtilityIncludes}
 )
 
 # List source file directories
@@ -73,7 +85,25 @@ set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 # Link libraries to the output lib
 target_link_libraries(${CMAKE_PROJECT_NAME} ${SDL2Libraries})
 
+# Get local(non versioned) paths to dependencies
+include("CMakeLocalDependenciesPaths.txt" OPTIONAL)
 
+# Add prebuilds scripts that copies local dependencies to their place within the project
+if(MUtilityIncludeCopyPath)
+	add_custom_command(TARGET ${CMAKE_PROJECT_NAME}
+	PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${MUtilityIncludeCopyPath}
+        ${MUtilityIncludes})
+endif(MUtilityIncludeCopyPath)
+
+if(MUtilityLibCopyPath)
+	add_custom_command(TARGET ${CMAKE_PROJECT_NAME}
+	PRE_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${MUtilityLibCopyPath}
+        ${MUtilityLibraryDirectoryAbsolute})
+endif(MUtilityLibCopyPath)
 
 # --- DEBUG COPY PASTE ---
 #message("|||--- TEST ---||| ${var}")

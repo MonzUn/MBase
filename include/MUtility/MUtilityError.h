@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace MEngineErrorUtility
+namespace MUtilityError
 {
 	std::string Error;
 }

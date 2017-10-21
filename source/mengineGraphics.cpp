@@ -2,8 +2,8 @@
 #include "mengineEntityManagerInternal.h"
 #include "interface/mengineLog.h"
 #include "interface/mengineObject.h"
-#include "utilities/platformDefinitions.h"
-#include "utilities/windowsInclude.h"
+#include <MUtilityPlatformDefinitions.h>
+#include <MUtilityWindowsInclude.h>
 #include <SDL.h>
 
 using namespace MEngineGraphics;
