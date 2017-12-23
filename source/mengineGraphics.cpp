@@ -9,6 +9,7 @@
 using namespace MEngineGraphics;
 
 #define MENGINE_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
+#define BYTES_PER_PIXEL 4
 
 std::vector<MEngineTexture*> Textures;
 std::vector<MEngineTextureID> RecycledIDs;
@@ -20,7 +21,6 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	MEngineTexture* texture = Textures[textureID];
 	if (texture != nullptr)
 	{
-		SDL_DestroyTexture(texture->texture);
 		delete texture;
 		texture = nullptr;
 		RecycledIDs.push_back(textureID);
@@ -44,7 +44,40 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	}
 }
 
-MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
+MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineTextureData& textureData, bool storeCopyInRAM)
+{
+	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, textureData.Width, textureData.Height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+	memcpy(surface->pixels, textureData.Pixels, textureData.Height * textureData.Width * BYTES_PER_PIXEL);
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+
+	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+
+	// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
+	BYTE* pixelBytes = static_cast<BYTE*>(convertedSurface->pixels);
+	int32_t byteCount = convertedSurface->w * convertedSurface->h * BYTES_PER_PIXEL;
+	BYTE swap;
+	for (int i = 0; i < byteCount; i += BYTES_PER_PIXEL)
+	{ 
+		swap = pixelBytes[i];
+		pixelBytes[i] = pixelBytes[i + 2];
+		pixelBytes[i + 2] = swap;
+	}
+
+	SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
+
+	MEngineTextureID ID = MEngineGraphics::AddTexture(texture, (storeCopyInRAM ? convertedSurface : nullptr));
+
+	if (!storeCopyInRAM)
+		SDL_FreeSurface(convertedSurface);
+
+	SDL_FreeSurface(surface);
+
+	return ID;
+}
+
+MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 {
 #if PLATFORM != PLATFORM_WINDOWS
 		static_assert(false, "CaptureScreen is only supported on the windows platform");
@@ -91,7 +124,7 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
 
 		// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
 		BYTE temp;
-		for (unsigned int i = 0; i < header.biSizeImage; i += 4)
+		for (unsigned int i = 0; i < header.biSizeImage; i += BYTES_PER_PIXEL)
 		{
 			temp = flippedPixels[i];
 			flippedPixels[i] = flippedPixels[i + 2];
@@ -106,18 +139,36 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture()
 		// Convert surface to display format
 		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
-		
-		MEngineTextureID ID = MEngineGraphics::AddTexture(texture);
+
+		MEngineTextureID ID = MEngineGraphics::AddTexture(texture, (storeCopyInRAM ? convertedSurface : nullptr) );
 
 		// Cleanup
 		DeleteDC(desktopDeviceContext);
 		DeleteDC(captureDeviceContext);
 		delete[] pixels;
 		delete[] flippedPixels;
+
+		if(!storeCopyInRAM)
+			SDL_FreeSurface(convertedSurface);
+
 		SDL_FreeSurface(surface);
 
 		return ID;
 #endif
+}
+
+const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textureID)
+{
+	MEngineTextureData toReturn;
+	MEngineTexture* texture = nullptr;
+	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID < static_cast<int64_t>(Textures.size()))
+	{
+		toReturn = MEngineTextureData(Textures[textureID]->surface->w, Textures[textureID]->surface->h, Textures[textureID]->surface->pixels);
+	}
+	else
+		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MENGINE_LOG_CATEGORY_GRAPHICS);
+
+	return toReturn;
 }
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
@@ -139,10 +190,10 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 	return true;
 }
 
-MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture)
+MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy)
 {
 	MEngineTextureID ID = GetNextTextureID();
-	MEngineTexture* texture = new MEngineTexture(sdlTexture);
+	MEngineTexture* texture = new MEngineTexture(sdlTexture, optionalSurfaceCopy);
 	ID >= static_cast<int64_t>(Textures.size()) ? Textures.push_back(texture) : Textures[ID] = texture;
 	return ID;
 }
