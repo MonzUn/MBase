@@ -5,6 +5,11 @@ namespace MEngineInput
 	enum MEngineKey
 	{
 		MKey_TAB,
+		MKey_CONTROL,
+		MKey_ALT,
+		MKey_GRAVE,
+
+		MKey_T,
 
 		MKEY_COUNT // Not a key but the amount of entries in the enum
 	};
