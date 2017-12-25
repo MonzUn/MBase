@@ -1,14 +1,14 @@
 #include "interface/mengineEntityManager.h"
-#include "mengineEntityManagerInternal.h"
-#include "interface/mengineLog.h"
 #include "interface/mengineObject.h"
+#include "mengineEntityManagerInternal.h"
+#include <MUtilityLog.h>
 
 using namespace MEngineEntityManager;
 
 std::vector<MEngineObject*> Entities;
 std::vector<MEngineEntityID> RecycledIDs;
 
-#define MENGINE_LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
+#define MUTILITY_LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
 
 // Forward declaration
 MEngineEntityID GetNextEntityID();
@@ -44,9 +44,9 @@ void MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 		}
 
 		if (isRecycled)
-			MLOG_WARNING("Attempted to destroy entity with ID " << entityID << " but the entity with that ID has already been destroyed", MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+			MLOG_WARNING("Attempted to destroy entity with ID " << entityID << " but the entity with that ID has already been destroyed", MUTILITY_LOG_CATEGORY_ENTITY_MANAGER);
 		else
-			MLOG_WARNING("Attempted to destroy entity with ID " << entityID << " but no entity with that ID exists", MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+			MLOG_WARNING("Attempted to destroy entity with ID " << entityID << " but no entity with that ID exists", MUTILITY_LOG_CATEGORY_ENTITY_MANAGER);
 	}
 }
 

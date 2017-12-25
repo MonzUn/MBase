@@ -1,13 +1,12 @@
 #include "interface/mengine.h"
 #include "mengineGraphicsInternal.h"
-#include "mengineLogInternal.h"
 #include "mengineInputInternal.h"
-#include "interface/mengineLog.h"
+#include <MUtilityLog.h>
 #include <SDL.h>
 #include <cassert>
 #include <iostream>
 
-#define MENGINE_LOG_CATEGORY_GENERAL "MEngine"
+#define MUTILITY_LOG_CATEGORY_GENERAL "MEngine"
 
 bool Initialized = false;
 bool QuitRequested = false;
@@ -16,23 +15,23 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 {
 	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
 
-	MEngineLog::Initialize();
+	MUtilityLog::Initialize();
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()) + "; program will close", MUTILITY_LOG_CATEGORY_GENERAL);
 		return false;
 	}
 
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
-		MLOG_ERROR("Failed to initialize MEngineGraphics; program will close", MENGINE_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("Failed to initialize MEngineGraphics; program will close", MUTILITY_LOG_CATEGORY_GENERAL);
 		return false;
 	}
 
 	MEngineInput::Initialize();
 
-	MLOG_INFO("MEngine initialized successfully", MENGINE_LOG_CATEGORY_GENERAL);
+	MLOG_INFO("MEngine initialized successfully", MUTILITY_LOG_CATEGORY_GENERAL);
 
 	Initialized = true;
 	return true;
@@ -45,8 +44,8 @@ void MEngine::Shutdown()
 	Initialized = false;
 	SDL_Quit();
 
-	MLOG_INFO("MEngine terminated gracefully", MENGINE_LOG_CATEGORY_GENERAL);
-	MEngineLog::Shutdown();
+	MLOG_INFO("MEngine terminated gracefully", MUTILITY_LOG_CATEGORY_GENERAL);
+	MUtilityLog::Shutdown();
 }
 
 bool MEngine::IsInitialized()

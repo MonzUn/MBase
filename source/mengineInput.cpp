@@ -1,12 +1,12 @@
 #include "mengineInputInternal.h"
-#include "interface/mengineLog.h"
+#include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
 #include <unordered_map>
 
 using namespace MEngineInput;
 
-#define MENGINE_LOG_CATEGORY_INPUT "MEngineInput"
+#define MUTILITY_LOG_CATEGORY_INPUT "MEngineInput"
 
 bool windowFocusRequired = true;
 bool pressedKeys[MEngineKey::MKEY_COUNT] = { false };
@@ -37,7 +37,7 @@ void MEngineInput::SetFocusRequired(bool required)
 		if (hook = SetWindowsHookEx(WH_KEYBOARD_LL, HookCallback, NULL, 0))
 			windowFocusRequired = false;
 		else
-			MLOG_ERROR("Failed to initialize non focus key input mode", MENGINE_LOG_CATEGORY_INPUT);
+			MLOG_ERROR("Failed to initialize non focus key input mode", MUTILITY_LOG_CATEGORY_INPUT);
 	}
 	else
 	{

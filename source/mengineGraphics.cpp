@@ -1,8 +1,8 @@
 #include "mengineGraphicsInternal.h"
 #include "mengineEntityManagerInternal.h"
 #include "sdlLock.h"
-#include "interface/mengineLog.h"
 #include "interface/mengineObject.h"
+#include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
 #include <SDL.h>
@@ -10,7 +10,7 @@
 
 using namespace MEngineGraphics;
 
-#define MENGINE_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
+#define MUTILITY_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
 std::vector<MEngineTexture*> Textures;
 std::mutex TextureLock;
@@ -40,9 +40,9 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 		}
 
 		if (isRecycled)
-			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", MENGINE_LOG_CATEGORY_GRAPHICS);
+			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", MUTILITY_LOG_CATEGORY_GRAPHICS);
 		else
-			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", MENGINE_LOG_CATEGORY_GRAPHICS);
+			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", MUTILITY_LOG_CATEGORY_GRAPHICS);
 	}
 }
 
@@ -182,7 +182,7 @@ const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textur
 		toReturn = MEngineTextureData(Textures[textureID]->surface->w, Textures[textureID]->surface->h, Textures[textureID]->surface->pixels);
 	}
 	else
-		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MENGINE_LOG_CATEGORY_GRAPHICS);
+		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
 
 	TextureLock.unlock();
 	return toReturn;
@@ -193,14 +193,14 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 	Window = SDL_CreateWindow(appName, 100, 100, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
 	if (Window == nullptr)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GRAPHICS);
+		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
 
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == nullptr)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()) + "; program will close", MENGINE_LOG_CATEGORY_GRAPHICS);
+		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
 
@@ -243,7 +243,7 @@ void MEngineGraphics::RenderEntities()
 
 			int result = SDL_RenderCopy(Renderer, Textures[entities[i]->TextureID]->texture, nullptr, &destinationRect);
 			if (result != 0)
-				MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", "MENGINE_LOG_CATEGORY_GRAPHICS");
+				MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
 		}
 	}
 	TextureLock.unlock();
