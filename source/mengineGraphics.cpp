@@ -9,7 +9,6 @@
 using namespace MEngineGraphics;
 
 #define MENGINE_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
-#define BYTES_PER_PIXEL 4
 
 std::vector<MEngineTexture*> Textures;
 std::vector<MEngineTextureID> RecycledIDs;
@@ -49,16 +48,16 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, textureData.Width, textureData.Height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
-	memcpy(surface->pixels, textureData.Pixels, textureData.Height * textureData.Width * BYTES_PER_PIXEL);
+	memcpy(surface->pixels, textureData.Pixels, textureData.Width * textureData.Height * MENGINE_BYTES_PER_PIXEL);
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
 	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
 
 	// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
 	BYTE* pixelBytes = static_cast<BYTE*>(convertedSurface->pixels);
-	int32_t byteCount = convertedSurface->w * convertedSurface->h * BYTES_PER_PIXEL;
+	int32_t byteCount = convertedSurface->w * convertedSurface->h * MENGINE_BYTES_PER_PIXEL;
 	BYTE swap;
-	for (int i = 0; i < byteCount; i += BYTES_PER_PIXEL)
+	for (int i = 0; i < byteCount; i += MENGINE_BYTES_PER_PIXEL)
 	{ 
 		swap = pixelBytes[i];
 		pixelBytes[i] = pixelBytes[i + 2];
@@ -124,8 +123,8 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 
 		// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
 		BYTE temp;
-		for (unsigned int i = 0; i < header.biSizeImage; i += BYTES_PER_PIXEL)
-		{
+		for (unsigned int i = 0; i < header.biSizeImage; i += MENGINE_BYTES_PER_PIXEL)
+		{ 
 			temp = flippedPixels[i];
 			flippedPixels[i] = flippedPixels[i + 2];
 			flippedPixels[i + 2] = temp;

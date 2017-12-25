@@ -3,6 +3,7 @@
 #include <string>
 
 #define INVALID_MENGINE_TEXTURE_ID -1
+#define MENGINE_BYTES_PER_PIXEL 4  // RGBA
 
 namespace MEngineGraphics
 {
