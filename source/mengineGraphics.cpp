@@ -1,16 +1,19 @@
 #include "mengineGraphicsInternal.h"
 #include "mengineEntityManagerInternal.h"
+#include "sdlLock.h"
 #include "interface/mengineLog.h"
 #include "interface/mengineObject.h"
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
 #include <SDL.h>
+#include <mutex>
 
 using namespace MEngineGraphics;
 
 #define MENGINE_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
 std::vector<MEngineTexture*> Textures;
+std::mutex TextureLock;
 std::vector<MEngineTextureID> RecycledIDs;
 
 MEngineTextureID GetNextTextureID();
@@ -45,6 +48,7 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 
 MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineTextureData& textureData, bool storeCopyInRAM)
 {
+	SdlApiLock.lock();
 	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, textureData.Width, textureData.Height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
@@ -52,6 +56,7 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
 	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+	SdlApiLock.unlock();
 
 	// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
 	BYTE* pixelBytes = static_cast<BYTE*>(convertedSurface->pixels);
@@ -64,14 +69,18 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 		pixelBytes[i + 2] = swap;
 	}
 
+	SdlApiLock.lock();
 	SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
+	SdlApiLock.unlock();
 
 	MEngineTextureID ID = MEngineGraphics::AddTexture(texture, (storeCopyInRAM ? convertedSurface : nullptr));
 
+	SdlApiLock.lock();
 	if (!storeCopyInRAM)
 		SDL_FreeSurface(convertedSurface);
 
 	SDL_FreeSurface(surface);
+	SdlApiLock.unlock();
 
 	return ID;
 }
@@ -106,7 +115,9 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 		BYTE* pixels = new BYTE[header.biSizeImage];
 		GetDIBits(desktopDeviceContext, bitMapHandle, 0, header.biHeight, static_cast<LPVOID>(pixels), &bitMapInfo, DIB_RGB_COLORS);
 
+		SdlApiLock.lock();
 		SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, header.biWidth, header.biHeight, header.biBitCount, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+		SdlApiLock.unlock();
 
 		// The vertical orientation is reversed; flip the image upside down
 		uint32_t bytesPerRow = header.biSizeImage / header.biHeight;
@@ -130,7 +141,9 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 			flippedPixels[i + 2] = temp;
 		}
 
+
 		// Copy bits onto the surface
+		SdlApiLock.lock();
 		if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 		memcpy(surface->pixels, flippedPixels, header.biSizeImage);
 		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
@@ -138,6 +151,7 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 		// Convert surface to display format
 		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
+		SdlApiLock.unlock();
 
 		MEngineTextureID ID = MEngineGraphics::AddTexture(texture, (storeCopyInRAM ? convertedSurface : nullptr) );
 
@@ -147,10 +161,12 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 		delete[] pixels;
 		delete[] flippedPixels;
 
+		SdlApiLock.lock();
 		if(!storeCopyInRAM)
 			SDL_FreeSurface(convertedSurface);
 
 		SDL_FreeSurface(surface);
+		SdlApiLock.unlock();
 
 		return ID;
 #endif
@@ -158,6 +174,7 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 
 const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textureID)
 {
+	TextureLock.lock();
 	MEngineTextureData toReturn;
 	MEngineTexture* texture = nullptr;
 	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID < static_cast<int64_t>(Textures.size()))
@@ -167,6 +184,7 @@ const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textur
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MENGINE_LOG_CATEGORY_GRAPHICS);
 
+	TextureLock.unlock();
 	return toReturn;
 }
 
@@ -191,21 +209,27 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 
 MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy)
 {
-	MEngineTextureID ID = GetNextTextureID();
 	MEngineTexture* texture = new MEngineTexture(sdlTexture, optionalSurfaceCopy);
+
+	TextureLock.lock();
+	MEngineTextureID ID = GetNextTextureID();
 	ID >= static_cast<int64_t>(Textures.size()) ? Textures.push_back(texture) : Textures[ID] = texture;
+	TextureLock.unlock();
 	return ID;
 }
 
 void MEngineGraphics::Render()
 {
+	SdlApiLock.lock();
 	SDL_RenderClear(Renderer);
 	RenderEntities();
 	SDL_RenderPresent(Renderer);
+	SdlApiLock.unlock();
 }
 
 void MEngineGraphics::RenderEntities()
 {
+	TextureLock.lock();
 	const std::vector<MEngineObject*>& entities = MEngineEntityManager::GetEntities();
 	for (int i = 0; i < entities.size(); ++i)
 	{
@@ -222,6 +246,7 @@ void MEngineGraphics::RenderEntities()
 				MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", "MENGINE_LOG_CATEGORY_GRAPHICS");
 		}
 	}
+	TextureLock.unlock();
 }
 
 MEngineTextureID GetNextTextureID()
