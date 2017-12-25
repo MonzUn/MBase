@@ -19,13 +19,13 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()) + "; program will close", MUTILITY_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GENERAL);
 		return false;
 	}
 
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
-		MLOG_ERROR("Failed to initialize MEngineGraphics; program will close", MUTILITY_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("Failed to initialize MEngineGraphics", MUTILITY_LOG_CATEGORY_GENERAL);
 		return false;
 	}
 
