@@ -27,6 +27,8 @@ void MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 	MEngineObject* object = Entities[entityID];
 	if (object != nullptr)
 	{
+		Entities.erase(Entities.begin() + entityID);
+
 		delete object;
 		object = nullptr;
 		RecycledIDs.push_back(entityID);
