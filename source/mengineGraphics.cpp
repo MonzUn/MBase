@@ -233,7 +233,7 @@ void MEngineGraphics::RenderEntities()
 	const std::vector<MEngineObject*>& entities = MEngineEntityManager::GetEntities();
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		if (entities[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
+		if (entities[i] != nullptr && entities[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
 		{
 			SDL_Rect destinationRect = SDL_Rect();
 			destinationRect.x = entities[i]->PosX;

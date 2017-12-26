@@ -18,7 +18,10 @@ MEngineEntityID MEngineEntityManager::RegisterNewEntity(MEngineObject* entity)
 	MEngineEntityID ID = GetNextEntityID();
 	entity->EntityID = ID;
 
-	Entities.push_back(entity);
+	if (ID < Entities.size())
+		Entities[ID] = entity;
+	else
+		Entities.push_back(entity);
 	return ID;
 }
 
@@ -27,10 +30,8 @@ void MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 	MEngineObject* object = Entities[entityID];
 	if (object != nullptr)
 	{
-		Entities.erase(Entities.begin() + entityID);
-
 		delete object;
-		object = nullptr;
+		Entities[entityID] = nullptr;
 		RecycledIDs.push_back(entityID);
 	}
 	else
