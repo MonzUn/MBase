@@ -1,8 +1,11 @@
 #pragma once
 #include "interface/mengineGraphics.h"
+#include <MUtilityLocklessQueue.h>
 #include <SDL.h>
 
 using namespace MEngineGraphics;
+
+struct SurfaceToTextureJob;
 
 namespace MEngineGraphics
 {
@@ -30,11 +33,26 @@ namespace MEngineGraphics
 	};
 
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
-	MEngineTextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr);
+	MEngineTextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngineTextureID reservedTextureID = INVALID_MENGINE_TEXTURE_ID);
+	void HandleSurfaceToTextureConversions();
+	MEngineTextureID GetNextTextureID();
+
 
 	void Render();
 	void RenderEntities();
 
-	static SDL_Window*			Window = nullptr;
-	static SDL_Renderer*		Renderer = nullptr;
+	static SDL_Window*			Window		= nullptr;
+	static SDL_Renderer*		Renderer	= nullptr;
+
+	static MUtility::LocklessQueue<SurfaceToTextureJob*> SurfaceToTextureQueue;
 }
+
+struct SurfaceToTextureJob
+{
+	SurfaceToTextureJob(SDL_Surface* surface, MEngineTextureID reservedID, bool storeSurfaceInRAM) :
+		Surface(surface), ReservedID(reservedID), StoreSurfaceInRAM(storeSurfaceInRAM) {}
+
+	SDL_Surface* Surface		= nullptr;
+	MEngineTextureID ReservedID = INVALID_MENGINE_TEXTURE_ID;
+	bool StoreSurfaceInRAM		= false;
+};

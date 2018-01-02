@@ -10,9 +10,8 @@
 
 using namespace MEngineGraphics;
 
-#define MUTILITY_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
+#define MUTILITY_LOG_CATEGORY_GRAPHICS "MEngineGraphics" // TODODB: Rename this MEngine instead of MUtility
 
-MEngineTextureID GetNextTextureID();
 namespace MEngineGraphics
 {
 	std::vector<MEngineTexture*> Textures;
@@ -49,11 +48,58 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	}
 }
 
+MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineTextureData& originalTexture, int32_t upperLeftOffsetX, int32_t upperLeftOffsetY, int32_t lowerRightOffsetX, int32_t lowerRightOffsetY, bool storeCopyInRAM)
+{
+	int32_t targetWidth = lowerRightOffsetX - upperLeftOffsetX;
+	int32_t targetHeight = lowerRightOffsetY - upperLeftOffsetY;
+
+	if (targetWidth <= 0 || targetHeight <= 0)
+	{
+		MLOG_WARNING("Invalid coordinates supplied (" << upperLeftOffsetX + ',' << upperLeftOffsetY + ") (" << lowerRightOffsetX + ',' << lowerRightOffsetY + ')', MUTILITY_LOG_CATEGORY_GRAPHICS);
+		return INVALID_MENGINE_TEXTURE_ID;
+	}
+
+	SdlApiLock.lock();
+	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, targetWidth, targetHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+
+	BYTE* destinationWalker = reinterpret_cast<BYTE*>(surface->pixels);
+	const BYTE* sourceWalker = (reinterpret_cast<const BYTE*>(originalTexture.Pixels) + (((originalTexture.Width * MENGINE_BYTES_PER_PIXEL) * upperLeftOffsetY) + (upperLeftOffsetX * MENGINE_BYTES_PER_PIXEL)));
+	for (int i = upperLeftOffsetY; i < lowerRightOffsetY; ++i)
+	{
+		memcpy(destinationWalker, sourceWalker, targetWidth * MENGINE_BYTES_PER_PIXEL);
+		destinationWalker += targetWidth * MENGINE_BYTES_PER_PIXEL;
+		sourceWalker += originalTexture.Width * MENGINE_BYTES_PER_PIXEL;
+	}
+	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
+
+	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+	SdlApiLock.unlock();
+
+	// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
+	BYTE* pixelBytes = static_cast<BYTE*>(convertedSurface->pixels);
+	int32_t byteCount = convertedSurface->w * convertedSurface->h * MENGINE_BYTES_PER_PIXEL;
+	BYTE swap;
+	for (int i = 0; i < byteCount; i += MENGINE_BYTES_PER_PIXEL)
+	{
+		swap = pixelBytes[i];
+		pixelBytes[i] = pixelBytes[i + 2];
+		pixelBytes[i + 2] = swap;
+	}
+
+	MEngineTextureID reservedID = GetNextTextureID();
+	SurfaceToTextureQueue.Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
+
+	SdlApiLock.lock();
+	SDL_FreeSurface(surface);
+	SdlApiLock.unlock();
+
+	return reservedID;
+}
 MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineTextureData& textureData, bool storeCopyInRAM)
 {
 	SdlApiLock.lock();
 	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, textureData.Width, textureData.Height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
-
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 	memcpy(surface->pixels, textureData.Pixels, textureData.Width * textureData.Height * MENGINE_BYTES_PER_PIXEL);
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
@@ -66,26 +112,20 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 	int32_t byteCount = convertedSurface->w * convertedSurface->h * MENGINE_BYTES_PER_PIXEL;
 	BYTE swap;
 	for (int i = 0; i < byteCount; i += MENGINE_BYTES_PER_PIXEL)
-	{ 
+	{
 		swap = pixelBytes[i];
 		pixelBytes[i] = pixelBytes[i + 2];
 		pixelBytes[i + 2] = swap;
 	}
 
-	SdlApiLock.lock();
-	SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
-	SdlApiLock.unlock();
-
-	MEngineTextureID ID = MEngineGraphics::AddTexture(texture, (storeCopyInRAM ? convertedSurface : nullptr));
+	MEngineTextureID reservedID = GetNextTextureID();
+	SurfaceToTextureQueue.Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 	SdlApiLock.lock();
-	if (!storeCopyInRAM)
-		SDL_FreeSurface(convertedSurface);
-
 	SDL_FreeSurface(surface);
 	SdlApiLock.unlock();
 
-	return ID;
+	return reservedID;
 }
 
 MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
@@ -144,19 +184,18 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 			flippedPixels[i + 2] = temp;
 		}
 
-
 		// Copy bits onto the surface
 		SdlApiLock.lock();
-		if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
+		if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface); // TODODB: See if we really need these locks in out case
 		memcpy(surface->pixels, flippedPixels, header.biSizeImage);
 		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
 		// Convert surface to display format
 		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, convertedSurface);
 		SdlApiLock.unlock();
 
-		MEngineTextureID ID = MEngineGraphics::AddTexture(texture, (storeCopyInRAM ? convertedSurface : nullptr) );
+		MEngineTextureID reservedID = GetNextTextureID();
+		SurfaceToTextureQueue.Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 		// Cleanup
 		DeleteDC(desktopDeviceContext);
@@ -165,19 +204,17 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 		delete[] flippedPixels;
 
 		SdlApiLock.lock();
-		if(!storeCopyInRAM)
-			SDL_FreeSurface(convertedSurface);
-
 		SDL_FreeSurface(surface);
 		SdlApiLock.unlock();
 
-		return ID;
+		return reservedID;
 #endif
 }
 
 const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textureID)
 {
-	TextureLock.lock();
+	HandleSurfaceToTextureConversions();
+
 	MEngineTextureData toReturn;
 	MEngineTexture* texture = nullptr;
 	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID < static_cast<int64_t>(Textures.size()))
@@ -187,7 +224,6 @@ const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textur
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
 
-	TextureLock.unlock();
 	return toReturn;
 }
 
@@ -199,26 +235,56 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
-
+	
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
-
 	return true;
 }
 
-MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy)
+MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy, MEngineTextureID reservedTextureID)
 {
 	MEngineTexture* texture = new MEngineTexture(sdlTexture, optionalSurfaceCopy);
 
-	TextureLock.lock();
-	MEngineTextureID ID = GetNextTextureID();
+	MEngineTextureID ID = reservedTextureID == INVALID_MENGINE_TEXTURE_ID ? GetNextTextureID() : reservedTextureID;
 	ID >= static_cast<int64_t>(Textures.size()) ? Textures.push_back(texture) : Textures[ID] = texture;
-	TextureLock.unlock();
 	return ID;
+}
+
+void MEngineGraphics::HandleSurfaceToTextureConversions()
+{
+	SurfaceToTextureJob* job;
+	while (SurfaceToTextureQueue.Consume(job))
+	{
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, job->Surface );
+		MEngineGraphics::AddTexture(texture, (job->StoreSurfaceInRAM ? job->Surface : nullptr), job->ReservedID);
+
+		if (!job->StoreSurfaceInRAM)
+			SDL_FreeSurface(job->Surface);
+		delete job;
+	}
+}
+
+MEngineTextureID MEngineGraphics::GetNextTextureID()
+{
+	static std::mutex idLock;
+	static MEngineTextureID nextID = 0;
+
+	MEngineTextureID toReturn;
+	idLock.lock();
+	if (RecycledIDs.size() > 0)
+	{
+		toReturn = RecycledIDs.back();
+		RecycledIDs.pop_back();
+	}
+	else
+		toReturn = nextID++;
+	idLock.unlock();
+
+	return toReturn;
 }
 
 void MEngineGraphics::Render()
@@ -232,7 +298,8 @@ void MEngineGraphics::Render()
 
 void MEngineGraphics::RenderEntities()
 {
-	TextureLock.lock();
+	HandleSurfaceToTextureConversions();
+
 	const std::vector<MEngineObject*>& entities = MEngineEntityManager::GetEntities();
 	for (int i = 0; i < entities.size(); ++i)
 	{
@@ -249,19 +316,4 @@ void MEngineGraphics::RenderEntities()
 				MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
 		}
 	}
-	TextureLock.unlock();
-}
-
-MEngineTextureID GetNextTextureID()
-{
-	static MEngineTextureID nextID = 0;
-	
-	MEngineTextureID recycledID = -1;
-	if (RecycledIDs.size() > 0)
-	{
-		recycledID = RecycledIDs.back();
-		RecycledIDs.pop_back();
-	}
-	
-	return recycledID >= 0 ? recycledID : nextID++;
 }
