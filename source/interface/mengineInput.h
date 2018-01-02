@@ -5,8 +5,9 @@ namespace MEngineInput
 	enum MEngineKey
 	{
 		MKey_TAB,
-		MKey_CONTROL,
+		MKey_SHIFT,
 		MKey_ALT,
+		MKey_CONTROL,
 		MKey_GRAVE,
 
 		MKey_T,

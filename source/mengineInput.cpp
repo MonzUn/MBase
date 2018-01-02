@@ -109,12 +109,14 @@ void PopulateConversionTables()
 {
 #if PLATFORM == PLATFORM_WINDOWS
 	windowsKeyConversionTable.insert(std::make_pair(VK_TAB, MKey_TAB));
-	windowsKeyConversionTable.insert(std::make_pair(VK_LCONTROL, MKey_CONTROL));
-	windowsKeyConversionTable.insert(std::make_pair(VK_RCONTROL, MKey_CONTROL));
+	windowsKeyConversionTable.insert(std::make_pair(VK_LSHIFT, MKey_SHIFT));
+	windowsKeyConversionTable.insert(std::make_pair(VK_RSHIFT, MKey_SHIFT));
 	windowsKeyConversionTable.insert(std::make_pair(VK_LMENU, MKey_ALT));
 	windowsKeyConversionTable.insert(std::make_pair(VK_RMENU, MKey_ALT));
+	windowsKeyConversionTable.insert(std::make_pair(VK_LCONTROL, MKey_CONTROL));
+	windowsKeyConversionTable.insert(std::make_pair(VK_RCONTROL, MKey_CONTROL));
 	windowsKeyConversionTable.insert(std::make_pair(VK_OEM_5, MKey_GRAVE));
-
+	
 	// Letters
 	windowsKeyConversionTable.insert(std::make_pair(0x54, MKey_T));
 #endif
