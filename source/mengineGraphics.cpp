@@ -21,7 +21,9 @@ namespace MEngineGraphics
 
 void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 {
-	MEngineTexture* texture = Textures[textureID];
+	HandleSurfaceToTextureConversions();
+
+	MEngineTexture*& texture = Textures[textureID];
 	if (texture != nullptr)
 	{
 		delete texture;
