@@ -12,11 +12,12 @@ using namespace MEngineGraphics;
 
 #define MUTILITY_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
-std::vector<MEngineTexture*> Textures;
-std::mutex TextureLock;
-std::vector<MEngineTextureID> RecycledIDs;
-
 MEngineTextureID GetNextTextureID();
+namespace MEngineGraphics
+{
+	std::vector<MEngineTexture*> Textures;
+	std::vector<MEngineTextureID> RecycledIDs;
+}
 
 void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 {

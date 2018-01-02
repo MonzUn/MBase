@@ -5,8 +5,11 @@
 
 using namespace MEngineEntityManager;
 
-std::vector<MEngineObject*> Entities;
-std::vector<MEngineEntityID> RecycledIDs;
+namespace MEngineEntityManager
+{
+	std::vector<MEngineObject*> Entities;
+	std::vector<MEngineEntityID> RecycledIDs;
+}
 
 #define MUTILITY_LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
 
