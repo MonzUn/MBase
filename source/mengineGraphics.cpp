@@ -16,6 +16,7 @@ namespace MEngineGraphics
 {
 	std::vector<MEngineTexture*> Textures;
 	std::vector<MEngineTextureID> RecycledIDs;
+	std::mutex IdLock;
 }
 
 void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
@@ -27,11 +28,14 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	{
 		delete texture;
 		texture = nullptr;
+		IdLock.lock();
 		RecycledIDs.push_back(textureID);
+		IdLock.unlock();
 	}
 	else
 	{
 		bool isRecycled = false;
+		IdLock.lock();
 		for (int i = 0; i < RecycledIDs.size(); ++i)
 		{
 			if (RecycledIDs[i] == textureID)
@@ -40,6 +44,7 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 				break;
 			}
 		}
+		IdLock.unlock();
 
 		if (isRecycled)
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", MUTILITY_LOG_CATEGORY_GRAPHICS);
@@ -259,7 +264,9 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 	SurfaceToTextureJob* job;
 	while (SurfaceToTextureQueue.Consume(job))
 	{
+		SdlApiLock.lock();
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, job->Surface );
+		SdlApiLock.unlock();
 		MEngineGraphics::AddTexture(texture, (job->StoreSurfaceInRAM ? job->Surface : nullptr), job->ReservedID);
 
 		if (!job->StoreSurfaceInRAM)
@@ -270,11 +277,10 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 
 MEngineTextureID MEngineGraphics::GetNextTextureID()
 {
-	static std::mutex idLock;
 	static MEngineTextureID nextID = 0;
 
 	MEngineTextureID toReturn;
-	idLock.lock();
+	IdLock.lock();
 	if (RecycledIDs.size() > 0)
 	{
 		toReturn = RecycledIDs.back();
@@ -282,13 +288,15 @@ MEngineTextureID MEngineGraphics::GetNextTextureID()
 	}
 	else
 		toReturn = nextID++;
-	idLock.unlock();
+	IdLock.unlock();
 
 	return toReturn;
 }
 
 void MEngineGraphics::Render()
 {
+
+
 	SdlApiLock.lock();
 	SDL_RenderClear(Renderer);
 	RenderEntities();
@@ -298,8 +306,6 @@ void MEngineGraphics::Render()
 
 void MEngineGraphics::RenderEntities()
 {
-	HandleSurfaceToTextureConversions();
-
 	const std::vector<MEngineObject*>& entities = MEngineEntityManager::GetEntities();
 	for (int i = 0; i < entities.size(); ++i)
 	{
