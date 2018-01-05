@@ -295,7 +295,7 @@ MEngineTextureID MEngineGraphics::GetNextTextureID()
 
 void MEngineGraphics::Render()
 {
-
+	HandleSurfaceToTextureConversions();
 
 	SdlApiLock.lock();
 	SDL_RenderClear(Renderer);

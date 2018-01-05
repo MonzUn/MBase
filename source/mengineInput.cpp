@@ -208,4 +208,4 @@ void PopulateConversionTables()  // TODODB: Implement a more efficient way to ma
 	ScanCodeToMKeyConversionTable.insert(std::make_pair(SCANCODE_SLASH, MKEY_SLASH));
 	ScanCodeToMKeyConversionTable.insert(std::make_pair(SCANCODE_APOSTROPHE, MKEY_APSTROPHE));
 	ScanCodeToMKeyConversionTable.insert(std::make_pair(SCANCODE_SEMICOLON, MKEY_SEMICOLON));
-}														  
+}
