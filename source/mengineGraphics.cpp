@@ -60,7 +60,7 @@ MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineT
 
 	if (targetWidth <= 0 || targetHeight <= 0)
 	{
-		MLOG_WARNING("Invalid coordinates supplied (" << upperLeftOffsetX + ',' << upperLeftOffsetY + ") (" << lowerRightOffsetX + ',' << lowerRightOffsetY + ')', MUTILITY_LOG_CATEGORY_GRAPHICS);
+		MLOG_WARNING("Invalid coordinates supplied (" << upperLeftOffsetX << ',' << upperLeftOffsetY << ") (" << lowerRightOffsetX << ',' << lowerRightOffsetY << ')', MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return INVALID_MENGINE_TEXTURE_ID;
 	}
 
