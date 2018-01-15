@@ -53,27 +53,27 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	}
 }
 
-MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineTextureData& originalTexture, int32_t upperLeftOffsetX, int32_t upperLeftOffsetY, int32_t lowerRightOffsetX, int32_t lowerRightOffsetY, bool storeCopyInRAM)
+MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineTextureData& originalTexture, int32_t posX, int32_t posY, int32_t width, int32_t height, bool storeCopyInRAM)
 {
-	int32_t targetWidth = lowerRightOffsetX - upperLeftOffsetX;
-	int32_t targetHeight = lowerRightOffsetY - upperLeftOffsetY;
+	int32_t offsetLimitX = posX + width;
+	int32_t offsetLimitY = posY + height;
 
-	if (targetWidth <= 0 || targetHeight <= 0)
+	if (posX < 0 || posY < 0 || offsetLimitX >= originalTexture.Width || offsetLimitY >= originalTexture.Height)
 	{
-		MLOG_WARNING("Invalid coordinates supplied (" << upperLeftOffsetX << ',' << upperLeftOffsetY << ") (" << lowerRightOffsetX << ',' << lowerRightOffsetY << ')', MUTILITY_LOG_CATEGORY_GRAPHICS);
+		MLOG_WARNING("Invalid clip information supplied [" << originalTexture.Width << ',' << originalTexture.Height << ']' << ' (' << posX << ',' << posY << ") (" << (posX + width) << ',' << (posY + height) << ')', MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return INVALID_MENGINE_TEXTURE_ID;
 	}
 
 	SdlApiLock.lock();
-	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, targetWidth, targetHeight, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
+	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
 	if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface);
 
 	BYTE* destinationWalker = reinterpret_cast<BYTE*>(surface->pixels);
-	const BYTE* sourceWalker = (reinterpret_cast<const BYTE*>(originalTexture.Pixels) + (((originalTexture.Width * MENGINE_BYTES_PER_PIXEL) * upperLeftOffsetY) + (upperLeftOffsetX * MENGINE_BYTES_PER_PIXEL)));
-	for (int i = upperLeftOffsetY; i < lowerRightOffsetY; ++i)
+	const BYTE* sourceWalker = (reinterpret_cast<const BYTE*>(originalTexture.Pixels) + (((originalTexture.Width * MENGINE_BYTES_PER_PIXEL) * posY) + (posX * MENGINE_BYTES_PER_PIXEL)));
+	for (int i = posY; i < offsetLimitY; ++i)
 	{
-		memcpy(destinationWalker, sourceWalker, targetWidth * MENGINE_BYTES_PER_PIXEL);
-		destinationWalker += targetWidth * MENGINE_BYTES_PER_PIXEL;
+		memcpy(destinationWalker, sourceWalker, width * MENGINE_BYTES_PER_PIXEL);
+		destinationWalker += width * MENGINE_BYTES_PER_PIXEL;
 		sourceWalker += originalTexture.Width * MENGINE_BYTES_PER_PIXEL;
 	}
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
@@ -101,6 +101,7 @@ MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineT
 
 	return reservedID;
 }
+
 MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineTextureData& textureData, bool storeCopyInRAM)
 {
 	SdlApiLock.lock();
