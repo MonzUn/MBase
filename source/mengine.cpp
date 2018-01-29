@@ -1,7 +1,9 @@
 #include "interface/mengine.h"
+#include "mengineGlobals.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineInputInternal.h"
 #include <MUtilityLog.h>
+#include <MUtilitySystem.h>
 #include <SDL.h>
 #include <cassert>
 #include <iostream>
@@ -20,6 +22,8 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GENERAL);
 		return false;
 	}
+
+	MUtility::GetExecutablePath(Globals::EXECUTABLE_PATH);
 
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
