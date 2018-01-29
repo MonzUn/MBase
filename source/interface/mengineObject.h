@@ -12,6 +12,7 @@ public:
 	int32_t PosY	= 0;
 	int32_t Width	= 0;
 	int32_t Height	= 0;
+	bool RenderIgnore = false;
 
 	MEngineEntityManager::MEngineEntityID EntityID	= INVALID_MENGINE_ENTITY_ID;
 	MEngineGraphics::MEngineTextureID TextureID		= INVALID_MENGINE_TEXTURE_ID;

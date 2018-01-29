@@ -11,7 +11,7 @@ namespace MEngineGraphics
 {
 	struct MEngineTexture // TODODB: Fix casing on member variables
 	{
-		MEngineTexture(SDL_Texture* sdlTexture, SDL_Surface* sdlSurface = nullptr) : texture(sdlTexture), surface(sdlSurface), renderIgnore(false)
+		MEngineTexture(SDL_Texture* sdlTexture, SDL_Surface* sdlSurface = nullptr) : texture(sdlTexture), surface(sdlSurface)
 		{
 			SDL_QueryTexture(sdlTexture, &format, &access, &width, &height);
 		}
@@ -30,7 +30,6 @@ namespace MEngineGraphics
 		int32_t			height;
 		uint32_t		format;
 		int32_t			access;
-		bool			renderIgnore;
 	};
 
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);

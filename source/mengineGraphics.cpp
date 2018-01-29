@@ -219,14 +219,6 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 #endif
 }
 
-void MEngineGraphics::SetRenderIgnore(MEngineTextureID textureID, bool shouldIgnoreTexture)
-{
-	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID < static_cast<int64_t>(Textures.size()))
-		Textures[textureID]->renderIgnore = shouldIgnoreTexture;
-	else
-		MLOG_WARNING("Attempted to set RenderIgnore for invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
-}
-
 const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textureID)
 {
 	HandleSurfaceToTextureConversions();
@@ -236,7 +228,7 @@ const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textur
 	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID <static_cast<int64_t>(Textures.size()))
 	{
 		const MEngineTexture& texture = *Textures[textureID];
-		toReturn = MEngineTextureData(texture.surface->w, texture.surface->h, texture.surface->pixels, texture.renderIgnore);
+		toReturn = MEngineTextureData(texture.surface->w, texture.surface->h, texture.surface->pixels);
 	}
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
@@ -325,7 +317,7 @@ void MEngineGraphics::RenderEntities()
 	{
 		if (entities[i] != nullptr && entities[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
 		{
-			if (!Textures[entities[i]->TextureID]->renderIgnore)
+			if (!entities[i]->RenderIgnore)
 			{
 				SDL_Rect destinationRect = SDL_Rect();
 				destinationRect.x = entities[i]->PosX;
