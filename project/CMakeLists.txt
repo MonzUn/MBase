@@ -39,32 +39,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ProjectRoot}/output/)
 find_path(SDL2Include SDL2/SDL.h PATHS ${IncludeDirectoryAbsolute})
 set(SDL2Includes ${SDL2Include}/SDL2)
 
-set(SDL2LibraryDirectoryAbsolute "${SharedLibraryDirectoryAbsolute}/SDL2")
-find_library(SDL2Library
-	NAMES SDL2 SDL2main
-	PATHS ${SDL2LibraryDirectoryAbsolute})
-set(SDL2Libraries ${SDL2Library})
-
-find_library(SDL2mainLibrary
-	NAMES SDL2main
-	PATHS ${SDL2LibraryDirectoryAbsolute})
-list(APPEND SDL2Libraries ${SDL2mainLibrary})
-
 # Find MUtility
 find_path(MUtilityInclude MUtility/MUtilityByte.h PATHS ${IncludeDirectoryAbsolute})
 set(MUtilityIncludes ${MUtilityInclude}/MUtility)
-
 set(MUtilityDebugLibraryDirectoryAbsolute "${DebugLibraryDirectoryAbsolute}/MUtility")
-find_library(MUtilityDebugLibrary
-	NAMES MUtility
-	PATHS ${MUtilityDebugLibraryDirectoryAbsolute})
-set(MUtilityDebugLibraries ${MUtilityDebugLibrary})
-
 set(MUtilityReleaseLibraryDirectoryAbsolute "${ReleaseLibraryDirectoryAbsolute}/MUtility")
-find_library(MUtilityReleaseLibrary
-	NAMES MUtility
-	PATHS ${MUtilityReleaseLibraryDirectoryAbsolute})
-set(MUtilityReleaseLibraries ${MUtilityReleaseLibrary})
 
 include_directories(
 	${SDL2Includes}
@@ -84,12 +63,6 @@ ADD_LIBRARY( ${CMAKE_PROJECT_NAME} STATIC
 
 # Make sure that the linker language gets set to C++
 set_target_properties(${CMAKE_PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
-
-# Link debug libraries to the output lib
-target_link_libraries(${CMAKE_PROJECT_NAME} debug ${SDL2Libraries} debug ${MUtilityDebugLibraries})
-
-# Link release libraries to the output lib
-target_link_libraries(${CMAKE_PROJECT_NAME} optimized ${SDL2Libraries} optimized ${MUtilityReleaseLibraries})
 
 # Get local(non versioned) paths to dependencies
 include("CMakeLocalDependenciesPaths.txt" OPTIONAL)
