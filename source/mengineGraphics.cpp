@@ -19,6 +19,8 @@ namespace MEngineGraphics
 	std::mutex IdLock;
 }
 
+// ---------- INTERFACE ----------
+
 void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 {
 	HandleSurfaceToTextureConversions();
@@ -217,21 +219,32 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 #endif
 }
 
+void MEngineGraphics::SetRenderIgnore(MEngineTextureID textureID, bool shouldIgnoreTexture)
+{
+	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID < static_cast<int64_t>(Textures.size()))
+		Textures[textureID]->renderIgnore = shouldIgnoreTexture;
+	else
+		MLOG_WARNING("Attempted to set RenderIgnore for invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
+}
+
 const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textureID)
 {
 	HandleSurfaceToTextureConversions();
 
 	MEngineTextureData toReturn;
 	MEngineTexture* texture = nullptr;
-	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID < static_cast<int64_t>(Textures.size()))
+	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID <static_cast<int64_t>(Textures.size()))
 	{
-		toReturn = MEngineTextureData(Textures[textureID]->surface->w, Textures[textureID]->surface->h, Textures[textureID]->surface->pixels);
+		const MEngineTexture& texture = *Textures[textureID];
+		toReturn = MEngineTextureData(texture.surface->w, texture.surface->h, texture.surface->pixels, texture.renderIgnore);
 	}
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
 
 	return toReturn;
 }
+
+// ---------- INTERNAL ----------
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
 {
@@ -312,15 +325,18 @@ void MEngineGraphics::RenderEntities()
 	{
 		if (entities[i] != nullptr && entities[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
 		{
-			SDL_Rect destinationRect = SDL_Rect();
-			destinationRect.x = entities[i]->PosX;
-			destinationRect.y = entities[i]->PosY;
-			destinationRect.w = entities[i]->Width;
-			destinationRect.h = entities[i]->Height;
+			if (!Textures[entities[i]->TextureID]->renderIgnore)
+			{
+				SDL_Rect destinationRect = SDL_Rect();
+				destinationRect.x = entities[i]->PosX;
+				destinationRect.y = entities[i]->PosY;
+				destinationRect.w = entities[i]->Width;
+				destinationRect.h = entities[i]->Height;
 
-			int result = SDL_RenderCopy(Renderer, Textures[entities[i]->TextureID]->texture, nullptr, &destinationRect);
-			if (result != 0)
-				MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
+				int result = SDL_RenderCopy(Renderer, Textures[entities[i]->TextureID]->texture, nullptr, &destinationRect);
+				if (result != 0)
+					MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
+			}
 		}
 	}
 }

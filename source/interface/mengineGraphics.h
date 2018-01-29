@@ -10,11 +10,12 @@ namespace MEngineGraphics
 	struct MEngineTextureData
 	{
 		MEngineTextureData() {}
-		MEngineTextureData(int32_t width, int32_t height, const void* pixels = nullptr) : Width(width), Height(height), Pixels(pixels) {}
+		MEngineTextureData(int32_t width, int32_t height, const void* pixels = nullptr, bool renderIgnore = false) : Width(width), Height(height), Pixels(pixels), RenderIgnore(renderIgnore) {}
 
-		const void* Pixels = nullptr;
-		int32_t Width = -1;
-		int32_t Height = -1;
+		const void* Pixels			= nullptr;
+		int32_t		Width			= -1;
+		int32_t		Height			= -1;
+		bool		RenderIgnore	= false;
 	};
 
 	typedef int32_t MEngineTextureID;
@@ -23,6 +24,8 @@ namespace MEngineGraphics
 	MEngineTextureID	CreateSubTextureFromTextureData(const MEngineTextureData& originalTexture, int32_t upperLeftOffsetX, int32_t upperLeftOffsetY, int32_t lowerRightOffsetX, int32_t lowerRightOffsetY, bool storeCopyInRAM = false);
 	MEngineTextureID	CreateTextureFromTextureData(const MEngineTextureData& textureData, bool storeCopyInRAM = false);
 	MEngineTextureID	CaptureScreenToTexture(bool storeCopyInRAM = false);
+
+	void SetRenderIgnore(MEngineTextureID textureID, bool shouldIgnoreTexture);
 
 	const MEngineTextureData GetTextureData(MEngineTextureID textureID);
 }
