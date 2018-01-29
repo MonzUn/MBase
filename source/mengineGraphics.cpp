@@ -1,12 +1,15 @@
 #include "mengineGraphicsInternal.h"
 #include "mengineEntityManagerInternal.h"
+#include "mengineGlobals.h"
 #include "sdlLock.h"
 #include "interface/mengineObject.h"
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
 #include <SDL.h>
+#include <SDL_image.h>
 #include <mutex>
+#include <unordered_map>
 
 using namespace MEngineGraphics;
 
@@ -16,10 +19,41 @@ namespace MEngineGraphics
 {
 	std::vector<MEngineTexture*> Textures;
 	std::vector<MEngineTextureID> RecycledIDs;
+	std::unordered_map<std::string, MEngineTextureID> PathToIDMap;
 	std::mutex IdLock;
+	std::mutex PathToIDLock;
 }
 
 // ---------- INTERFACE ----------
+
+MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWithExtension)
+{
+	MEngineTextureID returnID = INVALID_MENGINE_TEXTURE_ID;
+	if (pathWithExtension != "")
+	{
+		PathToIDLock.lock();
+		auto iterator = PathToIDMap.find(pathWithExtension);
+		if (iterator != PathToIDMap.end())
+		{
+			returnID = iterator->second;
+		}
+		else
+		{
+			std::string absolutePath = Globals::EXECUTABLE_PATH + "/" + pathWithExtension;
+			SDL_Texture* texture = IMG_LoadTexture(Renderer, absolutePath.c_str());
+			if (texture != nullptr)
+			{
+				returnID = AddTexture(texture);
+				PathToIDMap.insert(std::make_pair(pathWithExtension, returnID));
+			}
+			else
+				MLOG_ERROR("Failed to load texture at path \"" << pathWithExtension << "\"; SDL error = \"" << SDL_GetError() << "\"", MUTILITY_LOG_CATEGORY_GRAPHICS);
+		}
+		PathToIDLock.unlock();
+	}
+
+	return returnID;
+}
 
 void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 {
