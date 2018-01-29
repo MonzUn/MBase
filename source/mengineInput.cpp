@@ -23,7 +23,7 @@ LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam);
 
 void PopulateConversionTables();
 
-/* INTERFACE */
+// ---------- INTERFACE ----------
 
 void MEngineInput::SetFocusRequired(bool required)
 {
@@ -69,7 +69,7 @@ bool MEngineInput::KeyReleased(MENGINE_KEY key)
 	return (previouslyPressedKeys[key] && !pressedKeys[key]);
 }
 
-/* INTERNAL */
+// ---------- INTERNAL ----------
 
 void MEngineInput::Initialize()
 {
@@ -104,7 +104,7 @@ LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-/* LOCAL */
+// ---------- LOCAL ----------
 
 void PopulateConversionTables()  // TODODB: Implement a more efficient way to map scancodes to MKEYs (can make an array with all MKEYs mapped to a scancode if we can calculate an offset for the scancodes to use as index)
 {
