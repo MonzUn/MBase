@@ -20,6 +20,9 @@ endif(MSVC)
 file(RELATIVE_PATH IncludeDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/include)
 get_filename_component(IncludeDirectoryAbsolute ${IncludeDirectoryRelative} ABSOLUTE)
 
+# Externals directory
+set(SharedExternalsPathAbsolute "${ProjectRootAbsolute}/external/windows/shared")
+
 # Debug Library directory
 file(RELATIVE_PATH DebugLibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/lib/debug/x64)
 get_filename_component(DebugLibraryDirectoryAbsolute ${DebugLibraryDirectoryRelative} ABSOLUTE)
@@ -35,6 +38,7 @@ get_filename_component(SharedLibraryDirectoryAbsolute ${SharedLibraryDirectoryRe
 # Find SDL2
 find_path(SDL2Include SDL2/SDL.h PATHS ${IncludeDirectoryAbsolute})
 set(SDL2Includes ${SDL2Include}/SDL2)
+set(SDL2LibraryDirectoryAbsolute "${SharedLibraryDirectoryAbsolute}/SDL2")
 
 # Find MUtility
 find_path(MUtilityInclude MUtility/MUtilityByte.h PATHS ${IncludeDirectoryAbsolute})
@@ -66,40 +70,32 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 
 # ---------- Dependencies ----------
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
-	# Get local(non versioned) paths to dependencies
-	include("${CMAKE_CURRENT_LIST_DIR}/CMakeLocalDependenciesPaths.txt" OPTIONAL)
+# Get local(non versioned) paths to dependencies
+include("${CMAKE_CURRENT_LIST_DIR}/CMakeLocalDependenciesPaths.txt" OPTIONAL)
 
-	# Run CMake of dependencies
-	if(MUtilityCMakePath)
+if(MUtilityRootPath)
+	message("[${PROJECT_NAME}] - Found MUtility at path ${MUtilityRootPath}")
+	set(MUtilityCMakePath "${MUtilityRootPath}/project")
+	set(MUtilityIncludeCopyPath "${MUtilityRootPath}/source/interface")
+	set(MUtilityDebugLibCopyPath "${MUtilityRootPath}/output/Debug")
+	set(MUtilityReleaseLibCopyPath "${MUtilityRootPath}/output/Release")
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${MUtilityIncludeCopyPath} ${MUtilityIncludes})
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${MUtilityDebugLibCopyPath} ${MUtilityDebugLibraryDirectoryAbsolute})
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${MUtilityReleaseLibCopyPath} ${MUtilityReleaseLibraryDirectoryAbsolute})
+	if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 		add_subdirectory(${MUtilityCMakePath} "${MUtilityCMakePath}")
-	endif(MUtilityCMakePath)
-endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+	endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+endif(MUtilityRootPath)
 
-# Add prebuilds scripts that copies local dependencies to their place within the project
-if(MUtilityIncludeCopyPath)
-	add_custom_command(TARGET ${PROJECT_NAME}
-	PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${MUtilityIncludeCopyPath}
-        ${MUtilityIncludes})
-endif(MUtilityIncludeCopyPath)
+if(SDL2LibPath)
+	message("[${PROJECT_NAME}] - Found SDL2lib at path ${SDL2LibPath}")
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SDL2LibPath} ${SDL2LibraryDirectoryAbsolute})
+endif(SDL2LibPath)
 
-if(MUtilityDebugLibCopyPath)
-	add_custom_command(TARGET ${PROJECT_NAME}
-	PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${MUtilityDebugLibCopyPath}
-        ${MUtilityDebugLibraryDirectoryAbsolute})
-endif(MUtilityDebugLibCopyPath)
-
-if(MUtilityReleaseLibCopyPath)
-	add_custom_command(TARGET ${PROJECT_NAME}
-	PRE_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${MUtilityReleaseLibCopyPath}
-        ${MUtilityReleaseLibraryDirectoryAbsolute})
-endif(MUtilityReleaseLibCopyPath)
+if(SDL2DLLPath)
+	message("[${PROJECT_NAME}] - Found SDL2DLL at path ${SDL2DLLPath}")
+	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SDL2DLLPath} ${SharedExternalsPathAbsolute})
+endif(SDL2DLLPath)
 
 # --- DEBUG COPY PASTE ---
 #message("|||--- TEST ---||| ${var}")
