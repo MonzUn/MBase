@@ -1,0 +1,10 @@
+# Instructions
+# 1. Copy this file and name it "CMakeLocalDependenciesPaths.txt"
+# 2. Uncomment and set path for the relevant dependencies
+
+# MUtility
+#set(MUtilityRootPath "")
+
+# SDL2
+#set(SDL2LibPath "")
+#set(SDL2DLLPath "")
