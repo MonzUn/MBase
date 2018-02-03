@@ -2,6 +2,7 @@
 #include "mengineGlobals.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineInputInternal.h"
+#include "mengineSystemInternal.h"
 #include <MUtilityLog.h>
 #include <MUtilitySystem.h>
 #include <SDL.h>
@@ -70,6 +71,7 @@ void MEngine::Update()
 	};
 
 	MEngineInput::Update();
+	MEngineSystem::Update();
 }
 
 void MEngine::Render()
