@@ -36,15 +36,15 @@ file(RELATIVE_PATH SharedLibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${Projec
 get_filename_component(SharedLibraryDirectoryAbsolute ${SharedLibraryDirectoryRelative} ABSOLUTE)
 
 # Find SDL2
-find_path(SDL2Include SDL2/SDL.h PATHS ${IncludeDirectoryAbsolute})
-set(SDL2Includes ${SDL2Include}/SDL2)
+set(SDL2Includes ${IncludeDirectoryAbsolute}/SDL2)
 set(SDL2LibraryDirectoryAbsolute "${SharedLibraryDirectoryAbsolute}/SDL2")
+message("[${PROJECT_NAME}] - Assuming SDL2 includes are located at path ${SDL2Includes}")
 
 # Find MUtility
-find_path(MUtilityInclude MUtility/MUtilityByte.h PATHS ${IncludeDirectoryAbsolute})
-set(MUtilityIncludes ${MUtilityInclude}/MUtility)
+set(MUtilityIncludes "${IncludeDirectoryAbsolute}/MUtility")
 set(MUtilityDebugLibraryDirectoryAbsolute "${DebugLibraryDirectoryAbsolute}/MUtility")
 set(MUtilityReleaseLibraryDirectoryAbsolute "${ReleaseLibraryDirectoryAbsolute}/MUtility")
+message("[${PROJECT_NAME}] - Assuming MUtility includes are located at path ${MUtilityIncludes}")
 
 include_directories(
 	${SDL2Includes}
@@ -58,9 +58,7 @@ file(GLOB_RECURSE SOURCE_DIRECTORIES
 )
 
 # Create static library
-ADD_LIBRARY( ${PROJECT_NAME} STATIC
-   	${SOURCE_DIRECTORIES}
-)
+ADD_LIBRARY( ${PROJECT_NAME} STATIC ${SOURCE_DIRECTORIES})
 
 # Set output directory
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${ProjectRootAbsolute}/output/)
@@ -74,7 +72,7 @@ set_target_properties(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CXX)
 include("${CMAKE_CURRENT_LIST_DIR}/CMakeLocalDependenciesPaths.txt" OPTIONAL)
 
 if(MUtilityRootPath)
-	message("[${PROJECT_NAME}] - Found MUtility at path ${MUtilityRootPath}")
+	message("[${PROJECT_NAME}] - Found MUtility project at path ${MUtilityRootPath}")
 	set(MUtilityCMakePath "${MUtilityRootPath}/project")
 	set(MUtilityIncludeCopyPath "${MUtilityRootPath}/source/interface")
 	set(MUtilityDebugLibCopyPath "${MUtilityRootPath}/output/Debug")
@@ -88,12 +86,12 @@ if(MUtilityRootPath)
 endif(MUtilityRootPath)
 
 if(SDL2LibPath)
-	message("[${PROJECT_NAME}] - Found SDL2lib at path ${SDL2LibPath}")
+	message("[${PROJECT_NAME}] - Found SDL2lib copy path at ${SDL2LibPath}")
 	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SDL2LibPath} ${SDL2LibraryDirectoryAbsolute})
 endif(SDL2LibPath)
 
 if(SDL2DLLPath)
-	message("[${PROJECT_NAME}] - Found SDL2DLL at path ${SDL2DLLPath}")
+	message("[${PROJECT_NAME}] - Found SDL2DLL copy path ${SDL2DLLPath}")
 	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SDL2DLLPath} ${SharedExternalsPathAbsolute})
 endif(SDL2DLLPath)
 
