@@ -1,4 +1,5 @@
 #include "interface/mengine.h"
+#include "mengineConfigInternal.h"
 #include "mengineGlobals.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineInputInternal.h"
@@ -33,6 +34,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 	}
 
 	MEngineInput::Initialize();
+	MEngineConfig::Initialize();
 
 	MLOG_INFO("MEngine initialized successfully", MUTILITY_LOG_CATEGORY_GENERAL);
 
@@ -43,6 +45,8 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 void MEngine::Shutdown()
 {
 	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
+
+	MEngineConfig::Shutdown();
 
 	Initialized = false;
 	SDL_Quit();
