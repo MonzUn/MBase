@@ -24,7 +24,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
-	MUtility::GetExecutablePath(Globals::EXECUTABLE_PATH);
+	MUtility::GetExecutableDirectoryPath(Globals::EXECUTABLE_PATH);
 
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
