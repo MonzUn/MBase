@@ -22,6 +22,7 @@ namespace MEngineGraphics
 	std::unordered_map<std::string, MEngineTextureID> PathToIDMap;
 	std::mutex IdLock;
 	std::mutex PathToIDLock;
+	MUtility::LocklessQueue<SurfaceToTextureJob*> SurfaceToTextureQueue;
 }
 
 // ---------- INTERFACE ----------

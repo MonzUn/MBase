@@ -43,8 +43,6 @@ namespace MEngineGraphics
 
 	static SDL_Window*			Window		= nullptr;
 	static SDL_Renderer*		Renderer	= nullptr;
-
-	static MUtility::LocklessQueue<SurfaceToTextureJob*> SurfaceToTextureQueue;
 }
 
 struct SurfaceToTextureJob
