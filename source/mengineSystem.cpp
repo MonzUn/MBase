@@ -15,12 +15,15 @@ namespace std
 	};
 }
 
-std::set<MEngineSystem::System*>	Systems;
-FrameCounter						PresentationFrameCounter;
-FrameCounter						SimulationFrameCounter;
-float								AccumulatedSimulationTime	= 0.0f;
-float								SimulationSpeed				= MEngineSystem::DEFAULT_SIMULATION_SPEED;
-float								SimulationTimeStep			= MEngineSystem::DEFAULT_TIME_STEP;
+namespace MEngineSystem
+{
+	std::set<MEngineSystem::System*>	Systems;
+	FrameCounter						PresentationFrameCounter;
+	FrameCounter						SimulationFrameCounter;
+	float								AccumulatedSimulationTime	= 0.0f;
+	float								SimulationSpeed				= MEngineSystem::DEFAULT_SIMULATION_SPEED;
+	float								SimulationTimeStep			= MEngineSystem::DEFAULT_TIME_STEP;
+}
 
 // ---------- INTERFACE ----------
 

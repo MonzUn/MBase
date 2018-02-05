@@ -9,12 +9,14 @@ using namespace MEngineInput;
 
 #define MUTILITY_LOG_CATEGORY_INPUT "MEngineInput"
 
-bool windowFocusRequired = true;
-bool pressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
-bool previouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
-bool PressedKeysBuffer[MENGINE_KEY::MKEY_COUNT] = { false }; // Used when focus is not required
-
-std::unordered_map<uint32_t, MENGINE_KEY> ScanCodeToMKeyConversionTable;
+namespace MEngineInput
+{
+	bool windowFocusRequired = true;
+	bool pressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
+	bool previouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
+	bool PressedKeysBuffer[MENGINE_KEY::MKEY_COUNT] = { false }; // Used when focus is not required
+	std::unordered_map<uint32_t, MENGINE_KEY> ScanCodeToMKeyConversionTable;
+}
 
 #if PLATFORM == PLATFORM_WINDOWS
 HHOOK hook = nullptr;
