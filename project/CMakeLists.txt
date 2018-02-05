@@ -46,7 +46,8 @@ set(MUtilityDebugLibraryDirectoryAbsolute "${DebugLibraryDirectoryAbsolute}/MUti
 set(MUtilityReleaseLibraryDirectoryAbsolute "${ReleaseLibraryDirectoryAbsolute}/MUtility")
 message("[${PROJECT_NAME}] - Assuming MUtility includes are located at path ${MUtilityIncludes}")
 
-include_directories(
+# List include directories
+set(IncludeDirectoryList
 	${SDL2Includes}
 	${MUtilityIncludes}
 )
@@ -60,6 +61,9 @@ file(GLOB_RECURSE SOURCE_DIRECTORIES
 # Create static library
 ADD_LIBRARY( ${PROJECT_NAME} STATIC ${SOURCE_DIRECTORIES})
 
+# Set include directories
+set_property(TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIRECTORIES ${IncludeDirectoryList})
+	
 # Set output directory
 set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${ProjectRootAbsolute}/output/)
 
