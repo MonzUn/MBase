@@ -1,5 +1,6 @@
 #include "interface/mengineSystem.h"
 #include "mengineSystemInternal.h"
+#include "frameCounter.h"
 #include <set>
 
 namespace std
