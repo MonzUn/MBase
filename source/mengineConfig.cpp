@@ -70,7 +70,7 @@ std::string MEngineConfig::GetString(const std::string& key, const std::string& 
 	return iterator->second->Value.StringValue;
 }
 
-void MEngineConfig::SetInt(std::string key, int64_t value)
+void MEngineConfig::SetInt(const std::string& key, int64_t value)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -86,7 +86,7 @@ void MEngineConfig::SetInt(std::string key, int64_t value)
 		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::INTEGER, value)).first;
 }
 
-void MEngineConfig::SetDecimal(std::string key, double value)
+void MEngineConfig::SetDecimal(const std::string& key, double value)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -103,7 +103,7 @@ void MEngineConfig::SetDecimal(std::string key, double value)
 		
 }
 
-void MEngineConfig::SetBool(std::string key, bool value)
+void MEngineConfig::SetBool(const std::string& key, bool value)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -119,7 +119,7 @@ void MEngineConfig::SetBool(std::string key, bool value)
 		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::BOOLEAN, value)).first;
 }
 
-void MEngineConfig::SetString(std::string key, const std::string& value)
+void MEngineConfig::SetString(const std::string& key, const std::string& value)
 {
 	char* newString = static_cast<char*>(malloc(key.size() + 1)); // +1 for null terminator
 	strcpy(newString, value.c_str());
