@@ -27,7 +27,7 @@ int64_t MEngineConfig::GetInt(const std::string& key, int64_t defaultValue)
 	auto iterator = Entries.find(keyCopy);
 	if (iterator == Entries.end())
 	{
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::INTEGER, defaultValue)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::INTEGER, defaultValue)).first;
 	}
 	return iterator->second->Value.IntegerValue;
 }
@@ -39,7 +39,7 @@ double MEngineConfig::GetDouble(const std::string& key, double defaultValue)
 	auto iterator = Entries.find(keyCopy);
 	if (iterator == Entries.end())
 	{
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::DECIMAL, defaultValue)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::DECIMAL, defaultValue)).first;
 	}
 	return iterator->second->Value.DecimalValue;
 }
@@ -51,7 +51,7 @@ bool MEngineConfig::GetBool(const std::string& key, bool defaultValue)
 	auto iterator = Entries.find(keyCopy);
 	if (iterator == Entries.end())
 	{
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::BOOLEAN, defaultValue)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::BOOLEAN, defaultValue)).first;
 	}
 	return iterator->second->Value.BooleanValue;
 }
@@ -65,7 +65,7 @@ std::string MEngineConfig::GetString(const std::string& key, const std::string& 
 	{
 		char* newString = static_cast<char*>(malloc(defaultValue.size() + 1)); // +1 for null terminator
 		strcpy(newString, defaultValue.c_str());
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::STRING, newString)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::STRING, newString)).first;
 	}
 	return iterator->second->Value.StringValue;
 }
@@ -80,10 +80,10 @@ void MEngineConfig::SetInt(std::string key, int64_t value)
 		if (iterator->second->Type == ValueType::INTEGER)
 			iterator->second->Value.IntegerValue = value;
 		else
-			MLOG_WARNING("Attempted to assign non integer value to integer config entry; key = " << key, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non integer value to integer config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
 	}
 	else
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::INTEGER, value)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::INTEGER, value)).first;
 }
 
 void MEngineConfig::SetDecimal(std::string key, double value)
@@ -96,7 +96,7 @@ void MEngineConfig::SetDecimal(std::string key, double value)
 		if (iterator->second->Type == ValueType::DECIMAL)
 			iterator->second->Value.DecimalValue = value;
 		else
-			MLOG_WARNING("Attempted to assign non decimal value to decimal config entry; key = " << key, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non decimal value to decimal config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
 	}
 	else
 		iterator = Entries.emplace(key, new ConfigEntry(ValueType::DECIMAL, value)).first;
@@ -113,10 +113,10 @@ void MEngineConfig::SetBool(std::string key, bool value)
 		if (iterator->second->Type == ValueType::BOOLEAN)
 			iterator->second->Value.BooleanValue = value;
 		else
-			MLOG_WARNING("Attempted to assign non boolean value to boolean config entry; key = " << key, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non boolean value to boolean config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
 	}
 	else
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::BOOLEAN, value)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::BOOLEAN, value)).first;
 }
 
 void MEngineConfig::SetString(std::string key, const std::string& value)
@@ -135,10 +135,10 @@ void MEngineConfig::SetString(std::string key, const std::string& value)
 			iterator->second->Value.StringValue = newString;
 		}
 		else
-			MLOG_WARNING("Attempted to assign non string value to string config entry; key = " << key, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non string value to string config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
 	}
 	else
-		iterator = Entries.emplace(key, new ConfigEntry(ValueType::STRING, newString)).first;
+		iterator = Entries.emplace(keyCopy, new ConfigEntry(ValueType::STRING, newString)).first;
 }
 
 void MEngineConfig::WriteConfigFile()
