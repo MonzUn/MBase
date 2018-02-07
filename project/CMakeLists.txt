@@ -37,7 +37,6 @@ get_filename_component(SharedLibraryDirectoryAbsolute ${SharedLibraryDirectoryRe
 
 # Find SDL2
 set(SDL2Includes ${IncludeDirectoryAbsolute}/SDL2)
-set(SDL2LibraryDirectoryAbsolute "${SharedLibraryDirectoryAbsolute}/SDL2")
 message("[${PROJECT_NAME}] - Assuming SDL2 includes are located at path ${SDL2Includes}")
 
 # Find MUtility
@@ -88,15 +87,6 @@ if(MUtilityRootPath)
 		add_subdirectory(${MUtilityCMakePath} ${MUtilityCMakePath})
 	endif(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
 endif(MUtilityRootPath)
-
-if(SDL2LibPath)
-	message("[${PROJECT_NAME}] - Found SDL2lib copy path at ${SDL2LibPath}")
-endif(SDL2LibPath)
-
-if(SDL2DLLPath)
-	message("[${PROJECT_NAME}] - Found SDL2DLL copy path ${SDL2DLLPath}")
-	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SDL2DLLPath} ${SharedExternalsPathAbsolute})
-endif(SDL2DLLPath)
 
 # --- DEBUG COPY PASTE ---
 #message("|||--- TEST ---||| ${var}")
