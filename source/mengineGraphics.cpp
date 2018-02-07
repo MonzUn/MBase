@@ -17,6 +17,9 @@ using namespace MEngineGraphics;
 
 namespace MEngineGraphics
 {
+	SDL_Renderer*	Renderer	= nullptr;
+	SDL_Window*		Window		= nullptr;
+
 	std::vector<MEngineTexture*> Textures;
 	std::vector<MEngineTextureID> RecycledIDs;
 	std::unordered_map<std::string, MEngineTextureID> PathToIDMap;
@@ -332,6 +335,16 @@ MEngineTextureID MEngineGraphics::GetNextTextureID()
 	IdLock.unlock();
 
 	return toReturn;
+}
+
+SDL_Renderer* MEngineGraphics::GetRenderer()
+{
+	return Renderer;
+}
+
+SDL_Window* MEngineGraphics::GetWindow()
+{
+	return Window;
 }
 
 void MEngineGraphics::Render()

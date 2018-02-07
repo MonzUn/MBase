@@ -37,18 +37,17 @@ namespace MEngineGraphics
 	void HandleSurfaceToTextureConversions();
 	MEngineTextureID GetNextTextureID();
 
+	SDL_Renderer*	GetRenderer();
+	SDL_Window*		GetWindow();
 
 	void Render();
 	void RenderEntities();
-
-	static SDL_Window*			Window		= nullptr;
-	static SDL_Renderer*		Renderer	= nullptr;
 }
 
 struct SurfaceToTextureJob
 {
 	SurfaceToTextureJob(SDL_Surface* surface, MEngineTextureID reservedID, bool storeSurfaceInRAM) :
-		Surface(surface), ReservedID(reservedID), StoreSurfaceInRAM(storeSurfaceInRAM) {}
+	Surface(surface), ReservedID(reservedID), StoreSurfaceInRAM(storeSurfaceInRAM) {}
 
 	SDL_Surface* Surface		= nullptr;
 	MEngineTextureID ReservedID = INVALID_MENGINE_TEXTURE_ID;
