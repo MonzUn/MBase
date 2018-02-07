@@ -4,6 +4,7 @@
 #include "mengineGraphicsInternal.h"
 #include "mengineInputInternal.h"
 #include "mengineSystemInternal.h"
+#include "mengineTextInternal.h"
 #include <MUtilityLog.h>
 #include <MUtilitySystem.h>
 #include <SDL.h>
@@ -47,6 +48,7 @@ void MEngine::Shutdown()
 	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
 
 	MEngineConfig::Shutdown();
+	MEngineText::Shutdown();
 
 	Initialized = false;
 	SDL_Quit();

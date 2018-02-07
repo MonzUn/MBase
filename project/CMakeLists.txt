@@ -39,6 +39,14 @@ get_filename_component(SharedLibraryDirectoryAbsolute ${SharedLibraryDirectoryRe
 set(SDL2Includes ${IncludeDirectoryAbsolute}/SDL2)
 message("[${PROJECT_NAME}] - Assuming SDL2 includes are located at path ${SDL2Includes}")
 
+# Find SDL2_ttf
+set(SDL2_ttfIncludes ${IncludeDirectoryAbsolute}/SDL2_ttf)
+message("[${PROJECT_NAME}] - Assuming SDL2_ttf includes are located at path ${SDL2_ttfIncludes}")
+
+# Find SDL_FontCache
+set(SDL_FontCacheIncludes ${IncludeDirectoryAbsolute}/SDL_FontCache)
+message("[${PROJECT_NAME}] - Assuming SDL_FontCache includes are located at path ${SDL_FontCacheIncludes}")
+
 # Find MUtility
 set(MUtilityIncludes "${IncludeDirectoryAbsolute}/MUtility")
 set(MUtilityDebugLibraryDirectoryAbsolute "${DebugLibraryDirectoryAbsolute}/MUtility")
@@ -48,6 +56,8 @@ message("[${PROJECT_NAME}] - Assuming MUtility includes are located at path ${MU
 # List include directories
 set(IncludeDirectoryList
 	${SDL2Includes}
+	${SDL2_ttfIncludes}
+	${SDL_FontCacheIncludes}
 	${MUtilityIncludes}
 )
 

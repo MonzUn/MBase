@@ -1,6 +1,7 @@
 #include "mengineGraphicsInternal.h"
 #include "mengineEntityManagerInternal.h"
 #include "mengineGlobals.h"
+#include "mengineTextInternal.h"
 #include "sdlLock.h"
 #include "interface/mengineObject.h"
 #include <MUtilityLog.h>
@@ -354,6 +355,7 @@ void MEngineGraphics::Render()
 	SdlApiLock.lock();
 	SDL_RenderClear(Renderer);
 	RenderEntities();
+	MEngineText::Render();
 	SDL_RenderPresent(Renderer);
 	SdlApiLock.unlock();
 }
