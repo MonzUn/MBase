@@ -91,7 +91,6 @@ endif(MUtilityRootPath)
 
 if(SDL2LibPath)
 	message("[${PROJECT_NAME}] - Found SDL2lib copy path at ${SDL2LibPath}")
-	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${SDL2LibPath} ${SDL2LibraryDirectoryAbsolute})
 endif(SDL2LibPath)
 
 if(SDL2DLLPath)
