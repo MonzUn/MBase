@@ -116,7 +116,7 @@ enum MENGINE_KEY // Names are based on US keyboard layout (101)
 	MKEY_PAUSE_BREAK,
 	MKEY_NUM_LOCK,
 	MKEY_COMMA, // Right of M
-	MKEY_NUMPAD_PERIOD,
+	MKEY_NUMPAD_COMMA,
 	MKEY_PERIOD, // Right of comma
 	MKEY_SLASH, // Left of right shift
 	MKEY_APSTROPHE, // Left of enter
