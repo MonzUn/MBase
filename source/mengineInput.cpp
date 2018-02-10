@@ -3,19 +3,22 @@
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
+#include <SDL_ttf.h>
 #include <unordered_map>
 
 using namespace MEngineInput;
 
 #define MUTILITY_LOG_CATEGORY_INPUT "MEngineInput"
 
-namespace MEngineInput
+namespace MEngineInput // TODODB: Fix casing on these variables
 {
 	bool windowFocusRequired = true;
 	bool pressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
 	bool previouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
 	bool PressedKeysBuffer[MENGINE_KEY::MKEY_COUNT] = { false }; // Used when focus is not required
 	std::unordered_map<uint32_t, MENGINE_KEY> ScanCodeToMKeyConversionTable;
+	std::string* TextInputString = nullptr;
+	uint64_t TextInputCursorIndex = 0;
 }
 
 #if PLATFORM == PLATFORM_WINDOWS
@@ -26,6 +29,27 @@ LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam);
 void PopulateConversionTables();
 
 // ---------- INTERFACE ----------
+
+void MEngineInput::StartTextInput(std::string* textInputString)
+{
+	if (textInputString == nullptr)
+		SDL_StartTextInput();
+
+	TextInputString			= textInputString;
+	TextInputCursorIndex	= textInputString->length();
+}
+
+void MEngineInput::StopTextInput()
+{
+	if (TextInputString != nullptr)
+	{
+		SDL_StopTextInput();
+		TextInputString			= nullptr;
+		TextInputCursorIndex	= 0;
+	}
+	else
+		MLOG_WARNING("Attempted to stop text input mode without first starting it", MUTILITY_LOG_CATEGORY_INPUT);
+}
 
 void MEngineInput::SetFocusRequired(bool required)
 {
@@ -83,6 +107,74 @@ void MEngineInput::Update()
 	memcpy(&previouslyPressedKeys, &pressedKeys, sizeof(pressedKeys));
 	if (!windowFocusRequired)
 		memcpy(&pressedKeys, &PressedKeysBuffer, sizeof(pressedKeys));
+}
+
+bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
+{
+	bool consumedEvent = false;
+
+	// Handle text input
+	// TODODB: Add support for insert
+	// TODODB: Add support for marking and handling marked text
+	if (TextInputString != nullptr)
+	{	
+		if (sdlEvent.key.keysym.sym == SDLK_BACKSPACE) // Remove last character
+		{
+			if (sdlEvent.key.state == SDL_PRESSED && TextInputCursorIndex > 0)
+					TextInputString->erase(--TextInputCursorIndex, 1);
+
+			consumedEvent = true;
+		}
+		else if (sdlEvent.key.keysym.sym == SDLK_c && SDL_GetModState() & KMOD_CTRL) // Clipboard copy
+		{
+			if (sdlEvent.key.state == SDL_PRESSED)
+				SDL_SetClipboardText(TextInputString->c_str());
+
+			consumedEvent = true;
+		}
+		else if (sdlEvent.key.keysym.sym == SDLK_v && SDL_GetModState() & KMOD_CTRL) // Clipboard paste
+		{
+			if (sdlEvent.key.state == SDL_PRESSED)
+			{
+				char* clipboardString = SDL_GetClipboardText();
+				TextInputString->insert(TextInputCursorIndex, clipboardString);
+				TextInputCursorIndex += strlen(clipboardString);
+			}
+
+			consumedEvent = true;
+		}
+		else if (sdlEvent.key.keysym.sym == SDLK_HOME)
+		{
+			if (sdlEvent.key.state == SDL_PRESSED)
+				TextInputCursorIndex = 0;
+
+			consumedEvent = true;
+		}
+		else if (sdlEvent.key.keysym.sym == SDLK_END)
+		{
+			if (sdlEvent.key.state == SDL_PRESSED)
+				TextInputCursorIndex = TextInputString->length();
+
+			consumedEvent = true;
+		}
+		else if(sdlEvent.key.keysym.sym == SDLK_LEFT)
+		{
+			if (sdlEvent.key.state == SDL_PRESSED && TextInputCursorIndex >= 0)
+				--TextInputCursorIndex;
+		}
+		else if (sdlEvent.key.keysym.sym == SDLK_RIGHT)
+		{
+			if (sdlEvent.key.state == SDL_PRESSED && TextInputCursorIndex < TextInputString->length())
+				++TextInputCursorIndex;
+		}
+		else if (sdlEvent.type == SDL_TEXTINPUT)
+		{
+			TextInputString->insert(TextInputCursorIndex++, sdlEvent.text.text);
+			consumedEvent = true;
+		}
+	}
+
+	return consumedEvent;
 }
 
 #if PLATFORM == PLATFORM_WINDOWS

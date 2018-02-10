@@ -1,8 +1,12 @@
 #pragma once
 #include "mengineInputKeys.h"
+#include <string>
 
 namespace MEngineInput
 {
+	void StartTextInput(std::string* textInputString);
+	void StopTextInput();
+
 	void SetFocusRequired(bool required);
 
 	bool KeyDown(MENGINE_KEY key);		// Is the key pressed down? (Down)

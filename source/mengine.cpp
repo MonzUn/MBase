@@ -73,7 +73,13 @@ void MEngine::Update()
 	while (SDL_PollEvent(&event) != 0)
 	{
 		if (event.type == SDL_QUIT)
+		{
 			QuitRequested = true;
+			break;
+		}
+
+		if (MEngineInput::HandleEvent(event))
+			break;
 	};
 
 	MEngineInput::Update();
