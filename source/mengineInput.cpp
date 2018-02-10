@@ -10,11 +10,11 @@ using namespace MEngineInput;
 
 #define MUTILITY_LOG_CATEGORY_INPUT "MEngineInput"
 
-namespace MEngineInput // TODODB: Fix casing on these variables
+namespace MEngineInput
 {
-	bool windowFocusRequired = true;
-	bool pressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
-	bool previouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
+	bool WindowFocusRequired = true;
+	bool PressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
+	bool PreviouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
 	bool PressedKeysBuffer[MENGINE_KEY::MKEY_COUNT] = { false }; // Used when focus is not required
 	std::unordered_map<uint32_t, MENGINE_KEY> ScanCodeToMKeyConversionTable;
 	std::string* TextInputString = nullptr;
@@ -56,13 +56,13 @@ void MEngineInput::SetFocusRequired(bool required)
 #if PLATFORM != PLATFORM_WINDOWS
 	static_assert(false, "SetFocusRequired is only supported on the windows platform");
 #else
-	if (windowFocusRequired == required)
+	if (WindowFocusRequired == required)
 		return;
 
 	if (!required)
 	{
 		if (hook = SetWindowsHookEx(WH_KEYBOARD_LL, HookCallback, NULL, 0))
-			windowFocusRequired = false;
+			WindowFocusRequired = false;
 		else
 			MLOG_ERROR("Failed to initialize non focus key input mode", MUTILITY_LOG_CATEGORY_INPUT);
 	}
@@ -70,29 +70,29 @@ void MEngineInput::SetFocusRequired(bool required)
 	{
 		UnhookWindowsHookEx(hook);
 		memset(&PressedKeysBuffer, false, sizeof(PressedKeysBuffer));
-		windowFocusRequired = true;
+		WindowFocusRequired = true;
 	}
 #endif
 }
 
 bool MEngineInput::KeyDown(MENGINE_KEY key)
 {
-	return pressedKeys[key];
+	return PressedKeys[key];
 }
 
 bool MEngineInput::KeyUp(MENGINE_KEY key)
 {
-	return !pressedKeys[key];
+	return !PressedKeys[key];
 }
 
 bool MEngineInput::KeyPressed(MENGINE_KEY key)
 {
-	return (!previouslyPressedKeys[key] && pressedKeys[key]);
+	return (!PreviouslyPressedKeys[key] && PressedKeys[key]);
 }
 
 bool MEngineInput::KeyReleased(MENGINE_KEY key)
 {
-	return (previouslyPressedKeys[key] && !pressedKeys[key]);
+	return (PreviouslyPressedKeys[key] && !PressedKeys[key]);
 }
 
 // ---------- INTERNAL ----------
@@ -104,9 +104,9 @@ void MEngineInput::Initialize()
 
 void MEngineInput::Update()
 {
-	memcpy(&previouslyPressedKeys, &pressedKeys, sizeof(pressedKeys));
-	if (!windowFocusRequired)
-		memcpy(&pressedKeys, &PressedKeysBuffer, sizeof(pressedKeys));
+	memcpy(&PreviouslyPressedKeys, &PressedKeys, sizeof(PressedKeys));
+	if (!WindowFocusRequired)
+		memcpy(&PressedKeys, &PressedKeysBuffer, sizeof(PressedKeys));
 }
 
 bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
