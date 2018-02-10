@@ -1,10 +1,11 @@
 #include "interface/mengine.h"
+#include "interface/mengineUtility.h"
 #include "mengineConfigInternal.h"
-#include "mengineGlobals.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineInputInternal.h"
 #include "mengineSystemInternal.h"
 #include "mengineTextInternal.h"
+#include "mengineUtilityInternal.h"
 #include <MUtilityLog.h>
 #include <MUtilitySystem.h>
 #include <SDL.h>
@@ -26,8 +27,6 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
-	MUtility::GetExecutableDirectoryPath(Globals::EXECUTABLE_PATH);
-
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
 		MLOG_ERROR("Failed to initialize MEngineGraphics", MUTILITY_LOG_CATEGORY_GENERAL);
@@ -36,6 +35,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 
 	MEngineInput::Initialize();
 	MEngineConfig::Initialize();
+	MEngineUtility::Initialize();
 
 	MLOG_INFO("MEngine initialized successfully", MUTILITY_LOG_CATEGORY_GENERAL);
 
@@ -69,6 +69,7 @@ bool MEngine::ShouldQuit()
 
 void MEngine::Update()
 {
+	MEngineUtility::Update();
 	MEngineInput::Update();
 
 	SDL_Event event;

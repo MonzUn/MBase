@@ -1,6 +1,6 @@
 #include "mengineGraphicsInternal.h"
+#include "interface/mengineUtility.h"
 #include "mengineEntityManagerInternal.h"
-#include "mengineGlobals.h"
 #include "mengineTextInternal.h"
 #include "sdlLock.h"
 #include "interface/mengineObject.h"
@@ -44,7 +44,7 @@ MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWith
 		}
 		else
 		{
-			std::string absolutePath = Globals::EXECUTABLE_PATH + "/" + pathWithExtension;
+			std::string absolutePath = MEngineUtility::GetExecutablePath() + "/" + pathWithExtension;
 			SDL_Texture* texture = IMG_LoadTexture(Renderer, absolutePath.c_str());
 			if (texture != nullptr)
 			{

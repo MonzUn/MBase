@@ -1,8 +1,8 @@
 #include "interface/mengineText.h"
 #include "mengineTextInternal.h"
+#include "interface/mengineUtility.h"
 #include "interface/mengineColor.h"
 #include "mengineGraphicsInternal.h"
-#include "mengineGlobals.h"
 #include <MUtilityLog.h>
 #include <SDL_FontCache.h>
 #include <vector>
@@ -28,7 +28,7 @@ void MEngineText::SetFont(const std::string& relativeFontPath)
 		FreeFont(Font);
 
 	Font = FC_CreateFont();
-	const std::string absolutePath = Globals::EXECUTABLE_PATH + '/' + relativeFontPath;
+	const std::string absolutePath = MEngineUtility::GetExecutablePath() + '/' + relativeFontPath;
 	if (!FC_LoadFont(Font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), DEFAULT_POINT_SIZE, FC_MakeColor(DEFAULT_TEXT_COLOR.R, DEFAULT_TEXT_COLOR.G, DEFAULT_TEXT_COLOR.B, DEFAULT_TEXT_COLOR.A), TTF_STYLE_NORMAL))
 	{
 		MLOG_WARNING("Failed to load font at path \"" << absolutePath << '\"', MUtility_LOG_CATEGORY_TEXT);

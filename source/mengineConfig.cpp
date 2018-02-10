@@ -1,6 +1,6 @@
 #include "interface/mengineConfig.h"
 #include "mengineConfigInternal.h"
-#include "mengineGlobals.h"
+#include "interface/mengineUtility.h"
 #include <MUtilityFile.h>
 #include <MUtilityLog.h>
 #include <MUtilityString.h>
@@ -285,7 +285,7 @@ void MEngineConfig::ReadConfigFile()
 
 void MEngineConfig::SetConfigFilePath(const std::string& relativeFilePathAndName)
 {
-	ConfigFilePath		= Globals::EXECUTABLE_PATH + '/' + relativeFilePathAndName + CONFIG_EXTENSION;
+	ConfigFilePath		= MEngineUtility::GetExecutablePath() + '/' + relativeFilePathAndName + CONFIG_EXTENSION;
 	ConfigDirectoryPath = MUtilityFile::GetDirectoryPathFromFilePath(ConfigFilePath);
 }
 
