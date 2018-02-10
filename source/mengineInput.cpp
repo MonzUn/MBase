@@ -13,12 +13,22 @@ using namespace MEngineInput;
 namespace MEngineInput
 {
 	bool WindowFocusRequired = true;
+
+	// Key input
 	bool PressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
 	bool PreviouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
 	bool PressedKeysBuffer[MENGINE_KEY::MKEY_COUNT] = { false }; // Used when focus is not required
 	std::unordered_map<uint32_t, MENGINE_KEY> ScanCodeToMKeyConversionTable;
+
+	// Text input
 	std::string* TextInputString = nullptr;
 	uint64_t TextInputCursorIndex = 0;
+
+	// Cursor input
+	int32_t CursorPosX		= -1;
+	int32_t CursorPosY		= -1;
+	int32_t CursorDeltaX	= -1;
+	int32_t CursorDeltaY	= -1;
 }
 
 #if PLATFORM == PLATFORM_WINDOWS
@@ -95,6 +105,26 @@ bool MEngineInput::KeyReleased(MENGINE_KEY key)
 	return (PreviouslyPressedKeys[key] && !PressedKeys[key]);
 }
 
+int32_t MEngineInput::GetCursorPosX()
+{
+	return CursorPosX;
+}
+
+int32_t MEngineInput::GetCursorPosY()
+{
+	return CursorPosY;
+}
+
+int32_t MEngineInput::GetCursorDeltaX()
+{
+	return CursorDeltaX;
+}
+
+int32_t MEngineInput::GetCursorDeltaY()
+{
+	return CursorDeltaY;
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineInput::Initialize()
@@ -107,6 +137,9 @@ void MEngineInput::Update()
 	memcpy(&PreviouslyPressedKeys, &PressedKeys, sizeof(PressedKeys));
 	if (!WindowFocusRequired)
 		memcpy(&PressedKeys, &PressedKeysBuffer, sizeof(PressedKeys));
+
+	CursorDeltaX = 0;
+	CursorDeltaY = 0;
 }
 
 bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
@@ -172,6 +205,15 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 			TextInputString->insert(TextInputCursorIndex++, sdlEvent.text.text);
 			consumedEvent = true;
 		}
+	}
+
+	// Handle mouse input
+	if (sdlEvent.type == SDL_MOUSEMOTION)
+	{
+		CursorPosX		= sdlEvent.motion.x;
+		CursorPosY		= sdlEvent.motion.y;
+		CursorDeltaX	= sdlEvent.motion.xrel;
+		CursorDeltaY	= sdlEvent.motion.yrel;
 	}
 
 	return consumedEvent;

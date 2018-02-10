@@ -13,4 +13,9 @@ namespace MEngineInput
 	bool KeyUp(MENGINE_KEY key);		// Is the key not pressed down? (Up)
 	bool KeyPressed(MENGINE_KEY key);	// Was the key just pressed down? (Up->Down) 
 	bool KeyReleased(MENGINE_KEY key);	// Was the key just released? (Down->Up)
+
+	int32_t GetCursorPosX();
+	int32_t GetCursorPosY();
+	int32_t GetCursorDeltaX();
+	int32_t GetCursorDeltaY();
 }

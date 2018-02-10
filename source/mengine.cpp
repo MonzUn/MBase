@@ -69,6 +69,8 @@ bool MEngine::ShouldQuit()
 
 void MEngine::Update()
 {
+	MEngineInput::Update();
+
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0)
 	{
@@ -82,7 +84,6 @@ void MEngine::Update()
 			break;
 	};
 
-	MEngineInput::Update();
 	MEngineSystem::Update();
 }
 
