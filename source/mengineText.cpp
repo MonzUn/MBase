@@ -17,7 +17,8 @@ void FreeFont(FC_Font*& font);
 namespace MEngineText
 {
 	FC_Font* Font = nullptr;
-	std::vector<TextRenderJob> RenderJobs;
+	std::vector<TextRenderJob> TextRenderJobs;
+	std::vector<CaretRenderJob> CaretRenderJobs;
 }
 
 // ---------- INTERFACE ----------
@@ -38,7 +39,22 @@ void MEngineText::SetFont(const std::string& relativeFontPath)
 
 void MEngineText::DrawText(int32_t posX, int32_t posY, const std::string& text)
 {
-	RenderJobs.push_back(TextRenderJob(posX, posY, text.c_str()));
+	TextRenderJobs.push_back(TextRenderJob(posX, posY, text.c_str()));
+}
+
+void MEngineText::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, uint16_t caretIndex)
+{
+	if (caretIndex >= 0 && caretIndex <= text.length())
+	{
+		DrawText(posX, posY, text.c_str());
+
+		std::string measureString = text.substr(0, caretIndex);
+		uint16_t width = FC_GetWidth(Font, measureString.c_str());
+		uint16_t height = FC_GetHeight(Font, measureString.c_str());
+		CaretRenderJobs.push_back(CaretRenderJob(posX + width, posY, height));
+	}
+	else
+		MLOG_WARNING("Attempted to draw cursor at position outside of string; string = \"" << text << "\"; cursor position = " << caretIndex, MUtility_LOG_CATEGORY_TEXT);
 }
 
 // ---------- INTERNAL ----------
@@ -50,11 +66,17 @@ void MEngineText::Shutdown()
 
 void MEngineText::Render()
 {
-	for(int i = 0; i < RenderJobs.size(); ++i)
+	for(int i = 0; i < TextRenderJobs.size(); ++i)
 	{
-		FC_Draw(Font, MEngineGraphics::GetRenderer(), static_cast<float>(RenderJobs[i].PosX), static_cast<float>(RenderJobs[i].PosY), RenderJobs[i].Text);
+		FC_Draw(Font, MEngineGraphics::GetRenderer(), static_cast<float>(TextRenderJobs[i].PosX), static_cast<float>(TextRenderJobs[i].PosY), TextRenderJobs[i].Text);
 	}
-	RenderJobs.clear();
+	TextRenderJobs.clear();
+
+	for (int i = 0; i < CaretRenderJobs.size(); ++i)
+	{
+		SDL_RenderDrawLine(MEngineGraphics::GetRenderer(), CaretRenderJobs[i].PosX, CaretRenderJobs[i].TopPosY, CaretRenderJobs[i].PosX, CaretRenderJobs[i].TopPosY + CaretRenderJobs[i].Height);
+	}
+	CaretRenderJobs.clear();
 }
 
 // ---------- INTERNAL ----------
