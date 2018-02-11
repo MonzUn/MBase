@@ -24,7 +24,7 @@ namespace MEngineInput
 
 	// Text input
 	std::string* TextInputString = nullptr;
-	uint64_t TextInputCursorIndex = 0;
+	uint64_t TextInputCaretIndex = 0;
 
 	// Cursor input
 	int32_t CursorPosX		= -1;
@@ -47,8 +47,8 @@ void MEngineInput::StartTextInput(std::string* textInputString)
 	if (textInputString == nullptr)
 		SDL_StartTextInput();
 
-	TextInputString			= textInputString;
-	TextInputCursorIndex	= textInputString->length();
+	TextInputString		= textInputString;
+	TextInputCaretIndex = textInputString->length();
 }
 
 void MEngineInput::StopTextInput()
@@ -57,7 +57,7 @@ void MEngineInput::StopTextInput()
 	{
 		SDL_StopTextInput();
 		TextInputString			= nullptr;
-		TextInputCursorIndex	= 0;
+		TextInputCaretIndex = 0;
 	}
 	else
 		MLOG_WARNING("Attempted to stop text input mode without first starting it", MUTILITY_LOG_CATEGORY_INPUT);
@@ -155,8 +155,8 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 	{	
 		if (sdlEvent.key.keysym.sym == SDLK_BACKSPACE) // Remove last character
 		{
-			if (sdlEvent.key.state == SDL_PRESSED && TextInputCursorIndex > 0)
-					TextInputString->erase(--TextInputCursorIndex, 1);
+			if (sdlEvent.key.state == SDL_PRESSED && TextInputCaretIndex > 0)
+					TextInputString->erase(--TextInputCaretIndex, 1);
 
 			consumedEvent = true;
 		}
@@ -172,8 +172,8 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 			if (sdlEvent.key.state == SDL_PRESSED)
 			{
 				char* clipboardString = SDL_GetClipboardText();
-				TextInputString->insert(TextInputCursorIndex, clipboardString);
-				TextInputCursorIndex += strlen(clipboardString);
+				TextInputString->insert(TextInputCaretIndex, clipboardString);
+				TextInputCaretIndex += strlen(clipboardString);
 			}
 
 			consumedEvent = true;
@@ -181,30 +181,30 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 		else if (sdlEvent.key.keysym.sym == SDLK_HOME)
 		{
 			if (sdlEvent.key.state == SDL_PRESSED)
-				TextInputCursorIndex = 0;
+				TextInputCaretIndex = 0;
 
 			consumedEvent = true;
 		}
 		else if (sdlEvent.key.keysym.sym == SDLK_END)
 		{
 			if (sdlEvent.key.state == SDL_PRESSED)
-				TextInputCursorIndex = TextInputString->length();
+				TextInputCaretIndex = TextInputString->length();
 
 			consumedEvent = true;
 		}
 		else if(sdlEvent.key.keysym.sym == SDLK_LEFT)
 		{
-			if (sdlEvent.key.state == SDL_PRESSED && TextInputCursorIndex >= 0)
-				--TextInputCursorIndex;
+			if (sdlEvent.key.state == SDL_PRESSED && TextInputCaretIndex > 0)
+				--TextInputCaretIndex;
 		}
 		else if (sdlEvent.key.keysym.sym == SDLK_RIGHT)
 		{
-			if (sdlEvent.key.state == SDL_PRESSED && TextInputCursorIndex < TextInputString->length())
-				++TextInputCursorIndex;
+			if (sdlEvent.key.state == SDL_PRESSED && TextInputCaretIndex < TextInputString->length())
+				++TextInputCaretIndex;
 		}
 		else if (sdlEvent.type == SDL_TEXTINPUT)
 		{
-			TextInputString->insert(TextInputCursorIndex++, sdlEvent.text.text);
+			TextInputString->insert(TextInputCaretIndex++, sdlEvent.text.text);
 			consumedEvent = true;
 		}
 	}
