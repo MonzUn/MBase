@@ -127,6 +127,11 @@ int32_t MEngineInput::GetCursorDeltaY()
 	return CursorDeltaY;
 }
 
+uint64_t MEngineInput::GetTextInputCaretIndex()
+{
+	return TextInputCaretIndex;
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineInput::Initialize()

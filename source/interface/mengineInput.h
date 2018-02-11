@@ -18,4 +18,6 @@ namespace MEngineInput
 	int32_t GetCursorPosY();
 	int32_t GetCursorDeltaX();
 	int32_t GetCursorDeltaY();
+
+	uint64_t GetTextInputCaretIndex();
 }
