@@ -21,15 +21,19 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 {
 	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
 
+	MUtilityLog::Initialize();
+
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GENERAL);
+		MUtilityLog::Shutdown();
 		return false;
 	}
 
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
 		MLOG_ERROR("Failed to initialize MEngineGraphics", MUTILITY_LOG_CATEGORY_GENERAL);
+		MUtilityLog::Shutdown();
 		return false;
 	}
 
