@@ -43,11 +43,6 @@ namespace MEngineConfig
 		ValueContainer Value;
 	};
 
-	const std::string CONFIG_EXTENSION = ".cfg";
-	const std::string DEFAULT_CONFIG_FILE_NAME = "config";
-	const std::string DEFAULT_CONFIG_FOLDER_NAME = "config";
-	const std::string DEFAULT_CONFIG_FILE_RELATIVE_PATH = DEFAULT_CONFIG_FOLDER_NAME + '/' + DEFAULT_CONFIG_FILE_NAME;
-
 	void Initialize();
 	void Shutdown();
 }
