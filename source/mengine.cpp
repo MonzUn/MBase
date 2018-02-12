@@ -1,6 +1,7 @@
 #include "interface/mengine.h"
 #include "interface/mengineUtility.h"
 #include "mengineConfigInternal.h"
+#include "mengineEntityManagerInternal.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineInputInternal.h"
 #include "mengineSystemInternal.h"
@@ -37,6 +38,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
+	MEngineEntityManager::Initialize();
 	MEngineInput::Initialize();
 	MEngineConfig::Initialize();
 	MEngineUtility::Initialize();
@@ -53,6 +55,7 @@ void MEngine::Shutdown()
 
 	MEngineConfig::Shutdown();
 	MEngineText::Shutdown();
+	MEngineEntityManager::Shutdown();
 
 	Initialized = false;
 	SDL_Quit();

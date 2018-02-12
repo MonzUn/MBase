@@ -7,8 +7,8 @@ using namespace MEngineEntityManager;
 
 namespace MEngineEntityManager
 {
-	std::vector<MEngineObject*> Entities;
-	std::vector<MEngineEntityID> RecycledIDs;
+	std::vector<MEngineObject*>* Entities;
+	std::vector<MEngineEntityID>* RecycledIDs;
 }
 
 #define MUTILITY_LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
@@ -21,28 +21,28 @@ MEngineEntityID MEngineEntityManager::RegisterNewEntity(MEngineObject* entity)
 	MEngineEntityID ID = GetNextEntityID();
 	entity->EntityID = ID;
 
-	if (ID < Entities.size())
-		Entities[ID] = entity;
+	if (ID < Entities->size())
+		(*Entities)[ID] = entity;
 	else
-		Entities.push_back(entity);
+		Entities->push_back(entity);
 	return ID;
 }
 
 void MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 {
-	MEngineObject* object = Entities[entityID];
+	MEngineObject* object = (*Entities)[entityID];
 	if (object != nullptr)
 	{
 		delete object;
-		Entities[entityID] = nullptr;
-		RecycledIDs.push_back(entityID);
+		(*Entities)[entityID] = nullptr;
+		RecycledIDs->push_back(entityID);
 	}
 	else
 	{
 		bool isRecycled = false;
-		for (int i = 0; i < RecycledIDs.size(); ++i)
+		for (int i = 0; i < RecycledIDs->size(); ++i)
 		{
-			if (RecycledIDs[i] == entityID)
+			if ((*RecycledIDs)[i] == entityID)
 			{
 				isRecycled = true;
 				break;
@@ -58,7 +58,7 @@ void MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 
 const std::vector<MEngineObject*>& MEngineEntityManager::GetEntities()
 {
-	return Entities;
+	return *Entities;
 }
 
 MEngineEntityID GetNextEntityID()
@@ -66,11 +66,23 @@ MEngineEntityID GetNextEntityID()
 	static MEngineEntityID nextID = 0;
 
 	MEngineEntityID recycledID = -1;
-	if (RecycledIDs.size() > 0)
+	if (RecycledIDs->size() > 0)
 	{
-		recycledID = RecycledIDs.back();
-		RecycledIDs.pop_back();
+		recycledID = RecycledIDs->back();
+		RecycledIDs->pop_back();
 	}
 
 	return recycledID >= 0 ? recycledID : nextID++;
+}
+
+void MEngineEntityManager::Initialize()
+{
+	Entities = new std::vector<MEngineObject*>();
+	RecycledIDs = new std::vector<MEngineEntityID>();
+}
+
+void MEngineEntityManager::Shutdown()
+{
+	delete Entities;
+	delete RecycledIDs;
 }

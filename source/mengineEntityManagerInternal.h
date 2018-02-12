@@ -4,5 +4,8 @@
 
 namespace MEngineEntityManager
 {
+	void Initialize();
+	void Shutdown();
+
 	const std::vector<MEngineObject*>& GetEntities();
 }
