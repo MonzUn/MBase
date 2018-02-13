@@ -35,6 +35,7 @@ namespace MEngineText
 		const uint32_t Height;
 	};
 
+	void Initialize();
 	void Shutdown();
 
 	void Render();

@@ -40,6 +40,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 
 	MEngineEntityManager::Initialize();
 	MEngineInput::Initialize();
+	MEngineText::Initialize();
 	MEngineConfig::Initialize();
 	MEngineUtility::Initialize();
 	MEngineSystem::Initialize();

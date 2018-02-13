@@ -17,8 +17,8 @@ void FreeFont(FC_Font*& font);
 namespace MEngineText
 {
 	FC_Font* Font = nullptr;
-	std::vector<TextRenderJob> TextRenderJobs;
-	std::vector<CaretRenderJob> CaretRenderJobs;
+	std::vector<TextRenderJob>* TextRenderJobs;
+	std::vector<CaretRenderJob>* CaretRenderJobs;
 }
 
 // ---------- INTERFACE ----------
@@ -39,7 +39,7 @@ void MEngineText::SetFont(const std::string& relativeFontPath)
 
 void MEngineText::DrawText(int32_t posX, int32_t posY, const std::string& text)
 {
-	TextRenderJobs.push_back(TextRenderJob(posX, posY, text.c_str()));
+	TextRenderJobs->push_back(TextRenderJob(posX, posY, text.c_str()));
 }
 
 void MEngineText::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, uint16_t caretIndex)
@@ -51,7 +51,7 @@ void MEngineText::DrawTextWithCaret(int32_t posX, int32_t posY, const std::strin
 		std::string measureString = text.substr(0, caretIndex);
 		uint16_t width = FC_GetWidth(Font, measureString.c_str());
 		uint16_t height = FC_GetHeight(Font, measureString.c_str());
-		CaretRenderJobs.push_back(CaretRenderJob(posX + width, posY, height));
+		CaretRenderJobs->push_back(CaretRenderJob(posX + width, posY, height));
 	}
 	else
 		MLOG_WARNING("Attempted to draw cursor at position outside of string; string = \"" << text << "\"; cursor position = " << caretIndex, MUtility_LOG_CATEGORY_TEXT);
@@ -59,24 +59,33 @@ void MEngineText::DrawTextWithCaret(int32_t posX, int32_t posY, const std::strin
 
 // ---------- INTERNAL ----------
 
+void MEngineText::Initialize()
+{
+	TextRenderJobs = new std::vector<TextRenderJob>();
+	CaretRenderJobs = new std::vector<CaretRenderJob>();
+}
+
 void MEngineText::Shutdown()
 {
 	FreeFont(Font);
+
+	delete TextRenderJobs;
+	delete CaretRenderJobs;
 }
 
 void MEngineText::Render()
 {
-	for(int i = 0; i < TextRenderJobs.size(); ++i)
+	for(int i = 0; i < TextRenderJobs->size(); ++i)
 	{
-		FC_Draw(Font, MEngineGraphics::GetRenderer(), static_cast<float>(TextRenderJobs[i].PosX), static_cast<float>(TextRenderJobs[i].PosY), TextRenderJobs[i].Text);
+		FC_Draw(Font, MEngineGraphics::GetRenderer(), static_cast<float>((*TextRenderJobs)[i].PosX), static_cast<float>((*TextRenderJobs)[i].PosY), (*TextRenderJobs)[i].Text);
 	}
-	TextRenderJobs.clear();
+	TextRenderJobs->clear();
 
-	for (int i = 0; i < CaretRenderJobs.size(); ++i)
+	for (int i = 0; i < CaretRenderJobs->size(); ++i)
 	{
-		SDL_RenderDrawLine(MEngineGraphics::GetRenderer(), CaretRenderJobs[i].PosX, CaretRenderJobs[i].TopPosY, CaretRenderJobs[i].PosX, CaretRenderJobs[i].TopPosY + CaretRenderJobs[i].Height);
+		SDL_RenderDrawLine(MEngineGraphics::GetRenderer(), (*CaretRenderJobs)[i].PosX, (*CaretRenderJobs)[i].TopPosY, (*CaretRenderJobs)[i].PosX, (*CaretRenderJobs)[i].TopPosY + (*CaretRenderJobs)[i].Height);
 	}
-	CaretRenderJobs.clear();
+	CaretRenderJobs->clear();
 }
 
 // ---------- INTERNAL ----------
