@@ -33,6 +33,7 @@ namespace MEngineGraphics
 	};
 
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
+	void Shutdown();
 	MEngineTextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngineTextureID reservedTextureID = INVALID_MENGINE_TEXTURE_ID);
 	void HandleSurfaceToTextureConversions();
 	MEngineTextureID GetNextTextureID();

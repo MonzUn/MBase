@@ -56,6 +56,7 @@ void MEngine::Shutdown()
 	MEngineConfig::Shutdown();
 	MEngineText::Shutdown();
 	MEngineEntityManager::Shutdown();
+	MEngineGraphics::Shutdown();
 
 	Initialized = false;
 	SDL_Quit();

@@ -21,12 +21,12 @@ namespace MEngineGraphics
 	SDL_Renderer*	Renderer	= nullptr;
 	SDL_Window*		Window		= nullptr;
 
-	std::vector<MEngineTexture*> Textures;
-	std::vector<MEngineTextureID> RecycledIDs;
-	std::unordered_map<std::string, MEngineTextureID> PathToIDMap;
+	std::vector<MEngineTexture*>* Textures;
+	std::vector<MEngineTextureID>* RecycledIDs;
+	std::unordered_map<std::string, MEngineTextureID>* PathToIDMap;
 	std::mutex IdLock;
 	std::mutex PathToIDLock;
-	MUtility::LocklessQueue<SurfaceToTextureJob*> SurfaceToTextureQueue;
+	MUtility::LocklessQueue<SurfaceToTextureJob*>* SurfaceToTextureQueue;
 }
 
 // ---------- INTERFACE ----------
@@ -37,8 +37,8 @@ MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWith
 	if (pathWithExtension != "")
 	{
 		PathToIDLock.lock();
-		auto iterator = PathToIDMap.find(pathWithExtension);
-		if (iterator != PathToIDMap.end())
+		auto iterator = PathToIDMap->find(pathWithExtension);
+		if (iterator != PathToIDMap->end())
 		{
 			returnID = iterator->second;
 		}
@@ -49,7 +49,7 @@ MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWith
 			if (texture != nullptr)
 			{
 				returnID = AddTexture(texture);
-				PathToIDMap.insert(std::make_pair(pathWithExtension, returnID));
+				PathToIDMap->insert(std::make_pair(pathWithExtension, returnID));
 			}
 			else
 				MLOG_ERROR("Failed to load texture at path \"" << pathWithExtension << "\"; SDL error = \"" << SDL_GetError() << "\"", MUTILITY_LOG_CATEGORY_GRAPHICS);
@@ -64,22 +64,22 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 {
 	HandleSurfaceToTextureConversions();
 
-	MEngineTexture*& texture = Textures[textureID];
+	MEngineTexture*& texture = (*Textures)[textureID];
 	if (texture != nullptr)
 	{
 		delete texture;
 		texture = nullptr;
 		IdLock.lock();
-		RecycledIDs.push_back(textureID);
+		RecycledIDs->push_back(textureID);
 		IdLock.unlock();
 	}
 	else
 	{
 		bool isRecycled = false;
 		IdLock.lock();
-		for (int i = 0; i < RecycledIDs.size(); ++i)
+		for (int i = 0; i < RecycledIDs->size(); ++i)
 		{
-			if (RecycledIDs[i] == textureID)
+			if ((*RecycledIDs)[i] == textureID)
 			{
 				isRecycled = true;
 				break;
@@ -134,7 +134,7 @@ MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineT
 	}
 
 	MEngineTextureID reservedID = GetNextTextureID();
-	SurfaceToTextureQueue.Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
+	SurfaceToTextureQueue->Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 	SdlApiLock.lock();
 	SDL_FreeSurface(surface);
@@ -166,7 +166,7 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 	}
 
 	MEngineTextureID reservedID = GetNextTextureID();
-	SurfaceToTextureQueue.Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
+	SurfaceToTextureQueue->Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 	SdlApiLock.lock();
 	SDL_FreeSurface(surface);
@@ -242,7 +242,7 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 		SdlApiLock.unlock();
 
 		MEngineTextureID reservedID = GetNextTextureID();
-		SurfaceToTextureQueue.Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
+		SurfaceToTextureQueue->Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 		// Cleanup
 		DeleteDC(desktopDeviceContext);
@@ -264,9 +264,9 @@ const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textur
 
 	MEngineTextureData toReturn;
 	MEngineTexture* texture = nullptr;
-	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID <static_cast<int64_t>(Textures.size()))
+	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID <static_cast<int64_t>(Textures->size()))
 	{
-		const MEngineTexture& texture = *Textures[textureID];
+		const MEngineTexture& texture = *(*Textures)[textureID];
 		toReturn = MEngineTextureData(texture.surface->w, texture.surface->h, texture.surface->pixels);
 	}
 	else
@@ -292,7 +292,21 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
+
+	Textures = new std::vector<MEngineTexture*>();
+	RecycledIDs = new std::vector<MEngineTextureID>();
+	PathToIDMap = new std::unordered_map<std::string, MEngineTextureID>();
+	SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
+
 	return true;
+}
+
+void MEngineGraphics::Shutdown()
+{
+	delete Textures;
+	delete RecycledIDs;
+	delete PathToIDMap;
+	delete SurfaceToTextureQueue;
 }
 
 MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy, MEngineTextureID reservedTextureID)
@@ -300,14 +314,14 @@ MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surfac
 	MEngineTexture* texture = new MEngineTexture(sdlTexture, optionalSurfaceCopy);
 
 	MEngineTextureID ID = reservedTextureID == INVALID_MENGINE_TEXTURE_ID ? GetNextTextureID() : reservedTextureID;
-	ID >= static_cast<int64_t>(Textures.size()) ? Textures.push_back(texture) : Textures[ID] = texture;
+	ID >= static_cast<int64_t>(Textures->size()) ? Textures->push_back(texture) : (*Textures)[ID] = texture;
 	return ID;
 }
 
 void MEngineGraphics::HandleSurfaceToTextureConversions()
 {
 	SurfaceToTextureJob* job;
-	while (SurfaceToTextureQueue.Consume(job))
+	while (SurfaceToTextureQueue->Consume(job))
 	{
 		SdlApiLock.lock();
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, job->Surface );
@@ -326,10 +340,10 @@ MEngineTextureID MEngineGraphics::GetNextTextureID()
 
 	MEngineTextureID toReturn;
 	IdLock.lock();
-	if (RecycledIDs.size() > 0)
+	if (RecycledIDs->size() > 0)
 	{
-		toReturn = RecycledIDs.back();
-		RecycledIDs.pop_back();
+		toReturn = RecycledIDs->back();
+		RecycledIDs->pop_back();
 	}
 	else
 		toReturn = nextID++;
@@ -375,7 +389,7 @@ void MEngineGraphics::RenderEntities()
 				destinationRect.w = entities[i]->Width;
 				destinationRect.h = entities[i]->Height;
 
-				int result = SDL_RenderCopy(Renderer, Textures[entities[i]->TextureID]->texture, nullptr, &destinationRect);
+				int result = SDL_RenderCopy(Renderer, (*Textures)[entities[i]->TextureID]->texture, nullptr, &destinationRect);
 				if (result != 0)
 					MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
 			}
