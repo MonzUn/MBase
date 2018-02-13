@@ -38,11 +38,11 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
+	MEngineUtility::Initialize();
 	MEngineEntityManager::Initialize();
 	MEngineInput::Initialize();
 	MEngineText::Initialize();
 	MEngineConfig::Initialize();
-	MEngineUtility::Initialize();
 	MEngineSystem::Initialize();
 
 	MLOG_INFO("MEngine initialized successfully", MUTILITY_LOG_CATEGORY_GENERAL);
@@ -61,6 +61,7 @@ void MEngine::Shutdown()
 	MEngineInput::Shutdown();
 	MEngineEntityManager::Shutdown();
 	MEngineGraphics::Shutdown();
+	MEngineUtility::Shutdown();
 
 	Initialized = false;
 	SDL_Quit();
