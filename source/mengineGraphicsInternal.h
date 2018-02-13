@@ -16,6 +16,8 @@ namespace MEngineGraphics
 			SDL_QueryTexture(sdlTexture, &format, &access, &width, &height);
 		}
 
+		MEngineTexture(const MEngineTexture& other) = delete;
+
 		~MEngineTexture()
 		{
 			SDL_DestroyTexture(texture);
