@@ -5,6 +5,7 @@
 namespace MEngineInput
 {
 	void Initialize();
+	void Shutdown();
 	void Update();
 	bool HandleEvent(const SDL_Event& sdlEvent);
 }

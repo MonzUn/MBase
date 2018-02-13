@@ -55,6 +55,7 @@ void MEngine::Shutdown()
 
 	MEngineConfig::Shutdown();
 	MEngineText::Shutdown();
+	MEngineInput::Shutdown();
 	MEngineEntityManager::Shutdown();
 	MEngineGraphics::Shutdown();
 
