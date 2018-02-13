@@ -42,6 +42,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 	MEngineInput::Initialize();
 	MEngineConfig::Initialize();
 	MEngineUtility::Initialize();
+	MEngineSystem::Initialize();
 
 	MLOG_INFO("MEngine initialized successfully", MUTILITY_LOG_CATEGORY_GENERAL);
 
@@ -53,6 +54,7 @@ void MEngine::Shutdown()
 {
 	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
 
+	MEngineSystem::Shutdown();
 	MEngineConfig::Shutdown();
 	MEngineText::Shutdown();
 	MEngineInput::Shutdown();

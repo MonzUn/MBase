@@ -17,7 +17,7 @@ namespace std
 
 namespace MEngineSystem
 {
-	std::set<MEngineSystem::System*>	Systems;
+	std::set<MEngineSystem::System*>*	Systems;
 	FrameCounter						PresentationFrameCounter;
 	FrameCounter						SimulationFrameCounter;
 	float								AccumulatedSimulationTime	= 0.0f;
@@ -29,18 +29,35 @@ namespace MEngineSystem
 
 void MEngineSystem::RegisterSystem(System* system)
 {
-	Systems.insert(system);
+	Systems->insert(system);
 	system->Initialize();
 }
 
 // ---------- INTERNAL ----------
+
+void MEngineSystem::Initialize()
+{
+	Systems = new std::set<MEngineSystem::System*>();
+}
+
+void MEngineSystem::Shutdown()
+{
+	for (auto& system : *Systems)
+	{
+		system->Shutdown();
+		delete system;
+	}
+	Systems->clear();
+
+	delete Systems;
+}
 
 void MEngineSystem::Update()
 {
 	PresentationFrameCounter.Tick();
 	float deltaTime = PresentationFrameCounter.GetDeltaTime();
 
-	for (auto& system : Systems)
+	for (auto& system : *Systems)
 	{
 		system->UpdatePresentationLayer(deltaTime);
 	}
@@ -51,19 +68,9 @@ void MEngineSystem::Update()
 		SimulationFrameCounter.Tick();
 		AccumulatedSimulationTime -= SimulationSpeed;
 
-		for (auto& system : Systems)
+		for (auto& system : *Systems)
 		{
 			system->UpdateSimulationLayer(SimulationTimeStep);
 		}
 	}
-}
-
-void MEngineSystem::Shutdown()
-{
-	for (auto& system : Systems)
-	{
-		system->Shutdown();
-		delete system;
-	}
-	Systems.clear();
 }
