@@ -12,6 +12,7 @@ namespace MEngineSystem
 	{
 	public:
 		System(uint32_t priority) { m_Priority = priority; }
+		virtual ~System() {};
 		virtual void Initialize() {};
 		virtual void Shutdown() {};
 
