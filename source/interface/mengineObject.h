@@ -8,6 +8,8 @@
 class MEngineObject
 {
 public:
+	virtual ~MEngineObject() {};
+
 	int32_t PosX	= 0;
 	int32_t PosY	= 0;
 	int32_t Width	= 0;
