@@ -303,7 +303,12 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 
 void MEngineGraphics::Shutdown()
 {
+	for (int i = 0; i < Textures->size(); ++i)
+	{
+		delete (*Textures)[i];
+	}
 	delete Textures;
+
 	delete RecycledIDs;
 	delete PathToIDMap;
 	delete SurfaceToTextureQueue;
