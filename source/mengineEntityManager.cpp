@@ -1,6 +1,7 @@
 #include "interface/mengineEntityManager.h"
 #include "interface/mengineObject.h"
 #include "mengineEntityManagerInternal.h"
+#include <MUtilityIDBank.h>
 #include <MUtilityLog.h>
 
 using namespace MEngineEntityManager;
@@ -8,7 +9,7 @@ using namespace MEngineEntityManager;
 namespace MEngineEntityManager
 {
 	std::vector<MEngineObject*>* Entities;
-	std::vector<MEngineEntityID>* RecycledIDs;
+	MUtilityIDBank* IDBank;
 }
 
 #define MUTILITY_LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
@@ -35,21 +36,11 @@ void MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 	{
 		delete object;
 		(*Entities)[entityID] = nullptr;
-		RecycledIDs->push_back(entityID);
+		IDBank->ReturnID(entityID);
 	}
 	else
 	{
-		bool isRecycled = false;
-		for (int i = 0; i < RecycledIDs->size(); ++i)
-		{
-			if ((*RecycledIDs)[i] == entityID)
-			{
-				isRecycled = true;
-				break;
-			}
-		}
-
-		if (isRecycled)
+		if (IDBank->IsIDRecycled(entityID))
 			MLOG_WARNING("Attempted to destroy entity with ID " << entityID << " but the entity with that ID has already been destroyed", MUTILITY_LOG_CATEGORY_ENTITY_MANAGER);
 		else
 			MLOG_WARNING("Attempted to destroy entity with ID " << entityID << " but no entity with that ID exists", MUTILITY_LOG_CATEGORY_ENTITY_MANAGER);
@@ -63,26 +54,17 @@ const std::vector<MEngineObject*>& MEngineEntityManager::GetEntities()
 
 MEngineEntityID GetNextEntityID()
 {
-	static MEngineEntityID nextID = 0;
-
-	MEngineEntityID recycledID = -1;
-	if (RecycledIDs->size() > 0)
-	{
-		recycledID = RecycledIDs->back();
-		RecycledIDs->pop_back();
-	}
-
-	return recycledID >= 0 ? recycledID : nextID++;
+	return IDBank->GetID();
 }
 
 void MEngineEntityManager::Initialize()
 {
 	Entities = new std::vector<MEngineObject*>();
-	RecycledIDs = new std::vector<MEngineEntityID>();
+	IDBank = new MUtilityIDBank();
 }
 
 void MEngineEntityManager::Shutdown()
 {
 	delete Entities;
-	delete RecycledIDs;
+	delete IDBank;
 }
