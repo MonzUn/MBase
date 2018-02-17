@@ -1,4 +1,5 @@
 #pragma once
+#include <MUtilityTypes.h>
 #include <cstdint>
 #include <string>
 
@@ -17,7 +18,7 @@ namespace MEngineGraphics
 		int32_t		Height			= -1;
 	};
 
-	typedef int32_t MEngineTextureID;
+	typedef MUtilityID MEngineTextureID;
 
 	MEngineTextureID	GetTextureFromPath(const std::string& pathWithExtension);
 	void				UnloadTexture(MEngineTextureID textureID);

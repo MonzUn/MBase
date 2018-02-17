@@ -4,6 +4,7 @@
 #include "mengineTextInternal.h"
 #include "sdlLock.h"
 #include "interface/mengineObject.h"
+#include <MUtilityIDBank.h>
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
@@ -22,9 +23,8 @@ namespace MEngineGraphics
 	SDL_Window*		Window		= nullptr;
 
 	std::vector<MEngineTexture*>* Textures;
-	std::vector<MEngineTextureID>* RecycledIDs;
+	MUtilityIDBank* IDBank;
 	std::unordered_map<std::string, MEngineTextureID>* PathToIDMap;
-	std::mutex IdLock;
 	std::mutex PathToIDLock;
 	MUtility::LocklessQueue<SurfaceToTextureJob*>* SurfaceToTextureQueue;
 }
@@ -69,25 +69,11 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	{
 		delete texture;
 		texture = nullptr;
-		IdLock.lock();
-		RecycledIDs->push_back(textureID);
-		IdLock.unlock();
+		IDBank->ReturnID(textureID);
 	}
 	else
 	{
-		bool isRecycled = false;
-		IdLock.lock();
-		for (int i = 0; i < RecycledIDs->size(); ++i)
-		{
-			if ((*RecycledIDs)[i] == textureID)
-			{
-				isRecycled = true;
-				break;
-			}
-		}
-		IdLock.unlock();
-
-		if (isRecycled)
+		if (IDBank->IsIDRecycled(textureID))
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", MUTILITY_LOG_CATEGORY_GRAPHICS);
 		else
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", MUTILITY_LOG_CATEGORY_GRAPHICS);
@@ -294,7 +280,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 	}
 
 	Textures = new std::vector<MEngineTexture*>();
-	RecycledIDs = new std::vector<MEngineTextureID>();
+	IDBank = new MUtilityIDBank();
 	PathToIDMap = new std::unordered_map<std::string, MEngineTextureID>();
 	SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
 
@@ -309,7 +295,7 @@ void MEngineGraphics::Shutdown()
 	}
 	delete Textures;
 
-	delete RecycledIDs;
+	delete IDBank;
 	delete PathToIDMap;
 	delete SurfaceToTextureQueue;
 }
@@ -341,20 +327,7 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 
 MEngineTextureID MEngineGraphics::GetNextTextureID()
 {
-	static MEngineTextureID nextID = 0;
-
-	MEngineTextureID toReturn;
-	IdLock.lock();
-	if (RecycledIDs->size() > 0)
-	{
-		toReturn = RecycledIDs->back();
-		RecycledIDs->pop_back();
-	}
-	else
-		toReturn = nextID++;
-	IdLock.unlock();
-
-	return toReturn;
+	return IDBank->GetID();
 }
 
 SDL_Renderer* MEngineGraphics::GetRenderer()
