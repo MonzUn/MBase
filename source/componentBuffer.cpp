@@ -31,6 +31,11 @@ ComponentBuffer::ComponentBuffer(const Component& templateComponent, uint32_t te
 
 ComponentBuffer::~ComponentBuffer()
 {
+	for (uint32_t i = 0; i < GetCount(); ++i)
+	{
+		reinterpret_cast<Component*>(&(m_Buffer[m_ComponentByteSize * i]))->Destroy();
+	}
+
 	delete[] m_Buffer;
 	delete[] ComponentName;
 	free(TemplateComponent);
@@ -48,6 +53,7 @@ uint32_t ComponentBuffer::AllocateComponent(MEngineEntityID ownerID)
 	if (insertIndex == m_Capacity)
 		Resize();
 
+	reinterpret_cast<Component*>(&(m_Buffer[m_ComponentByteSize * insertIndex]))->Initialize();
 	return insertIndex;
 }
 
@@ -61,6 +67,7 @@ bool ComponentBuffer::ReturnComponent(uint32_t componentIndex)
 	}
 #endif
 
+	reinterpret_cast<Component*>(&(m_Buffer[m_ComponentByteSize * componentIndex]))->Destroy();
 	if (componentIndex == m_NextIndex - 1)
 	{
 		m_Owners.pop_back();

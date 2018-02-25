@@ -8,7 +8,7 @@
 
 namespace MEngine
 {
-	class ComponentBuffer // TODODB: Add support for component destruction
+	class ComponentBuffer
 	{
 	public:
 		ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, MEngineComponentMask componentMask);
