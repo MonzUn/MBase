@@ -1,9 +1,9 @@
 #include "mengineGraphicsInternal.h"
+#include "interface/mengineComponentManager.h"
+#include "interface/mengineInternalComponents.h"
 #include "interface/mengineUtility.h"
-#include "mengineEntityManagerInternal.h"
 #include "mengineTextInternal.h"
 #include "sdlLock.h"
-#include "interface/mengineObject.h"
 #include <MUtilityIDBank.h>
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
@@ -14,6 +14,7 @@
 #include <unordered_map>
 
 using namespace MEngineGraphics;
+using MUtility::MUtilityIDBank;
 
 #define MUTILITY_LOG_CATEGORY_GRAPHICS "MEngineGraphics" // TODODB: Rename this MEngine instead of MUtility
 
@@ -354,23 +355,23 @@ void MEngineGraphics::Render()
 
 void MEngineGraphics::RenderEntities()
 {
-	const std::vector<MEngineObject*>& entities = MEngineEntityManager::GetEntities();
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		if (entities[i] != nullptr && entities[i]->TextureID != INVALID_MENGINE_TEXTURE_ID)
-		{
-			if (!entities[i]->RenderIgnore)
-			{
-				SDL_Rect destinationRect = SDL_Rect();
-				destinationRect.x = entities[i]->PosX;
-				destinationRect.y = entities[i]->PosY;
-				destinationRect.w = entities[i]->Width;
-				destinationRect.h = entities[i]->Height;
+	int32_t componentCount = 0;
+	MEngine::TextureRenderingComponent* textureComponents = reinterpret_cast<MEngine::TextureRenderingComponent*>(MEngineComponentManager::GetComponentBuffer(MEngine::TextureRenderingComponent::GetComponentMask(), componentCount));
 
-				int result = SDL_RenderCopy(Renderer, (*Textures)[entities[i]->TextureID]->texture, nullptr, &destinationRect);
-				if (result != 0)
-					MLOG_WARNING("Failed to render texture with ID: " << entities[i]->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
-			}
-		}
+	for (int i = 0; i < componentCount; ++i)
+	{
+		MEngine::TextureRenderingComponent& textureComponent = textureComponents[i];
+		if (textureComponent.RenderIgnore || textureComponent.TextureID == INVALID_MENGINE_TEXTURE_ID)
+			continue;
+
+		SDL_Rect destinationRect = SDL_Rect();
+		destinationRect.x = textureComponent.PosX;
+		destinationRect.y = textureComponent.PosY;
+		destinationRect.w = textureComponent.Width;
+		destinationRect.h = textureComponent.Height;
+
+		int result = SDL_RenderCopy(Renderer, (*Textures)[textureComponent.TextureID]->texture, nullptr, &destinationRect);
+		if (result != 0)
+			MLOG_ERROR("Failed to render texture with ID: " << textureComponent.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
 	}
 }

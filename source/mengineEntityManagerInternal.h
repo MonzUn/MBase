@@ -7,5 +7,5 @@ namespace MEngineEntityManager
 	void Initialize();
 	void Shutdown();
 
-	const std::vector<MEngineObject*>& GetEntities();
+	void UpdateComponentIndex(MEngineEntityID ID, MEngineComponentMask componentType, uint32_t newComponentIndex);
 }

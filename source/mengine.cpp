@@ -1,8 +1,10 @@
 #include "interface/mengine.h"
 #include "interface/mengineUtility.h"
+#include "mengineComponentManagerInternal.h"
 #include "mengineConfigInternal.h"
 #include "mengineEntityManagerInternal.h"
 #include "mengineGraphicsInternal.h"
+#include "mengineInternalComponentsInternal.h"
 #include "mengineInputInternal.h"
 #include "mengineSystemInternal.h"
 #include "mengineTextInternal.h"
@@ -38,8 +40,11 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
+	// TODODB: Make a separate file for all system initialization/shutdown so that we can avoid cluttering this file with them and their includes
 	MEngineUtility::Initialize();
 	MEngineEntityManager::Initialize();
+	MEngineComponentManager::Initialize();
+	MEngineInternalComponents::Initialize();
 	MEngineInput::Initialize();
 	MEngineText::Initialize();
 	MEngineConfig::Initialize();
@@ -59,6 +64,8 @@ void MEngine::Shutdown()
 	MEngineConfig::Shutdown();
 	MEngineText::Shutdown();
 	MEngineInput::Shutdown();
+	MEngineInternalComponents::Shutdown();
+	MEngineComponentManager::Shutdown();
 	MEngineEntityManager::Shutdown();
 	MEngineGraphics::Shutdown();
 	MEngineUtility::Shutdown();

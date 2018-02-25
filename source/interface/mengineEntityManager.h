@@ -1,15 +1,16 @@
 #pragma once
+#include "mengineTypes.h"
+#include "mengineComponent.h"
 #include <MUtilityTypes.h>
 #include <stdint.h>
 
-#define INVALID_MENGINE_ENTITY_ID -1
-
-class MEngineObject;
-
 namespace MEngineEntityManager
 {
-	typedef MUtilityID MEngineEntityID;
+	MEngineEntityID CreateEntity();
+	bool DestroyEntity(MEngineEntityID entityID);
 
-	MEngineEntityID RegisterNewEntity(MEngineObject* entity);
-	void DestroyEntity(MEngineEntityID entityID);
+	MEngineComponentMask AddComponentsToEntity(MEngineComponentMask componentMask, MEngineEntityID entityID); // Returns a bitmask containing all component types that could not be added to the entity
+	MEngineComponentMask RemoveComponentsFromEntity(MEngineComponentMask componentMask, MEngineEntityID entityID); // Returns a bitmask containing all component types that could not be removed from the entity
+
+	MEngine::Component* GetComponentForEntity(MEngineComponentMask componentMask, MEngineEntityID entityID);
 }

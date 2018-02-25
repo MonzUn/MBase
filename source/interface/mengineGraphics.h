@@ -1,9 +1,8 @@
 #pragma once
-#include <MUtilityTypes.h>
+#include "mengineTypes.h"
 #include <cstdint>
 #include <string>
 
-#define INVALID_MENGINE_TEXTURE_ID -1
 #define MENGINE_BYTES_PER_PIXEL 4  // RGBA
 
 namespace MEngineGraphics
@@ -17,8 +16,6 @@ namespace MEngineGraphics
 		int32_t		Width			= -1;
 		int32_t		Height			= -1;
 	};
-
-	typedef MUtilityID MEngineTextureID;
 
 	MEngineTextureID	GetTextureFromPath(const std::string& pathWithExtension);
 	void				UnloadTexture(MEngineTextureID textureID);

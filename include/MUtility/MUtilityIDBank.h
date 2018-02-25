@@ -1,89 +1,51 @@
 #pragma once
+#include "MUtilityByte.h"
 #include "MUtilityLog.h"
 #include "MUtilityTypes.h"
+#include <atomic>
 #include <mutex>
 #include <stdint.h>
-#include <vector>
+#include <type_traits>
+#include <deque>
 
-#define MUTILITY_LOG_CATEGORY_IDBANK "IDBank"
-
-class MUtilityIDBank
+namespace MUtility
 {
-public:
-	MUtilityID GetID()
+	class MUtilityIDBank
 	{
-		MUtilityID toReturn;
-		m_Lock.lock();
-		if (m_RecycledIDs.size() > 0)
-		{
-			toReturn = m_RecycledIDs.back();
-			m_RecycledIDs.pop_back();
-		}
-		else
-		{
-			toReturn = m_NextID++;
-		}
-		m_Lock.unlock();
+	public:
+		MUtilityID GetID();
+		bool ReturnID(MUtilityID idToreturn);
 
-		return toReturn;
-	}
+		MUtilityID PeekNextID() const;
 
-	bool ReturnID(MUtilityID idToreturn)
+		bool IsIDActive(MUtilityID id) const;
+		bool IsIDRecycled(MUtilityID id) const;
+
+		uint32_t GetCount() const;
+
+	private:
+		std::atomic<MUtilityID> m_NextID = 0;
+		std::deque<MUtilityID> m_RecycledIDs;
+		std::atomic<uint32_t>  m_Count = 0;
+		mutable std::mutex m_Lock;
+	};
+
+	class MUtilityBitMaskIDBank
 	{
-		if (idToreturn < 0)
-			return false;
+	public:
+		MUtilityBitmaskID GetID();
+		bool ReturnID(MUtilityBitmaskID idToReturn);
 
-		m_Lock.lock();
-		if (idToreturn >= m_NextID)
-		{
-			MLOG_WARNING("Attempted to return an ID that has not yet been assigned; ID = " << idToreturn, MUTILITY_LOG_CATEGORY_IDBANK);
-			m_Lock.unlock();
-			return false;
-		}
+		MUtilityBitmaskID PeekNextID() const;
 
-#ifdef _DEBUG
-		if (IsIDRecycled(idToreturn))
-		{
-			MLOG_WARNING("Attempted to return an already returned ID; ID = " << idToreturn, MUTILITY_LOG_CATEGORY_IDBANK);
-			m_Lock.unlock();
-			return false;
-		}
-#endif
+		bool IsIDActive(MUtilityBitmaskID id) const;
+		bool IsIDRecycled(MUtilityBitmaskID id) const;
 
-		m_RecycledIDs.push_back(idToreturn);
+		uint32_t GetCount() const;
 
-		m_Lock.unlock();
-		return true;
-	}
-
-	bool IsIDActive(MUtilityID id)
-	{
-		if (id < 0)
-			return false;
-
-		m_Lock.lock();
-		if (id >= m_NextID || IsIDRecycled(id))
-		{
-			m_Lock.unlock();
-			return false;
-		}
-
-		m_Lock.unlock();
-		return true;
-	}
-
-	bool IsIDRecycled(MUtilityID id)
-	{
-		for (int i = 0; i < m_RecycledIDs.size(); ++i)
-		{
-			if (m_RecycledIDs[i] == id)
-				return true;
-		}
-		return false;
-	}
-
-private:
-	MUtilityID m_NextID = 0;
-	std::vector<MUtilityID> m_RecycledIDs;
-	std::mutex m_Lock;
-};
+	private:
+		std::atomic<MUtilityBitmaskID>	m_NextID = 1;
+		std::atomic<MUtilityBitmaskID>	m_RecycledIDs = 0;
+		std::atomic<uint32_t>			m_Count = 0;
+	};
+}
