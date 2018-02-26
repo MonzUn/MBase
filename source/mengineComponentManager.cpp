@@ -5,7 +5,7 @@
 #include <MUtilityMath.h>
 #include <vector>
 
-#define MENGINE_LOG_CATEGORY_COMPONENT_MANAGER "ComponentManager"
+#define LOG_CATEGORY_COMPONENT_MANAGER "ComponentManager"
 
 namespace MEngineComponentManager
 {
@@ -21,7 +21,7 @@ MEngineComponentMask MEngineComponentManager::RegisterComponentType(const MEngin
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
 	{
-		MLOG_WARNING("Ran out of component mask IDs when attempting to add component \"" << componentName << '"', MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+		MLOG_WARNING("Ran out of component mask IDs when attempting to add component \"" << componentName << '"', LOG_CATEGORY_COMPONENT_MANAGER);
 		return INVALID_MENGINE_COMPONENT_MASK;
 	}
 #endif
@@ -35,12 +35,12 @@ bool MEngineComponentManager::UnregisterComponentType(MEngineComponentMask compo
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
 	{
-		MLOG_WARNING("Attempted to unregister an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+		MLOG_WARNING("Attempted to unregister an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return false;
 	}
 	else if (!m_IDBank.IsIDActive(componentType))
 	{
-		MLOG_WARNING("Attempted to unregister an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+		MLOG_WARNING("Attempted to unregister an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return false;
 	}
 #endif
@@ -56,13 +56,13 @@ bool MEngineComponentManager::UnregisterComponentType(MEngineComponentMask compo
 			}
 			else
 			{
-				MLOG_WARNING("Failed to return the component mask for component \"" << (*m_Buffers)[i].ComponentName << "\"; the component type will not be unregistered", MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+				MLOG_WARNING("Failed to return the component mask for component \"" << (*m_Buffers)[i].ComponentName << "\"; the component type will not be unregistered", LOG_CATEGORY_COMPONENT_MANAGER);
 				return false;
 			}
 		}
 	}
 
-	MLOG_ERROR("Failed to find the component buffer for component mask " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+	MLOG_ERROR("Failed to find the component buffer for component mask " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 	return false;
 }
 
@@ -71,13 +71,13 @@ MUtility::Byte* MEngineComponentManager::GetComponentBuffer(MEngineComponentMask
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
 	{
-		MLOG_WARNING("Attempted to get buffer using an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+		MLOG_WARNING("Attempted to get buffer using an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		outComponentCount = -1;
 		return nullptr;
 	}
 	else if (!m_IDBank.IsIDActive(componentType))
 	{
-		MLOG_WARNING("Attempted to get buffer using an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+		MLOG_WARNING("Attempted to get buffer using an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		outComponentCount = -1;
 		return nullptr;
 	}
@@ -92,7 +92,7 @@ MUtility::Byte* MEngineComponentManager::GetComponentBuffer(MEngineComponentMask
 		}
 	}
 
-	MLOG_ERROR("Failed to find the component buffer for component mask " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_COMPONENT_MANAGER);
+	MLOG_ERROR("Failed to find the component buffer for component mask " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 	outComponentCount = -1;
 	return nullptr;
 }

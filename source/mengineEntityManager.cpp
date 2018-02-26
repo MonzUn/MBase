@@ -11,7 +11,7 @@
 using namespace MEngineEntityManager;
 using MUtility::MUtilityIDBank;
 
-#define MENGINE_LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
+#define LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
 
 // ---------- LOCAL ----------
 
@@ -42,7 +42,7 @@ bool MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (!m_IDBank->IsIDActive(entityID))
 	{
-		MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
 		return false;
 	}
 #endif
@@ -61,7 +61,7 @@ bool MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 		}
 	}
 
-	MLOG_ERROR("Failed to find entity with ID " << entityID << " even though it is marked as active", MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+	MLOG_ERROR("Failed to find entity with ID " << entityID << " even though it is marked as active", LOG_CATEGORY_ENTITY_MANAGER);
 	return false;
 }
 
@@ -70,12 +70,12 @@ MEngineComponentMask MEngineEntityManager::AddComponentsToEntity(MEngineComponen
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
 	{
-		MLOG_WARNING("Attempted to add component(s) to entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to add component(s) to entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 	else if (!m_IDBank->IsIDActive(entityID))
 	{
-		MLOG_WARNING("Attempted to add components to an entity that doesn't exist; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to add components to an entity that doesn't exist; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 #endif
@@ -99,12 +99,12 @@ MEngineComponentMask MEngineEntityManager::RemoveComponentsFromEntity(MEngineCom
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
 	{
-		MLOG_WARNING("Attempted to removed component(s) from entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to removed component(s) from entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 	else if (!m_IDBank->IsIDActive(entityID))
 	{
-		MLOG_WARNING("Attempted to remove component(s) from an entity that doesn't exist; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to remove component(s) from an entity that doesn't exist; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 #endif
@@ -134,22 +134,22 @@ MEngine::Component* MEngineEntityManager::GetComponentForEntity(MEngineComponent
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
 	{
-		MLOG_WARNING("Attempted to get component for entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to get component for entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
 	else if (!m_IDBank->IsIDActive(entityID))
 	{
-		MLOG_WARNING("Attempted to get component for an entity that doesn't exist; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to get component for an entity that doesn't exist; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
 	else if (MUtility::PopCount(componentType) != 1)
 	{
-		MLOG_WARNING("Attempted to get component for an entity using a component mask containing more or less than one component; mask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to get component for an entity using a component mask containing more or less than one component; mask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
 	else if (((*m_ComponentMasks)[entityID] & componentType) == 0)
 	{
-		MLOG_WARNING("Attempted to get component of type " << MUtility::BitSetToString(componentType) << " for an entity that lacks that component type; entity component mask = " << MUtility::BitSetToString((*m_ComponentMasks)[entityID]), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to get component of type " << MUtility::BitSetToString(componentType) << " for an entity that lacks that component type; entity component mask = " << MUtility::BitSetToString((*m_ComponentMasks)[entityID]), LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
 #endif
@@ -187,7 +187,7 @@ uint32_t MEngineEntityManager::CalcComponentIndiceListIndex(MEngineEntityID enti
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if(MUtility::PopCount(componentType) != 1)
-		MLOG_ERROR("A component meask containing more or less than i set bit was supplied; only the highest set bit will be considered", MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_ERROR("A component meask containing more or less than i set bit was supplied; only the highest set bit will be considered", LOG_CATEGORY_ENTITY_MANAGER);
 #endif
 	
 	uint32_t componentTypeBitIndex = MUtilityMath::FastLog2(componentType); // Find the index of the bit signifying the component type

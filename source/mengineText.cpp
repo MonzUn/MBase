@@ -7,7 +7,7 @@
 #include <SDL_FontCache.h>
 #include <vector>
 
-#define MENGINE_LOG_CATEGORY_TEXT "MEngineText"
+#define LOG_CATEGORY_TEXT "MEngineText"
 
 constexpr int32_t						DEFAULT_POINT_SIZE	= 20;
 const MEngineColor::MEngineColorData	DEFAULT_TEXT_COLOR	= MEngineColor::MEngineColorData(MEngineColor::PredefinedColors::BLACK);
@@ -32,7 +32,7 @@ void MEngineText::SetFont(const std::string& relativeFontPath)
 	const std::string absolutePath = MEngineUtility::GetExecutablePath() + '/' + relativeFontPath;
 	if (!FC_LoadFont(m_Font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), DEFAULT_POINT_SIZE, FC_MakeColor(DEFAULT_TEXT_COLOR.R, DEFAULT_TEXT_COLOR.G, DEFAULT_TEXT_COLOR.B, DEFAULT_TEXT_COLOR.A), TTF_STYLE_NORMAL))
 	{
-		MLOG_WARNING("Failed to load font at path \"" << absolutePath << '\"', MENGINE_LOG_CATEGORY_TEXT);
+		MLOG_WARNING("Failed to load font at path \"" << absolutePath << '\"', LOG_CATEGORY_TEXT);
 		FreeFont(m_Font);
 	}
 }
@@ -54,7 +54,7 @@ void MEngineText::DrawTextWithCaret(int32_t posX, int32_t posY, const std::strin
 		m_CaretRenderJobs->push_back(CaretRenderJob(posX + width, posY, height));
 	}
 	else
-		MLOG_WARNING("Attempted to draw cursor at position outside of string; string = \"" << text << "\"; cursor position = " << caretIndex, MENGINE_LOG_CATEGORY_TEXT);
+		MLOG_WARNING("Attempted to draw cursor at position outside of string; string = \"" << text << "\"; cursor position = " << caretIndex, LOG_CATEGORY_TEXT);
 }
 
 // ---------- INTERNAL ----------
