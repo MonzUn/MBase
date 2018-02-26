@@ -5,6 +5,7 @@
 #include "mengineTextInternal.h"
 #include "sdlLock.h"
 #include <MUtilityIDBank.h>
+#include <MUtilityLocklessQueue.h>
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
