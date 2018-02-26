@@ -15,7 +15,7 @@
 #include <cassert>
 #include <iostream>
 
-#define MUTILITY_LOG_CATEGORY_GENERAL "MEngine"
+#define MENGINE_LOG_CATEGORY_GENERAL "MEngine"
 
 bool Initialized = false;
 bool QuitRequested = false;
@@ -28,14 +28,14 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), MENGINE_LOG_CATEGORY_GENERAL);
 		MUtilityLog::Shutdown();
 		return false;
 	}
 
 	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
 	{
-		MLOG_ERROR("Failed to initialize MEngineGraphics", MUTILITY_LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("Failed to initialize MEngineGraphics", MENGINE_LOG_CATEGORY_GENERAL);
 		MUtilityLog::Shutdown();
 		return false;
 	}
@@ -50,7 +50,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 	MEngineConfig::Initialize();
 	MEngineSystem::Initialize();
 
-	MLOG_INFO("MEngine initialized successfully", MUTILITY_LOG_CATEGORY_GENERAL);
+	MLOG_INFO("MEngine initialized successfully", MENGINE_LOG_CATEGORY_GENERAL);
 
 	Initialized = true;
 	return true;
@@ -73,7 +73,7 @@ void MEngine::Shutdown()
 	Initialized = false;
 	SDL_Quit();
 
-	MLOG_INFO("MEngine terminated gracefully", MUTILITY_LOG_CATEGORY_GENERAL);
+	MLOG_INFO("MEngine terminated gracefully", MENGINE_LOG_CATEGORY_GENERAL);
 	MUtilityLog::Shutdown();
 }
 

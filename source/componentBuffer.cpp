@@ -6,7 +6,7 @@
 #include <cstring>
 #include <utility>
 
-#define MUTILITY_LOG_CATEGORY_COMPONENT_BUFFER "ComponentBuffer"
+#define MENGINE_LOG_CATEGORY_COMPONENT_BUFFER "ComponentBuffer"
 
 using namespace MEngine;
 using MUtility::Byte;
@@ -62,7 +62,7 @@ bool ComponentBuffer::ReturnComponent(uint32_t componentIndex)
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentIndex >= m_NextIndex)
 	{
-		MLOG_ERROR("Attempted to return component at an inactive index; component name = \"" << ComponentName << '\"', MUTILITY_LOG_CATEGORY_COMPONENT_BUFFER);
+		MLOG_ERROR("Attempted to return component at an inactive index; component name = \"" << ComponentName << '\"', MENGINE_LOG_CATEGORY_COMPONENT_BUFFER);
 		return false;
 	}
 #endif
@@ -88,7 +88,7 @@ Component* ComponentBuffer::GetComponent(uint32_t componentIndex) const
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentIndex >= m_NextIndex)
-		MLOG_ERROR("Attempted to get component at an inactive index; component name = \"" << ComponentName << '\"', MUTILITY_LOG_CATEGORY_COMPONENT_BUFFER);
+		MLOG_ERROR("Attempted to get component at an inactive index; component name = \"" << ComponentName << '\"', MENGINE_LOG_CATEGORY_COMPONENT_BUFFER);
 #endif
 	return reinterpret_cast<Component*>(&(m_Buffer[componentIndex * m_ComponentByteSize]));
 }

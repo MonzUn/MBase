@@ -9,7 +9,7 @@
 #include <sstream>
 #include <unordered_map>
 
-#define MUTILITY_LOG_CATEGORY_CONFIG "MEngineConfig"
+#define MENGINE_LOG_CATEGORY_CONFIG "MEngineConfig"
 
 namespace MEngineConfig
 {
@@ -85,7 +85,7 @@ void MEngineConfig::SetInt(const std::string& key, int64_t value)
 		if (iterator->second->Type == ValueType::INTEGER)
 			iterator->second->Value.IntegerValue = value;
 		else
-			MLOG_WARNING("Attempted to assign non integer value to integer config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non integer value to integer config entry; key = " << keyCopy, MENGINE_LOG_CATEGORY_CONFIG);
 	}
 	else
 		iterator = Entries->emplace(keyCopy, new ConfigEntry(ValueType::INTEGER, value)).first;
@@ -101,7 +101,7 @@ void MEngineConfig::SetDecimal(const std::string& key, double value)
 		if (iterator->second->Type == ValueType::DECIMAL)
 			iterator->second->Value.DecimalValue = value;
 		else
-			MLOG_WARNING("Attempted to assign non decimal value to decimal config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non decimal value to decimal config entry; key = " << keyCopy, MENGINE_LOG_CATEGORY_CONFIG);
 	}
 	else
 		iterator = Entries->emplace(key, new ConfigEntry(ValueType::DECIMAL, value)).first;
@@ -118,7 +118,7 @@ void MEngineConfig::SetBool(const std::string& key, bool value)
 		if (iterator->second->Type == ValueType::BOOLEAN)
 			iterator->second->Value.BooleanValue = value;
 		else
-			MLOG_WARNING("Attempted to assign non boolean value to boolean config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non boolean value to boolean config entry; key = " << keyCopy, MENGINE_LOG_CATEGORY_CONFIG);
 	}
 	else
 		iterator = Entries->emplace(keyCopy, new ConfigEntry(ValueType::BOOLEAN, value)).first;
@@ -140,7 +140,7 @@ void MEngineConfig::SetString(const std::string& key, const std::string& value)
 			iterator->second->Value.StringValue = newString;
 		}
 		else
-			MLOG_WARNING("Attempted to assign non string value to string config entry; key = " << keyCopy, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Attempted to assign non string value to string config entry; key = " << keyCopy, MENGINE_LOG_CATEGORY_CONFIG);
 	}
 	else
 		iterator = Entries->emplace(keyCopy, new ConfigEntry(ValueType::STRING, newString)).first;
@@ -180,11 +180,11 @@ void MEngineConfig::WriteConfigFile()
 
 			case ValueType::INVALID:
 			{
-				MLOG_WARNING("Config entries contained entry with invalid type", MUTILITY_LOG_CATEGORY_CONFIG);
+				MLOG_WARNING("Config entries contained entry with invalid type", MENGINE_LOG_CATEGORY_CONFIG);
 			} break;
 			
 		default:
-			MLOG_WARNING("Config entries contained entry with unknown type", MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Config entries contained entry with unknown type", MENGINE_LOG_CATEGORY_CONFIG);
 			break;
 		}
 
@@ -206,13 +206,13 @@ void MEngineConfig::ReadConfigFile()
 {
 	if (!MUtilityFile::DirectoryExists(ConfigDirectoryPath->c_str()))
 	{
-		MLOG_WARNING("Config file directory does not exist; Path = " << ConfigDirectoryPath, MUTILITY_LOG_CATEGORY_CONFIG);
+		MLOG_WARNING("Config file directory does not exist; Path = " << ConfigDirectoryPath, MENGINE_LOG_CATEGORY_CONFIG);
 		return;
 	}
 
 	if (!MUtilityFile::FileExists(ConfigFilePath->c_str()))
 	{
-		MLOG_WARNING("Config file does not exist; Path = " << ConfigFilePath, MUTILITY_LOG_CATEGORY_CONFIG);
+		MLOG_WARNING("Config file does not exist; Path = " << ConfigFilePath, MENGINE_LOG_CATEGORY_CONFIG);
 		return;
 	}
 
@@ -232,17 +232,17 @@ void MEngineConfig::ReadConfigFile()
 		size_t dividerPos = line.find("=");
 		if (dividerPos == 0)
 		{
-			MLOG_WARNING("Found config line with missing key; line = " << line, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Found config line with missing key; line = " << line, MENGINE_LOG_CATEGORY_CONFIG);
 			continue;
 		}
 		if (dividerPos == std::string::npos)
 		{
-			MLOG_WARNING("Found config line without divider; line = " << line, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Found config line without divider; line = " << line, MENGINE_LOG_CATEGORY_CONFIG);
 			continue;
 		}
 		if (dividerPos == line.length() - 1)
 		{
-			MLOG_WARNING("Found config line without key; line = " << line, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Found config line without key; line = " << line, MENGINE_LOG_CATEGORY_CONFIG);
 			continue;
 		}
 
@@ -254,12 +254,12 @@ void MEngineConfig::ReadConfigFile()
 		{
 			if (value[0] != '\"')
 			{
-				MLOG_WARNING("Found config string missing initial \" character; line = " << line, MUTILITY_LOG_CATEGORY_CONFIG);
+				MLOG_WARNING("Found config string missing initial \" character; line = " << line, MENGINE_LOG_CATEGORY_CONFIG);
 				continue;
 			}
 			else if (value[value.size() - 1] != '\"')
 			{
-				MLOG_WARNING("Found config string missing ending \" character; line = " << line, MUTILITY_LOG_CATEGORY_CONFIG);
+				MLOG_WARNING("Found config string missing ending \" character; line = " << line, MENGINE_LOG_CATEGORY_CONFIG);
 				continue;
 			}
 
@@ -284,7 +284,7 @@ void MEngineConfig::ReadConfigFile()
 			Entries->emplace(key, new ConfigEntry(ValueType::DECIMAL, doubleValue));
 		}
 		else
-			MLOG_WARNING("Unable to determine value type of config line; line = " << line, MUTILITY_LOG_CATEGORY_CONFIG);
+			MLOG_WARNING("Unable to determine value type of config line; line = " << line, MENGINE_LOG_CATEGORY_CONFIG);
 	}
 }
 

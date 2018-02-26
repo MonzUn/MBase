@@ -17,7 +17,7 @@
 using namespace MEngineGraphics;
 using MUtility::MUtilityIDBank;
 
-#define MUTILITY_LOG_CATEGORY_GRAPHICS "MEngineGraphics" // TODODB: Rename this MEngine instead of MUtility
+#define MENGINE_LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
 namespace MEngineGraphics
 {
@@ -54,7 +54,7 @@ MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWith
 				PathToIDMap->insert(std::make_pair(pathWithExtension, returnID));
 			}
 			else
-				MLOG_ERROR("Failed to load texture at path \"" << pathWithExtension << "\"; SDL error = \"" << SDL_GetError() << "\"", MUTILITY_LOG_CATEGORY_GRAPHICS);
+				MLOG_ERROR("Failed to load texture at path \"" << pathWithExtension << "\"; SDL error = \"" << SDL_GetError() << "\"", MENGINE_LOG_CATEGORY_GRAPHICS);
 		}
 		PathToIDLock.unlock();
 	}
@@ -76,9 +76,9 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	else
 	{
 		if (IDBank->IsIDRecycled(textureID))
-			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", MUTILITY_LOG_CATEGORY_GRAPHICS);
+			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", MENGINE_LOG_CATEGORY_GRAPHICS);
 		else
-			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", MUTILITY_LOG_CATEGORY_GRAPHICS);
+			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", MENGINE_LOG_CATEGORY_GRAPHICS);
 	}
 }
 
@@ -89,7 +89,7 @@ MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineT
 
 	if (posX < 0 || posY < 0 || offsetLimitX >= originalTexture.Width || offsetLimitY >= originalTexture.Height)
 	{
-		MLOG_WARNING("Invalid clip information supplied [" << originalTexture.Width << ',' << originalTexture.Height << ']' << ' (' << posX << ',' << posY << ") (" << (posX + width) << ',' << (posY + height) << ')', MUTILITY_LOG_CATEGORY_GRAPHICS);
+		MLOG_WARNING("Invalid clip information supplied [" << originalTexture.Width << ',' << originalTexture.Height << ']' << ' (' << posX << ',' << posY << ") (" << (posX + width) << ',' << (posY + height) << ')', MENGINE_LOG_CATEGORY_GRAPHICS);
 		return INVALID_MENGINE_TEXTURE_ID;
 	}
 
@@ -258,7 +258,7 @@ const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textur
 		toReturn = MEngineTextureData(texture.surface->w, texture.surface->h, texture.surface->pixels);
 	}
 	else
-		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MUTILITY_LOG_CATEGORY_GRAPHICS);
+		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, MENGINE_LOG_CATEGORY_GRAPHICS);
 
 	return toReturn;
 }
@@ -270,14 +270,14 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 	Window = SDL_CreateWindow(appName, 100, 100, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
 	if (Window == nullptr)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
+		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), MENGINE_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
 	
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == nullptr)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), MUTILITY_LOG_CATEGORY_GRAPHICS);
+		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), MENGINE_LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
 
@@ -373,6 +373,6 @@ void MEngineGraphics::RenderEntities()
 
 		int result = SDL_RenderCopy(Renderer, (*Textures)[textureComponent.TextureID]->texture, nullptr, &destinationRect);
 		if (result != 0)
-			MLOG_ERROR("Failed to render texture with ID: " << textureComponent.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MUTILITY_LOG_CATEGORY_GRAPHICS);
+			MLOG_ERROR("Failed to render texture with ID: " << textureComponent.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", MENGINE_LOG_CATEGORY_GRAPHICS);
 	}
 }

@@ -9,7 +9,7 @@
 
 using namespace MEngineInput;
 
-#define MUTILITY_LOG_CATEGORY_INPUT "MEngineInput"
+#define MENGINE_LOG_CATEGORY_INPUT "MEngineInput"
 
 namespace MEngineInput
 {
@@ -60,7 +60,7 @@ void MEngineInput::StopTextInput()
 		TextInputCaretIndex = 0;
 	}
 	else
-		MLOG_WARNING("Attempted to stop text input mode without first starting it", MUTILITY_LOG_CATEGORY_INPUT);
+		MLOG_WARNING("Attempted to stop text input mode without first starting it", MENGINE_LOG_CATEGORY_INPUT);
 }
 
 void MEngineInput::SetFocusRequired(bool required)
@@ -76,7 +76,7 @@ void MEngineInput::SetFocusRequired(bool required)
 		if (hook = SetWindowsHookEx(WH_KEYBOARD_LL, HookCallback, NULL, 0))
 			WindowFocusRequired = false;
 		else
-			MLOG_ERROR("Failed to initialize non focus key input mode", MUTILITY_LOG_CATEGORY_INPUT);
+			MLOG_ERROR("Failed to initialize non focus key input mode", MENGINE_LOG_CATEGORY_INPUT);
 	}
 	else
 	{
@@ -237,7 +237,7 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 		if (scancodeAndMKey != SDLScanCodeToMKeyConversionTable->end())
 			PressedKeys[scancodeAndMKey->second] = (sdlEvent.key.state == SDL_PRESSED);
 		else
-			MLOG_WARNING("A key was pressed that could not be converted into an MKEY; Scancode = " << sdlEvent.key.keysym.scancode, MUTILITY_LOG_CATEGORY_INPUT);
+			MLOG_WARNING("A key was pressed that could not be converted into an MKEY; Scancode = " << sdlEvent.key.keysym.scancode, MENGINE_LOG_CATEGORY_INPUT);
 	}
 
 	return consumedEvent;
