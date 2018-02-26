@@ -20,24 +20,24 @@ namespace MEngine
 		static void Register(const ComponentBase<Derived>& templateInstance, const char* componentName, uint32_t maxCount = 10)
 		{
 			ByteSize = sizeof(Derived);
-			ComponentMask = MEngineComponentManager::RegisterComponentType(templateInstance, ByteSize, maxCount, componentName);
+			ComponentMask = MEngine::RegisterComponentType(templateInstance, ByteSize, maxCount, componentName);
 		}
 
 		static bool Unregister()
 		{
 			if (ComponentMask != INVALID_MENGINE_COMPONENT_MASK)
-				return MEngineComponentManager::UnregisterComponentType(ComponentMask);
+				return MEngine::UnregisterComponentType(ComponentMask);
 
 			return false;
 		}
 
-		static MEngineComponentMask GetComponentMask() { return ComponentMask; }
+		static ComponentMask GetComponentMask() { return ComponentMask; }
 		static uint32_t GetByteSize() { return ByteSize; }
 
 	private:
-		static MEngineComponentMask ComponentMask;
+		static ComponentMask ComponentMask;
 		static uint32_t ByteSize;
 	};
-	template <class Derived> MEngineComponentMask ComponentBase<Derived>::ComponentMask;
+	template <class Derived> ComponentMask ComponentBase<Derived>::ComponentMask;
 	template <class Derived> uint32_t ComponentBase<Derived>::ByteSize;
 }

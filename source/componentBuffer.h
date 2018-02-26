@@ -11,12 +11,12 @@ namespace MEngine
 	class ComponentBuffer
 	{
 	public:
-		ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, MEngineComponentMask componentMask);
+		ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, ComponentMask componentMask);
 		~ComponentBuffer();
 
 		ComponentBuffer operator=(const ComponentBuffer& other);
 
-		uint32_t AllocateComponent(MEngineEntityID ownerID); // Returns true if a resize occured
+		uint32_t AllocateComponent(EntityID ownerID); // Returns true if a resize occured
 		bool ReturnComponent(uint32_t componentIndex);
 
 		Component* GetComponent(uint32_t componentIndex) const;
@@ -25,7 +25,7 @@ namespace MEngine
 
 		void Resize(uint32_t newCapacity = 0); // newCapacity = 0 will double the capacity
 
-		const MEngineComponentMask	ComponentMask		= INVALID_MENGINE_COMPONENT_MASK;
+		const ComponentMask	ComponentMask		= INVALID_MENGINE_COMPONENT_MASK;
 		const char*					ComponentName		= nullptr;
 		Component*					TemplateComponent	= nullptr;
 
@@ -35,6 +35,6 @@ namespace MEngine
 		MUtility::Byte*	m_Buffer	= nullptr;
 		uint32_t		m_Capacity	= 0;
 		uint32_t		m_NextIndex = 0;
-		std::vector<MEngineEntityID> m_Owners;
+		std::vector<EntityID> m_Owners;
 	};
 }

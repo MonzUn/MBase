@@ -8,28 +8,29 @@
 #include <MUtilityPlatformDefinitions.h>
 #include <cassert>
 
+#define LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
+
+using namespace MEngine;
 using namespace MEngineEntityManager;
 using MUtility::MUtilityIDBank;
-
-#define LOG_CATEGORY_ENTITY_MANAGER "MEngineEntityManager"
 
 // ---------- LOCAL ----------
 
 namespace MEngineEntityManager
 {
-	uint32_t CalcComponentIndiceListIndex(MEngineEntityID entityID, MEngineComponentMask entityComponentMask, MEngineComponentMask componentType);
+	uint32_t CalcComponentIndiceListIndex(EntityID entityID, ComponentMask entityComponentMask, ComponentMask componentType);
 
-	std::vector<MEngineEntityID>*		m_Entities;
-	std::vector<MEngineComponentMask>*	m_ComponentMasks;
+	std::vector<EntityID>*		m_Entities;
+	std::vector<ComponentMask>*	m_ComponentMasks;
 	std::vector<std::vector<uint32_t>>* m_ComponentIndices;
 	MUtilityIDBank* m_IDBank;
 }
 
 // ---------- INTERFACE ----------
 
-MEngineEntityID MEngineEntityManager::CreateEntity() // TODODB: Take component mask and add the components described by the mask
+EntityID MEngine::CreateEntity() // TODODB: Take component mask and add the components described by the mask
 {
-	MEngineEntityID ID = m_IDBank->GetID();
+	EntityID ID = m_IDBank->GetID();
 	m_Entities->push_back(ID);
 	m_ComponentMasks->push_back(MUtility::EMPTY_BITSET);
 	m_ComponentIndices->push_back(std::vector<uint32_t>());
@@ -37,7 +38,7 @@ MEngineEntityID MEngineEntityManager::CreateEntity() // TODODB: Take component m
 	return ID;
 }
 
-bool MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
+bool MEngine::DestroyEntity(EntityID entityID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (!m_IDBank->IsIDActive(entityID))
@@ -65,7 +66,7 @@ bool MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 	return false;
 }
 
-MEngineComponentMask MEngineEntityManager::AddComponentsToEntity(MEngineComponentMask componentMask, MEngineEntityID entityID)
+ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, EntityID entityID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
@@ -83,7 +84,7 @@ MEngineComponentMask MEngineEntityManager::AddComponentsToEntity(MEngineComponen
 	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
 	while (componentMask != MUtility::EMPTY_BITSET)
 	{
-		MEngineComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
+		ComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
 		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], singleComponentMask);
 		componentIndices.insert(componentIndices.begin() + componentIndiceListIndex, MEngineComponentManager::AllocateComponent(singleComponentMask, entityID));
 		(*m_ComponentMasks)[entityID] |= singleComponentMask;
@@ -94,7 +95,7 @@ MEngineComponentMask MEngineEntityManager::AddComponentsToEntity(MEngineComponen
 	return MUtility::EMPTY_BITSET;
 }
 
-MEngineComponentMask MEngineEntityManager::RemoveComponentsFromEntity(MEngineComponentMask componentMask, MEngineEntityID entityID)
+ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, EntityID entityID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
@@ -109,11 +110,11 @@ MEngineComponentMask MEngineEntityManager::RemoveComponentsFromEntity(MEngineCom
 	}
 #endif
 
-	MEngineComponentMask failedComponents = 0ULL;
+	ComponentMask failedComponents = 0ULL;
 	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
 	for(int i = 0; i < MUtility::PopCount(componentMask); ++i)
 	{
-		MEngineComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
+		ComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
 		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], singleComponentMask);
 		if (MEngineComponentManager::ReturnComponent(singleComponentMask, componentIndices[componentIndiceListIndex]))
 		{
@@ -129,7 +130,7 @@ MEngineComponentMask MEngineEntityManager::RemoveComponentsFromEntity(MEngineCom
 	return failedComponents;
 }
 
-MEngine::Component* MEngineEntityManager::GetComponentForEntity(MEngineComponentMask componentType, MEngineEntityID entityID)
+MEngine::Component* MEngine::GetComponentForEntity(ComponentMask componentType, EntityID entityID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
@@ -161,8 +162,8 @@ MEngine::Component* MEngineEntityManager::GetComponentForEntity(MEngineComponent
 
 void MEngineEntityManager::Initialize()
 {
-	m_Entities			= new std::vector<MEngineEntityID>();
-	m_ComponentMasks		= new std::vector<MEngineComponentMask>();
+	m_Entities			= new std::vector<EntityID>();
+	m_ComponentMasks		= new std::vector<ComponentMask>();
 	m_ComponentIndices	= new std::vector<std::vector<uint32_t>>();
 	m_IDBank				= new MUtilityIDBank();
 }
@@ -175,7 +176,7 @@ void MEngineEntityManager::Shutdown()
 	delete m_IDBank;
 }
 
-void MEngineEntityManager::UpdateComponentIndex(MEngineEntityID ID, MEngineComponentMask componentType, uint32_t newComponentIndex)
+void MEngineEntityManager::UpdateComponentIndex(EntityID ID, ComponentMask componentType, uint32_t newComponentIndex)
 {
 	uint32_t componentIndexListIndex = CalcComponentIndiceListIndex(ID, (*m_ComponentMasks)[ID], componentType);
 	(*m_ComponentIndices)[ID][componentIndexListIndex] = newComponentIndex;
@@ -183,7 +184,7 @@ void MEngineEntityManager::UpdateComponentIndex(MEngineEntityID ID, MEngineCompo
 
 // ---------- LOCAL ----------
 
-uint32_t MEngineEntityManager::CalcComponentIndiceListIndex(MEngineEntityID entityID, MEngineComponentMask entityComponentMask, MEngineComponentMask componentType)
+uint32_t MEngineEntityManager::CalcComponentIndiceListIndex(EntityID entityID, ComponentMask entityComponentMask, ComponentMask componentType)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if(MUtility::PopCount(componentType) != 1)

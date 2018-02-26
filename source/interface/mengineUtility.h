@@ -1,7 +1,7 @@
 #pragma once
 #include <string>
 
-namespace MEngineUtility
+namespace MEngine
 {
 	const std::string& GetExecutablePath();
 

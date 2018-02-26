@@ -1,7 +1,7 @@
 #pragma once
 #include <stdint.h>
 
-namespace MEngineColor
+namespace MEngine
 {
 	namespace PredefinedColors
 	{
@@ -20,12 +20,12 @@ namespace MEngineColor
 		};
 	}
 
-	struct MEngineColorData
+	struct ColorData
 	{
-		MEngineColorData(PredefinedColors::PredefinedColorEnum color) :
+		ColorData(PredefinedColors::PredefinedColorEnum color) :
 			R(PredefinedColors::PredefinedColors[color][0]), G(PredefinedColors::PredefinedColors[color][1]),
 			B(PredefinedColors::PredefinedColors[color][2]), A(PredefinedColors::PredefinedColors[color][3]) {}
-		MEngineColorData(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
+		ColorData(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
 			R(red), G(green), B(blue), A(alpha) {}
 
 		uint8_t R, G, B, A = 0;

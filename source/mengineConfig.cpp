@@ -23,9 +23,13 @@ namespace MEngineConfig
 	std::unordered_map<std::string, ConfigEntry*>* m_Entries;
 }
 
+using namespace MEngine;
+using namespace MEngine::Config;
+using namespace MEngineConfig;
+
 // ---------- INTERFACE ----------
 
-int64_t MEngineConfig::GetInt(const std::string& key, int64_t defaultValue)
+int64_t Config::GetInt(const std::string& key, int64_t defaultValue)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -37,7 +41,7 @@ int64_t MEngineConfig::GetInt(const std::string& key, int64_t defaultValue)
 	return iterator->second->Value.IntegerValue;
 }
 
-double MEngineConfig::GetDouble(const std::string& key, double defaultValue)
+double Config::GetDouble(const std::string& key, double defaultValue)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -49,7 +53,7 @@ double MEngineConfig::GetDouble(const std::string& key, double defaultValue)
 	return iterator->second->Value.DecimalValue;
 }
 
-bool MEngineConfig::GetBool(const std::string& key, bool defaultValue)
+bool Config::GetBool(const std::string& key, bool defaultValue)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -61,7 +65,7 @@ bool MEngineConfig::GetBool(const std::string& key, bool defaultValue)
 	return iterator->second->Value.BooleanValue;
 }
 
-std::string MEngineConfig::GetString(const std::string& key, const std::string& defaultValue)
+std::string Config::GetString(const std::string& key, const std::string& defaultValue)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -75,7 +79,7 @@ std::string MEngineConfig::GetString(const std::string& key, const std::string& 
 	return iterator->second->Value.StringValue;
 }
 
-void MEngineConfig::SetInt(const std::string& key, int64_t value)
+void Config::SetInt(const std::string& key, int64_t value)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -91,7 +95,7 @@ void MEngineConfig::SetInt(const std::string& key, int64_t value)
 		iterator = m_Entries->emplace(keyCopy, new ConfigEntry(ValueType::INTEGER, value)).first;
 }
 
-void MEngineConfig::SetDecimal(const std::string& key, double value)
+void Config::SetDecimal(const std::string& key, double value)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -108,7 +112,7 @@ void MEngineConfig::SetDecimal(const std::string& key, double value)
 		
 }
 
-void MEngineConfig::SetBool(const std::string& key, bool value)
+void Config::SetBool(const std::string& key, bool value)
 {
 	std::string keyCopy = key;
 	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
@@ -124,7 +128,7 @@ void MEngineConfig::SetBool(const std::string& key, bool value)
 		iterator = m_Entries->emplace(keyCopy, new ConfigEntry(ValueType::BOOLEAN, value)).first;
 }
 
-void MEngineConfig::SetString(const std::string& key, const std::string& value)
+void Config::SetString(const std::string& key, const std::string& value)
 {
 	char* newString = static_cast<char*>(malloc(key.size() + 1)); // +1 for null terminator
 	strcpy(newString, value.c_str());
@@ -146,7 +150,7 @@ void MEngineConfig::SetString(const std::string& key, const std::string& value)
 		iterator = m_Entries->emplace(keyCopy, new ConfigEntry(ValueType::STRING, newString)).first;
 }
 
-void MEngineConfig::WriteConfigFile()
+void Config::WriteConfigFile()
 {
 	std::stringstream stringStream;
 	for (auto& keyAndEntry : *m_Entries)
@@ -191,8 +195,8 @@ void MEngineConfig::WriteConfigFile()
 		stringStream << std::endl;
 	}
 	
-	if (!MUtilityFile::DirectoryExists(m_ConfigDirectoryPath->c_str()))
-		MUtilityFile::CreateDir(m_ConfigDirectoryPath->c_str());
+	if (!MUtility::DirectoryExists(m_ConfigDirectoryPath->c_str()))
+		MUtility::CreateDir(m_ConfigDirectoryPath->c_str());
 
 	std::ofstream outstream = std::ofstream(*m_ConfigFilePath, std::ofstream::out | std::ofstream::trunc);
 	if (outstream.is_open())
@@ -202,22 +206,22 @@ void MEngineConfig::WriteConfigFile()
 	}
 }
 
-void MEngineConfig::ReadConfigFile()
+void Config::ReadConfigFile()
 {
-	if (!MUtilityFile::DirectoryExists(m_ConfigDirectoryPath->c_str()))
+	if (!MUtility::DirectoryExists(m_ConfigDirectoryPath->c_str()))
 	{
 		MLOG_WARNING("Config file directory does not exist; Path = " << m_ConfigDirectoryPath, LOG_CATEGORY_CONFIG);
 		return;
 	}
 
-	if (!MUtilityFile::FileExists(m_ConfigFilePath->c_str()))
+	if (!MUtility::FileExists(m_ConfigFilePath->c_str()))
 	{
 		MLOG_WARNING("Config file does not exist; Path = " << m_ConfigFilePath, LOG_CATEGORY_CONFIG);
 		return;
 	}
 
 	std::stringstream stringStream;
-	stringStream << MUtilityFile::GetFileContentAsString(*m_ConfigFilePath);
+	stringStream << MUtility::GetFileContentAsString(*m_ConfigFilePath);
 
 	while (stringStream.good())
 	{
@@ -288,10 +292,10 @@ void MEngineConfig::ReadConfigFile()
 	}
 }
 
-void MEngineConfig::SetConfigFilePath(const std::string& relativeFilePathAndName)
+void Config::SetConfigFilePath(const std::string& relativeFilePathAndName)
 {
-	*m_ConfigFilePath			= MEngineUtility::GetExecutablePath() + '/' + relativeFilePathAndName + *CONFIG_EXTENSION;
-	*m_ConfigDirectoryPath	= MUtilityFile::GetDirectoryPathFromFilePath(*m_ConfigFilePath);
+	*m_ConfigFilePath		= MEngine::GetExecutablePath() + '/' + relativeFilePathAndName + *CONFIG_EXTENSION;
+	*m_ConfigDirectoryPath	= MUtility::GetDirectoryPathFromFilePath(*m_ConfigFilePath);
 }
 
 // ---------- INTERNAL ----------

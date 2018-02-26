@@ -13,6 +13,6 @@ namespace MEngine
 		int32_t Width	= 0;
 		int32_t Height	= 0;
 		bool RenderIgnore = false;
-		MEngineTextureID TextureID = INVALID_MENGINE_TEXTURE_ID;
+		TextureID TextureID = INVALID_MENGINE_TEXTURE_ID;
 	};
 }

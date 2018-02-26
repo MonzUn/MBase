@@ -9,27 +9,30 @@
 
 #define LOG_CATEGORY_TEXT "MEngineText"
 
-constexpr int32_t						DEFAULT_POINT_SIZE	= 20;
-const MEngineColor::MEngineColorData	DEFAULT_TEXT_COLOR	= MEngineColor::MEngineColorData(MEngineColor::PredefinedColors::BLACK);
+constexpr int32_t DEFAULT_POINT_SIZE = 20;
+const MEngine::ColorData DEFAULT_TEXT_COLOR = MEngine::ColorData(MEngine::PredefinedColors::BLACK);
 
 void FreeFont(FC_Font*& font);
 
-namespace MEngineText
+namespace MEngine
 {
 	FC_Font* m_Font = nullptr;
-	std::vector<TextRenderJob>* m_TextRenderJobs;
-	std::vector<CaretRenderJob>* m_CaretRenderJobs;
+	std::vector<MEngineText::TextRenderJob>* m_TextRenderJobs;
+	std::vector<MEngineText::CaretRenderJob>* m_CaretRenderJobs;
 }
+
+using namespace MEngine;
+using namespace MEngineText;
 
 // ---------- INTERFACE ----------
 
-void MEngineText::SetFont(const std::string& relativeFontPath)
+void MEngine::SetFont(const std::string& relativeFontPath)
 {
 	if (m_Font != nullptr)
 		FreeFont(m_Font);
 
 	m_Font = FC_CreateFont();
-	const std::string absolutePath = MEngineUtility::GetExecutablePath() + '/' + relativeFontPath;
+	const std::string absolutePath = MEngine::GetExecutablePath() + '/' + relativeFontPath;
 	if (!FC_LoadFont(m_Font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), DEFAULT_POINT_SIZE, FC_MakeColor(DEFAULT_TEXT_COLOR.R, DEFAULT_TEXT_COLOR.G, DEFAULT_TEXT_COLOR.B, DEFAULT_TEXT_COLOR.A), TTF_STYLE_NORMAL))
 	{
 		MLOG_WARNING("Failed to load font at path \"" << absolutePath << '\"', LOG_CATEGORY_TEXT);
@@ -37,12 +40,12 @@ void MEngineText::SetFont(const std::string& relativeFontPath)
 	}
 }
 
-void MEngineText::DrawText(int32_t posX, int32_t posY, const std::string& text)
+void MEngine::DrawText(int32_t posX, int32_t posY, const std::string& text)
 {
 	m_TextRenderJobs->push_back(TextRenderJob(posX, posY, text.c_str()));
 }
 
-void MEngineText::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, uint16_t caretIndex)
+void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, uint16_t caretIndex)
 {
 	if (caretIndex >= 0 && caretIndex <= text.length())
 	{

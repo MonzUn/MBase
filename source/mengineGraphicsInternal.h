@@ -2,8 +2,6 @@
 #include "interface/mengineGraphics.h"
 #include <SDL.h>
 
-using namespace MEngineGraphics;
-
 struct SurfaceToTextureJob;
 
 namespace MEngineGraphics
@@ -35,9 +33,9 @@ namespace MEngineGraphics
 
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
 	void Shutdown();
-	MEngineTextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngineTextureID reservedTextureID = INVALID_MENGINE_TEXTURE_ID);
+	MEngine::TextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngine::TextureID reservedTextureID = INVALID_MENGINE_TEXTURE_ID);
 	void HandleSurfaceToTextureConversions();
-	MEngineTextureID GetNextTextureID();
+	MEngine::TextureID GetNextTextureID();
 
 	SDL_Renderer*	GetRenderer();
 	SDL_Window*		GetWindow();
@@ -48,10 +46,10 @@ namespace MEngineGraphics
 
 struct SurfaceToTextureJob
 {
-	SurfaceToTextureJob(SDL_Surface* surface, MEngineTextureID reservedID, bool storeSurfaceInRAM) :
+	SurfaceToTextureJob(SDL_Surface* surface, MEngine::TextureID reservedID, bool storeSurfaceInRAM) :
 	Surface(surface), ReservedID(reservedID), StoreSurfaceInRAM(storeSurfaceInRAM) {}
 
-	SDL_Surface* Surface		= nullptr;
-	MEngineTextureID ReservedID = INVALID_MENGINE_TEXTURE_ID;
-	bool StoreSurfaceInRAM		= false;
+	SDL_Surface* Surface			= nullptr;
+	MEngine::TextureID ReservedID	= INVALID_MENGINE_TEXTURE_ID;
+	bool StoreSurfaceInRAM			= false;
 };

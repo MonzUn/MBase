@@ -14,6 +14,7 @@
 #include <mutex>
 #include <unordered_map>
 
+using namespace MEngine;
 using namespace MEngineGraphics;
 using MUtility::MUtilityIDBank;
 
@@ -26,16 +27,16 @@ namespace MEngineGraphics
 
 	std::vector<MEngineTexture*>* m_Textures;
 	MUtilityIDBank* m_IDBank;
-	std::unordered_map<std::string, MEngineTextureID>* m_PathToIDMap;
+	std::unordered_map<std::string, TextureID>* m_PathToIDMap;
 	std::mutex m_PathToIDLock;
 	MUtility::LocklessQueue<SurfaceToTextureJob*>* m_SurfaceToTextureQueue;
 }
 
 // ---------- INTERFACE ----------
 
-MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWithExtension)
+TextureID MEngine::GetTextureFromPath(const std::string& pathWithExtension)
 {
-	MEngineTextureID returnID = INVALID_MENGINE_TEXTURE_ID;
+	TextureID returnID = INVALID_MENGINE_TEXTURE_ID;
 	if (pathWithExtension != "")
 	{
 		m_PathToIDLock.lock();
@@ -46,7 +47,7 @@ MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWith
 		}
 		else
 		{
-			std::string absolutePath = MEngineUtility::GetExecutablePath() + "/" + pathWithExtension;
+			std::string absolutePath = MEngine::GetExecutablePath() + "/" + pathWithExtension;
 			SDL_Texture* texture = IMG_LoadTexture(Renderer, absolutePath.c_str());
 			if (texture != nullptr)
 			{
@@ -62,7 +63,7 @@ MEngineTextureID MEngineGraphics::GetTextureFromPath(const std::string& pathWith
 	return returnID;
 }
 
-void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
+void MEngine::UnloadTexture(TextureID textureID)
 {
 	HandleSurfaceToTextureConversions();
 
@@ -82,7 +83,7 @@ void MEngineGraphics::UnloadTexture(MEngineTextureID textureID)
 	}
 }
 
-MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineTextureData& originalTexture, int32_t posX, int32_t posY, int32_t width, int32_t height, bool storeCopyInRAM)
+TextureID MEngine::CreateSubTextureFromTextureData(const TextureData& originalTexture, int32_t posX, int32_t posY, int32_t width, int32_t height, bool storeCopyInRAM)
 {
 	int32_t offsetLimitX = posX + width;
 	int32_t offsetLimitY = posY + height;
@@ -121,7 +122,7 @@ MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineT
 		pixelBytes[i + 2] = swap;
 	}
 
-	MEngineTextureID reservedID = GetNextTextureID();
+	TextureID reservedID = GetNextTextureID();
 	m_SurfaceToTextureQueue->Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 	SdlApiLock.lock();
@@ -131,7 +132,7 @@ MEngineTextureID MEngineGraphics::CreateSubTextureFromTextureData(const MEngineT
 	return reservedID;
 }
 
-MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineTextureData& textureData, bool storeCopyInRAM)
+TextureID MEngine::CreateTextureFromTextureData(const TextureData& textureData, bool storeCopyInRAM)
 {
 	SdlApiLock.lock();
 	SDL_Surface* surface = SDL_CreateRGBSurface(SDL_SWSURFACE, textureData.Width, textureData.Height, 32, 0x000000FF, 0x0000FF00, 0x00FF0000, 0xFF000000);
@@ -153,7 +154,7 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 		pixelBytes[i + 2] = swap;
 	}
 
-	MEngineTextureID reservedID = GetNextTextureID();
+	TextureID reservedID = GetNextTextureID();
 	m_SurfaceToTextureQueue->Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 	SdlApiLock.lock();
@@ -163,7 +164,7 @@ MEngineTextureID MEngineGraphics::CreateTextureFromTextureData(const MEngineText
 	return reservedID;
 }
 
-MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
+TextureID MEngine::CaptureScreenToTexture(bool storeCopyInRAM)
 {
 #if PLATFORM != PLATFORM_WINDOWS
 		static_assert(false, "CaptureScreen is only supported on the windows platform");
@@ -229,7 +230,7 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
 		SdlApiLock.unlock();
 
-		MEngineTextureID reservedID = GetNextTextureID();
+		TextureID reservedID = GetNextTextureID();
 		m_SurfaceToTextureQueue->Produce(new SurfaceToTextureJob(convertedSurface, reservedID, storeCopyInRAM));
 
 		// Cleanup
@@ -246,16 +247,16 @@ MEngineTextureID MEngineGraphics::CaptureScreenToTexture(bool storeCopyInRAM)
 #endif
 }
 
-const MEngineTextureData MEngineGraphics::GetTextureData(MEngineTextureID textureID)
+const TextureData MEngine::GetTextureData(TextureID textureID)
 {
 	HandleSurfaceToTextureConversions();
 
-	MEngineTextureData toReturn;
+	TextureData toReturn;
 	MEngineTexture* texture = nullptr;
 	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID <static_cast<int64_t>(m_Textures->size()))
 	{
 		const MEngineTexture& texture = *(*m_Textures)[textureID];
-		toReturn = MEngineTextureData(texture.surface->w, texture.surface->h, texture.surface->pixels);
+		toReturn = TextureData(texture.surface->w, texture.surface->h, texture.surface->pixels);
 	}
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, LOG_CATEGORY_GRAPHICS);
@@ -283,7 +284,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 
 	m_Textures = new std::vector<MEngineTexture*>();
 	m_IDBank = new MUtilityIDBank();
-	m_PathToIDMap = new std::unordered_map<std::string, MEngineTextureID>();
+	m_PathToIDMap = new std::unordered_map<std::string, TextureID>();
 	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
 
 	return true;
@@ -302,11 +303,11 @@ void MEngineGraphics::Shutdown()
 	delete m_SurfaceToTextureQueue;
 }
 
-MEngineTextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy, MEngineTextureID reservedTextureID)
+TextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy, TextureID reservedTextureID)
 {
 	MEngineTexture* texture = new MEngineTexture(sdlTexture, optionalSurfaceCopy);
 
-	MEngineTextureID ID = reservedTextureID == INVALID_MENGINE_TEXTURE_ID ? GetNextTextureID() : reservedTextureID;
+	TextureID ID = reservedTextureID == INVALID_MENGINE_TEXTURE_ID ? GetNextTextureID() : reservedTextureID;
 	ID >= static_cast<int64_t>(m_Textures->size()) ? m_Textures->push_back(texture) : (*m_Textures)[ID] = texture;
 	return ID;
 }
@@ -327,7 +328,7 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 	}
 }
 
-MEngineTextureID MEngineGraphics::GetNextTextureID()
+TextureID MEngineGraphics::GetNextTextureID()
 {
 	return m_IDBank->GetID();
 }
@@ -357,7 +358,7 @@ void MEngineGraphics::Render()
 void MEngineGraphics::RenderEntities()
 {
 	int32_t componentCount = 0;
-	MEngine::TextureRenderingComponent* textureComponents = reinterpret_cast<MEngine::TextureRenderingComponent*>(MEngineComponentManager::GetComponentBuffer(MEngine::TextureRenderingComponent::GetComponentMask(), componentCount));
+	MEngine::TextureRenderingComponent* textureComponents = reinterpret_cast<MEngine::TextureRenderingComponent*>(MEngine::GetComponentBuffer(MEngine::TextureRenderingComponent::GetComponentMask(), componentCount));
 
 	for (int i = 0; i < componentCount; ++i)
 	{

@@ -9,14 +9,16 @@ namespace MEngineInternalComponents
 {
 	void RegisterComponentsTypes();
 
-	std::vector<MEngineComponentMask>* m_ComponentMasks;
+	std::vector<MEngine::ComponentMask>* m_ComponentMasks;
 }
+
+using namespace MEngine;
 
 // ---------- INTERNAL ----------
 
 void MEngineInternalComponents::Initialize()
 {
-	m_ComponentMasks = new std::vector<MEngineComponentMask>();
+	m_ComponentMasks = new std::vector<ComponentMask>();
 	RegisterComponentsTypes();
 }
 
@@ -24,7 +26,7 @@ void MEngineInternalComponents::Shutdown()
 {
 	for (int i = 0; i < m_ComponentMasks->size(); ++i)
 	{
-		MEngineComponentManager::UnregisterComponentType((*m_ComponentMasks)[i]);
+		MEngine::UnregisterComponentType((*m_ComponentMasks)[i]);
 	}
 	delete m_ComponentMasks;
 }

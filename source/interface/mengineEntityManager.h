@@ -4,13 +4,13 @@
 #include <MUtilityTypes.h>
 #include <stdint.h>
 
-namespace MEngineEntityManager
+namespace MEngine
 {
-	MEngineEntityID CreateEntity();
-	bool DestroyEntity(MEngineEntityID entityID);
+	EntityID CreateEntity();
+	bool DestroyEntity(EntityID entityID);
 
-	MEngineComponentMask AddComponentsToEntity(MEngineComponentMask componentMask, MEngineEntityID entityID); // Returns a bitmask containing all component types that could not be added to the entity
-	MEngineComponentMask RemoveComponentsFromEntity(MEngineComponentMask componentMask, MEngineEntityID entityID); // Returns a bitmask containing all component types that could not be removed from the entity
+	ComponentMask AddComponentsToEntity(ComponentMask componentMask, EntityID entityID); // Returns a bitmask containing all component types that could not be added to the entity
+	ComponentMask RemoveComponentsFromEntity(ComponentMask componentMask, EntityID entityID); // Returns a bitmask containing all component types that could not be removed from the entity
 
-	MEngine::Component* GetComponentForEntity(MEngineComponentMask componentMask, MEngineEntityID entityID);
+	MEngine::Component* GetComponentForEntity(ComponentMask componentMask, EntityID entityID);
 }

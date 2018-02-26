@@ -2,7 +2,7 @@
 #include "mengineInputKeys.h"
 #include <string>
 
-namespace MEngineInput
+namespace MEngine
 {
 	void StartTextInput(std::string* textInputString);
 	void StopTextInput();

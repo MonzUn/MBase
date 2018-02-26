@@ -11,17 +11,17 @@ std::atomic<bool>	IsHovered		= false;
 
 // ---------- INTERFACE ----------
 
-const std::string& MEngineUtility::GetExecutablePath()
+const std::string& MEngine::GetExecutablePath()
 {
 	return *ExecutablePath;
 }
 
-bool MEngineUtility::WindowHasFocus()
+bool MEngine::WindowHasFocus()
 {
 	return HasFocus;
 }
 
-bool MEngineUtility::WindowIsHovered()
+bool MEngine::WindowIsHovered()
 {
 	return IsHovered;
 }

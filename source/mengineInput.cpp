@@ -42,7 +42,7 @@ void PopulateConversionTables();
 
 // ---------- INTERFACE ----------
 
-void MEngineInput::StartTextInput(std::string* textInputString)
+void MEngine::StartTextInput(std::string* textInputString)
 {
 	if (textInputString == nullptr)
 		SDL_StartTextInput();
@@ -51,7 +51,7 @@ void MEngineInput::StartTextInput(std::string* textInputString)
 	m_TextInputCaretIndex = textInputString->length();
 }
 
-void MEngineInput::StopTextInput()
+void MEngine::StopTextInput()
 {
 	if (m_TextInputStringReference != nullptr)
 	{
@@ -63,7 +63,7 @@ void MEngineInput::StopTextInput()
 		MLOG_WARNING("Attempted to stop text input mode without first starting it", LOG_CATEGORY_INPUT);
 }
 
-void MEngineInput::SetFocusRequired(bool required)
+void MEngine::SetFocusRequired(bool required)
 {
 #if PLATFORM != PLATFORM_WINDOWS
 	static_assert(false, "SetFocusRequired is only supported on the windows platform");
@@ -87,47 +87,47 @@ void MEngineInput::SetFocusRequired(bool required)
 #endif
 }
 
-bool MEngineInput::KeyDown(MENGINE_KEY key)
+bool MEngine::KeyDown(MENGINE_KEY key)
 {
 	return m_PressedKeys[key];
 }
 
-bool MEngineInput::KeyUp(MENGINE_KEY key)
+bool MEngine::KeyUp(MENGINE_KEY key)
 {
 	return !m_PressedKeys[key];
 }
 
-bool MEngineInput::KeyPressed(MENGINE_KEY key)
+bool MEngine::KeyPressed(MENGINE_KEY key)
 {
 	return (!m_PreviouslyPressedKeys[key] && m_PressedKeys[key]);
 }
 
-bool MEngineInput::KeyReleased(MENGINE_KEY key)
+bool MEngine::KeyReleased(MENGINE_KEY key)
 {
 	return (m_PreviouslyPressedKeys[key] && !m_PressedKeys[key]);
 }
 
-int32_t MEngineInput::GetCursorPosX()
+int32_t MEngine::GetCursorPosX()
 {
 	return m_CursorPosX;
 }
 
-int32_t MEngineInput::GetCursorPosY()
+int32_t MEngine::GetCursorPosY()
 {
 	return m_CursorPosY;
 }
 
-int32_t MEngineInput::GetCursorDeltaX()
+int32_t MEngine::GetCursorDeltaX()
 {
 	return m_CursorDeltaX;
 }
 
-int32_t MEngineInput::GetCursorDeltaY()
+int32_t MEngine::GetCursorDeltaY()
 {
 	return m_CursorDeltaY;
 }
 
-uint64_t MEngineInput::GetTextInputCaretIndex()
+uint64_t MEngine::GetTextInputCaretIndex()
 {
 	return m_TextInputCaretIndex;
 }
@@ -246,7 +246,7 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 #if PLATFORM == PLATFORM_WINDOWS
 LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam)
 {
-	if (!MEngineUtility::WindowHasFocus())
+	if (!MEngine::WindowHasFocus())
 	{
 		KBDLLHOOKSTRUCT keyStruct;
 		if (keyCode >= HC_ACTION)

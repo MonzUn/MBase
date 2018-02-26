@@ -4,6 +4,8 @@
 constexpr int32_t	FRAMECOUNTER_SAMPLE_COUNT	= 100;
 constexpr int32_t	MILLISECONDS_PER_SECOND		= 1000;
 
+using namespace MEngine;
+
 FrameCounter::FrameCounter()
 {
 	Reset();

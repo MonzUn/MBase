@@ -11,7 +11,7 @@
 using namespace MEngine;
 using MUtility::Byte;
 
-ComponentBuffer::ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, MEngineComponentMask componentMask) :
+ComponentBuffer::ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, MEngine::ComponentMask componentMask) :
 	m_ComponentByteSize(templateComponentSize), m_Capacity(startingCapacity), ComponentMask(componentMask)
 {
 	const_cast<Component*>(TemplateComponent) = static_cast<Component*>(malloc(templateComponentSize));
@@ -46,7 +46,7 @@ ComponentBuffer ComponentBuffer::operator=(const ComponentBuffer& other)
 	return ComponentBuffer(other);
 }
 
-uint32_t ComponentBuffer::AllocateComponent(MEngineEntityID ownerID)
+uint32_t ComponentBuffer::AllocateComponent(EntityID ownerID)
 {
 	uint32_t insertIndex = m_NextIndex++;
 	m_Owners.push_back(ownerID);
@@ -75,7 +75,7 @@ bool ComponentBuffer::ReturnComponent(uint32_t componentIndex)
 	}
 	else
 	{
-		MEngineEntityID ownerID = m_Owners[componentIndex];
+		EntityID ownerID = m_Owners[componentIndex];
 		memcpy(m_Buffer + componentIndex * m_ComponentByteSize, m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, m_ComponentByteSize); // Copy in the templte object to the newly freed position
 		MEngineEntityManager::UpdateComponentIndex(ownerID, ComponentMask, componentIndex); // Tell the owner of the moved component where it has been moved to
 		m_Owners.erase(m_Owners.begin() + componentIndex);

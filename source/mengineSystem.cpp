@@ -6,9 +6,9 @@
 namespace std
 {
 	template <>
-	struct less<MEngineSystem::System*>
+	struct less<MEngine::System*>
 	{
-		bool operator() (const MEngineSystem::System* lhs, const MEngineSystem::System* rhs)
+		bool operator() (const MEngine::System* lhs, const MEngine::System* rhs)
 		{
 			return lhs->GetPriority() < rhs->GetPriority();
 		}
@@ -17,17 +17,20 @@ namespace std
 
 namespace MEngineSystem
 {
-	std::set<MEngineSystem::System*>*	m_Systems;
-	FrameCounter						m_PresentationFrameCounter;
-	FrameCounter						m_SimulationFrameCounter;
-	float								m_AccumulatedSimulationTime	= 0.0f;
-	float								m_SimulationSpeed			= MEngineSystem::DEFAULT_SIMULATION_SPEED;
-	float								m_SimulationTimeStep		= MEngineSystem::DEFAULT_TIME_STEP;
+	std::set<MEngine::System*>*	m_Systems;
+	MEngine::FrameCounter		m_PresentationFrameCounter;
+	MEngine::FrameCounter		m_SimulationFrameCounter;
+	float						m_AccumulatedSimulationTime	= 0.0f;
+	float						m_SimulationSpeed			= DEFAULT_SIMULATION_SPEED;
+	float						m_SimulationTimeStep		= DEFAULT_TIME_STEP;
 }
+
+using namespace MEngine;
+using namespace MEngineSystem;
 
 // ---------- INTERFACE ----------
 
-void MEngineSystem::RegisterSystem(System* system)
+void MEngine::RegisterSystem(System* system)
 {
 	m_Systems->insert(system);
 	system->Initialize();
@@ -37,7 +40,7 @@ void MEngineSystem::RegisterSystem(System* system)
 
 void MEngineSystem::Initialize()
 {
-	m_Systems = new std::set<MEngineSystem::System*>();
+	m_Systems = new std::set<System*>();
 }
 
 void MEngineSystem::Shutdown()

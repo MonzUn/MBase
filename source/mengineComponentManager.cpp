@@ -13,11 +13,14 @@ namespace MEngineComponentManager
 	MUtility::MUtilityBitMaskIDBank m_IDBank;
 }
 
+using namespace MEngine;
+using namespace MEngineComponentManager;
+
 // ---------- INTERFACE ----------
 
-MEngineComponentMask MEngineComponentManager::RegisterComponentType(const MEngine::Component& templateComponent, uint32_t templateComponentSize, uint32_t maxCount, const char* componentName)
+MEngine::ComponentMask MEngine::RegisterComponentType(const MEngine::Component& templateComponent, uint32_t templateComponentSize, uint32_t maxCount, const char* componentName)
 {
-	MEngineComponentMask componentMask = m_IDBank.GetID();
+	ComponentMask componentMask = m_IDBank.GetID();
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
 	{
@@ -30,7 +33,7 @@ MEngineComponentMask MEngineComponentManager::RegisterComponentType(const MEngin
 	return componentMask;
 }
 
-bool MEngineComponentManager::UnregisterComponentType(MEngineComponentMask componentType) // TODODB: Destroy active components
+bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: Destroy active components
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
@@ -66,7 +69,7 @@ bool MEngineComponentManager::UnregisterComponentType(MEngineComponentMask compo
 	return false;
 }
 
-MUtility::Byte* MEngineComponentManager::GetComponentBuffer(MEngineComponentMask componentType, int32_t& outComponentCount)
+MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t& outComponentCount)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
@@ -109,19 +112,19 @@ void MEngineComponentManager::Shutdown()
 	delete m_Buffers;
 }
 
-uint32_t MEngineComponentManager::AllocateComponent(MEngineComponentMask componentType, MEngineEntityID owner)
+uint32_t MEngineComponentManager::AllocateComponent(MEngine::ComponentMask componentType, EntityID owner)
 {
 	uint32_t componentBufferIndex = MUtilityMath::FastLog2(componentType);
 	return (*m_Buffers)[componentBufferIndex].AllocateComponent(owner);
 }
 
-bool MEngineComponentManager::ReturnComponent(MEngineComponentMask componentType, uint32_t componentIndex)
+bool MEngineComponentManager::ReturnComponent(MEngine::ComponentMask componentType, uint32_t componentIndex)
 {
 	uint32_t componentBufferIndex = MUtilityMath::FastLog2(componentType);
 	return (*m_Buffers)[componentBufferIndex].ReturnComponent(componentIndex);
 }
 
-MEngine::Component* MEngineComponentManager::GetComponent(MEngineComponentMask componentType, uint32_t componentIndex)
+MEngine::Component* MEngineComponentManager::GetComponent(MEngine::ComponentMask componentType, uint32_t componentIndex)
 {
 	uint32_t componentBufferIndex = MUtilityMath::FastLog2(componentType);
 	return (*m_Buffers)[componentBufferIndex].GetComponent(componentIndex);
