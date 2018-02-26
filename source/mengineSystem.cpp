@@ -17,19 +17,19 @@ namespace std
 
 namespace MEngineSystem
 {
-	std::set<MEngineSystem::System*>*	Systems;
-	FrameCounter						PresentationFrameCounter;
-	FrameCounter						SimulationFrameCounter;
-	float								AccumulatedSimulationTime	= 0.0f;
-	float								SimulationSpeed				= MEngineSystem::DEFAULT_SIMULATION_SPEED;
-	float								SimulationTimeStep			= MEngineSystem::DEFAULT_TIME_STEP;
+	std::set<MEngineSystem::System*>*	m_Systems;
+	FrameCounter						m_PresentationFrameCounter;
+	FrameCounter						m_SimulationFrameCounter;
+	float								m_AccumulatedSimulationTime	= 0.0f;
+	float								m_SimulationSpeed			= MEngineSystem::DEFAULT_SIMULATION_SPEED;
+	float								m_SimulationTimeStep		= MEngineSystem::DEFAULT_TIME_STEP;
 }
 
 // ---------- INTERFACE ----------
 
 void MEngineSystem::RegisterSystem(System* system)
 {
-	Systems->insert(system);
+	m_Systems->insert(system);
 	system->Initialize();
 }
 
@@ -37,40 +37,40 @@ void MEngineSystem::RegisterSystem(System* system)
 
 void MEngineSystem::Initialize()
 {
-	Systems = new std::set<MEngineSystem::System*>();
+	m_Systems = new std::set<MEngineSystem::System*>();
 }
 
 void MEngineSystem::Shutdown()
 {
-	for (auto& system : *Systems)
+	for (auto& system : *m_Systems)
 	{
 		system->Shutdown();
 		delete system;
 	}
-	Systems->clear();
+	m_Systems->clear();
 
-	delete Systems;
+	delete m_Systems;
 }
 
 void MEngineSystem::Update()
 {
-	PresentationFrameCounter.Tick();
-	float deltaTime = PresentationFrameCounter.GetDeltaTime();
+	m_PresentationFrameCounter.Tick();
+	float deltaTime = m_PresentationFrameCounter.GetDeltaTime();
 
-	for (auto& system : *Systems)
+	for (auto& system : *m_Systems)
 	{
 		system->UpdatePresentationLayer(deltaTime);
 	}
 
-	AccumulatedSimulationTime += deltaTime;
-	if (AccumulatedSimulationTime > SimulationSpeed)
+	m_AccumulatedSimulationTime += deltaTime;
+	if (m_AccumulatedSimulationTime > m_SimulationSpeed)
 	{
-		SimulationFrameCounter.Tick();
-		AccumulatedSimulationTime -= SimulationSpeed;
+		m_SimulationFrameCounter.Tick();
+		m_AccumulatedSimulationTime -= m_SimulationSpeed;
 
-		for (auto& system : *Systems)
+		for (auto& system : *m_Systems)
 		{
-			system->UpdateSimulationLayer(SimulationTimeStep);
+			system->UpdateSimulationLayer(m_SimulationTimeStep);
 		}
 	}
 }

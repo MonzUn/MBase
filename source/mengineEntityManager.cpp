@@ -19,20 +19,20 @@ namespace MEngineEntityManager
 {
 	uint32_t CalcComponentIndiceListIndex(MEngineEntityID entityID, MEngineComponentMask entityComponentMask, MEngineComponentMask componentType);
 
-	std::vector<MEngineEntityID>*		Entities;
-	std::vector<MEngineComponentMask>*	ComponentMasks;
-	std::vector<std::vector<uint32_t>>* ComponentIndices;
-	MUtilityIDBank* IDBank;
+	std::vector<MEngineEntityID>*		m_Entities;
+	std::vector<MEngineComponentMask>*	m_ComponentMasks;
+	std::vector<std::vector<uint32_t>>* m_ComponentIndices;
+	MUtilityIDBank* m_IDBank;
 }
 
 // ---------- INTERFACE ----------
 
 MEngineEntityID MEngineEntityManager::CreateEntity() // TODODB: Take component mask and add the components described by the mask
 {
-	MEngineEntityID ID = IDBank->GetID();
-	Entities->push_back(ID);
-	ComponentMasks->push_back(MUtility::EMPTY_BITSET);
-	ComponentIndices->push_back(std::vector<uint32_t>());
+	MEngineEntityID ID = m_IDBank->GetID();
+	m_Entities->push_back(ID);
+	m_ComponentMasks->push_back(MUtility::EMPTY_BITSET);
+	m_ComponentIndices->push_back(std::vector<uint32_t>());
 
 	return ID;
 }
@@ -40,23 +40,23 @@ MEngineEntityID MEngineEntityManager::CreateEntity() // TODODB: Take component m
 bool MEngineEntityManager::DestroyEntity(MEngineEntityID entityID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (!IDBank->IsIDActive(entityID))
+	if (!m_IDBank->IsIDActive(entityID))
 	{
 		MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return false;
 	}
 #endif
 
-	for (int i = 0; i < Entities->size(); ++i)
+	for (int i = 0; i < m_Entities->size(); ++i)
 	{
-		if ((*Entities)[i] == i)
+		if ((*m_Entities)[i] == i)
 		{
-			RemoveComponentsFromEntity((*ComponentMasks)[entityID], entityID);
+			RemoveComponentsFromEntity((*m_ComponentMasks)[entityID], entityID);
 
-			Entities->erase(Entities->begin() + i);
-			ComponentMasks->erase(ComponentMasks->begin() + i);
-			ComponentIndices->erase(ComponentIndices->begin() + i);
-			IDBank->ReturnID(entityID);
+			m_Entities->erase(m_Entities->begin() + i);
+			m_ComponentMasks->erase(m_ComponentMasks->begin() + i);
+			m_ComponentIndices->erase(m_ComponentIndices->begin() + i);
+			m_IDBank->ReturnID(entityID);
 			return true;
 		}
 	}
@@ -73,20 +73,20 @@ MEngineComponentMask MEngineEntityManager::AddComponentsToEntity(MEngineComponen
 		MLOG_WARNING("Attempted to add component(s) to entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
-	else if (!IDBank->IsIDActive(entityID))
+	else if (!m_IDBank->IsIDActive(entityID))
 	{
 		MLOG_WARNING("Attempted to add components to an entity that doesn't exist; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 #endif
 
-	std::vector<uint32_t>& componentIndices = (*ComponentIndices)[entityID];
+	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
 	while (componentMask != MUtility::EMPTY_BITSET)
 	{
 		MEngineComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
-		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*ComponentMasks)[entityID], singleComponentMask);
+		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], singleComponentMask);
 		componentIndices.insert(componentIndices.begin() + componentIndiceListIndex, MEngineComponentManager::AllocateComponent(singleComponentMask, entityID));
-		(*ComponentMasks)[entityID] |= singleComponentMask;
+		(*m_ComponentMasks)[entityID] |= singleComponentMask;
 
 		componentMask &= ~(1ULL << MUtility::GetHighestSetBitIndex(componentMask));
 	}
@@ -102,7 +102,7 @@ MEngineComponentMask MEngineEntityManager::RemoveComponentsFromEntity(MEngineCom
 		MLOG_WARNING("Attempted to removed component(s) from entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
-	else if (!IDBank->IsIDActive(entityID))
+	else if (!m_IDBank->IsIDActive(entityID))
 	{
 		MLOG_WARNING("Attempted to remove component(s) from an entity that doesn't exist; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
@@ -110,15 +110,15 @@ MEngineComponentMask MEngineEntityManager::RemoveComponentsFromEntity(MEngineCom
 #endif
 
 	MEngineComponentMask failedComponents = 0ULL;
-	std::vector<uint32_t>& componentIndices = (*ComponentIndices)[entityID];
+	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
 	for(int i = 0; i < MUtility::PopCount(componentMask); ++i)
 	{
 		MEngineComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
-		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*ComponentMasks)[entityID], singleComponentMask);
+		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], singleComponentMask);
 		if (MEngineComponentManager::ReturnComponent(singleComponentMask, componentIndices[componentIndiceListIndex]))
 		{
 			componentIndices.erase(componentIndices.begin() + componentIndiceListIndex);
-			(*ComponentMasks)[entityID] &= ~(1ULL << MUtility::GetHighestSetBitIndex(componentMask));
+			(*m_ComponentMasks)[entityID] &= ~(1ULL << MUtility::GetHighestSetBitIndex(componentMask));
 		}
 		else
 			failedComponents &= (1ULL << MUtility::GetHighestSetBitIndex(componentMask));
@@ -137,7 +137,7 @@ MEngine::Component* MEngineEntityManager::GetComponentForEntity(MEngineComponent
 		MLOG_WARNING("Attempted to get component for entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
-	else if (!IDBank->IsIDActive(entityID))
+	else if (!m_IDBank->IsIDActive(entityID))
 	{
 		MLOG_WARNING("Attempted to get component for an entity that doesn't exist; ID = " << entityID, MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
@@ -147,13 +147,13 @@ MEngine::Component* MEngineEntityManager::GetComponentForEntity(MEngineComponent
 		MLOG_WARNING("Attempted to get component for an entity using a component mask containing more or less than one component; mask = " << MUtility::BitSetToString(componentType), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
-	else if (((*ComponentMasks)[entityID] & componentType) == 0)
+	else if (((*m_ComponentMasks)[entityID] & componentType) == 0)
 	{
-		MLOG_WARNING("Attempted to get component of type " << MUtility::BitSetToString(componentType) << " for an entity that lacks that component type; entity component mask = " << MUtility::BitSetToString((*ComponentMasks)[entityID]), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to get component of type " << MUtility::BitSetToString(componentType) << " for an entity that lacks that component type; entity component mask = " << MUtility::BitSetToString((*m_ComponentMasks)[entityID]), MENGINE_LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
 #endif
-	uint32_t componentIndex = (*ComponentIndices)[entityID][CalcComponentIndiceListIndex(entityID, (*ComponentMasks)[entityID], componentType)];
+	uint32_t componentIndex = (*m_ComponentIndices)[entityID][CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], componentType)];
 	return MEngineComponentManager::GetComponent(componentType, componentIndex);
 }
 
@@ -161,24 +161,24 @@ MEngine::Component* MEngineEntityManager::GetComponentForEntity(MEngineComponent
 
 void MEngineEntityManager::Initialize()
 {
-	Entities			= new std::vector<MEngineEntityID>();
-	ComponentMasks		= new std::vector<MEngineComponentMask>();
-	ComponentIndices	= new std::vector<std::vector<uint32_t>>();
-	IDBank				= new MUtilityIDBank();
+	m_Entities			= new std::vector<MEngineEntityID>();
+	m_ComponentMasks		= new std::vector<MEngineComponentMask>();
+	m_ComponentIndices	= new std::vector<std::vector<uint32_t>>();
+	m_IDBank				= new MUtilityIDBank();
 }
 
 void MEngineEntityManager::Shutdown()
 {
-	delete Entities;
-	delete ComponentMasks;
-	delete ComponentIndices;
-	delete IDBank;
+	delete m_Entities;
+	delete m_ComponentMasks;
+	delete m_ComponentIndices;
+	delete m_IDBank;
 }
 
 void MEngineEntityManager::UpdateComponentIndex(MEngineEntityID ID, MEngineComponentMask componentType, uint32_t newComponentIndex)
 {
-	uint32_t componentIndexListIndex = CalcComponentIndiceListIndex(ID, (*ComponentMasks)[ID], componentType);
-	(*ComponentIndices)[ID][componentIndexListIndex] = newComponentIndex;
+	uint32_t componentIndexListIndex = CalcComponentIndiceListIndex(ID, (*m_ComponentMasks)[ID], componentType);
+	(*m_ComponentIndices)[ID][componentIndexListIndex] = newComponentIndex;
 }
 
 // ---------- LOCAL ----------
@@ -191,6 +191,6 @@ uint32_t MEngineEntityManager::CalcComponentIndiceListIndex(MEngineEntityID enti
 #endif
 	
 	uint32_t componentTypeBitIndex = MUtilityMath::FastLog2(componentType); // Find the index of the bit signifying the component type
-	uint64_t shiftedMask = componentTypeBitIndex != 0 ? ((*ComponentMasks)[entityID] << (MEngineComponentManager::MAX_COMPONENTS - componentTypeBitIndex)) : 0; // Shift away all bits above the component type bit index
+	uint64_t shiftedMask = componentTypeBitIndex != 0 ? ((*m_ComponentMasks)[entityID] << (MEngineComponentManager::MAX_COMPONENTS - componentTypeBitIndex)) : 0; // Shift away all bits above the component type bit index
 	return static_cast<uint32_t>(MUtility::PopCount(shiftedMask)); // Return the number of set bits left in the shifted mask
 }

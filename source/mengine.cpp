@@ -17,8 +17,11 @@
 
 #define MENGINE_LOG_CATEGORY_GENERAL "MEngine"
 
-bool Initialized = false;
-bool QuitRequested = false;
+namespace MEngine
+{
+	bool m_Initialized = false;
+	bool m_QuitRequested = false;
+}
 
 bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
 {
@@ -52,7 +55,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 
 	MLOG_INFO("MEngine initialized successfully", MENGINE_LOG_CATEGORY_GENERAL);
 
-	Initialized = true;
+	m_Initialized = true;
 	return true;
 }
 
@@ -70,7 +73,7 @@ void MEngine::Shutdown()
 	MEngineGraphics::Shutdown();
 	MEngineUtility::Shutdown();
 
-	Initialized = false;
+	m_Initialized = false;
 	SDL_Quit();
 
 	MLOG_INFO("MEngine terminated gracefully", MENGINE_LOG_CATEGORY_GENERAL);
@@ -79,12 +82,12 @@ void MEngine::Shutdown()
 
 bool MEngine::IsInitialized()
 {
-	return Initialized;
+	return m_Initialized;
 }
 
 bool MEngine::ShouldQuit()
 {
-	return QuitRequested;
+	return m_QuitRequested;
 }
 
 void MEngine::Update()
@@ -97,7 +100,7 @@ void MEngine::Update()
 	{
 		if (event.type == SDL_QUIT)
 		{
-			QuitRequested = true;
+			m_QuitRequested = true;
 			break;
 		}
 
