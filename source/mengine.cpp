@@ -6,7 +6,7 @@
 #include "mengineGraphicsInternal.h"
 #include "mengineInternalComponentsInternal.h"
 #include "mengineInputInternal.h"
-#include "mengineSystemInternal.h"
+#include "mengineSystemManagerInternal.h"
 #include "mengineTextInternal.h"
 #include "mengineUtilityInternal.h"
 #include <MUtilityLog.h>
@@ -51,7 +51,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 	MEngineInput::Initialize();
 	MEngineText::Initialize();
 	MEngineConfig::Initialize();
-	MEngineSystem::Initialize();
+	MEngineSystemManager::Initialize();
 
 	MLOG_INFO("MEngine initialized successfully", LOG_CATEGORY_GENERAL);
 
@@ -63,7 +63,7 @@ void MEngine::Shutdown()
 {
 	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
 
-	MEngineSystem::Shutdown();
+	MEngineSystemManager::Shutdown();
 	MEngineConfig::Shutdown();
 	MEngineText::Shutdown();
 	MEngineInput::Shutdown();
@@ -108,7 +108,7 @@ void MEngine::Update()
 			break;
 	};
 
-	MEngineSystem::Update();
+	MEngineSystemManager::Update();
 }
 
 void MEngine::Render()

@@ -1,17 +1,12 @@
 #pragma once
+#include "mengineTypes.h"
 #include <stdint.h>
 
 namespace MEngine
 {
-	constexpr float MENGINE_TIME_STEP_FPS_120	= 0.00833333f;
-	constexpr float MENGINE_TIME_STEP_FPS_60	= 0.01666667f;
-	constexpr float MENGINE_TIME_STEP_FPS_30	= 0.03333333f;
-	constexpr float MENGINE_TIME_STEP_FPS_15	= 0.06666666f;
-
 	class System
 	{
 	public:
-		System(uint32_t priority) { m_Priority = priority; }
 		virtual ~System() {};
 		virtual void Initialize() {};
 		virtual void Shutdown() {};
@@ -19,11 +14,10 @@ namespace MEngine
 		virtual void UpdatePresentationLayer(float deltaTime) {};
 		virtual void UpdateSimulationLayer(float timeStep) {};
 
-		uint32_t GetPriority() const { return m_Priority; }
+		SystemID GetID() const { return ID; };
+		void SetID(SystemID newID) { ID = newID; }; // TODODB: Find some way to only allow the engine to set IDs
 
-	protected:
-		uint32_t m_Priority = 0;
+		private:
+			SystemID ID = INVALID_MENGINE_SYSTEM_ID;
 	};
-
-	void RegisterSystem(System* system);
 }
