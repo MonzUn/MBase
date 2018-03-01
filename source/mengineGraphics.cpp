@@ -14,10 +14,6 @@
 #include <mutex>
 #include <unordered_map>
 
-using namespace MEngine;
-using namespace MEngineGraphics;
-using MUtility::MUtilityIDBank;
-
 #define LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
 namespace MEngineGraphics
@@ -26,11 +22,14 @@ namespace MEngineGraphics
 	SDL_Window*		Window		= nullptr;
 
 	std::vector<MEngineTexture*>* m_Textures;
-	MUtilityIDBank* m_IDBank;
-	std::unordered_map<std::string, TextureID>* m_PathToIDMap;
+	MUtility::MUtilityIDBank* m_IDBank;
+	std::unordered_map<std::string, MEngine::TextureID>* m_PathToIDMap;
 	std::mutex m_PathToIDLock;
 	MUtility::LocklessQueue<SurfaceToTextureJob*>* m_SurfaceToTextureQueue;
 }
+
+using namespace MEngine;
+using namespace MEngineGraphics;
 
 // ---------- INTERFACE ----------
 
@@ -283,7 +282,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 	}
 
 	m_Textures = new std::vector<MEngineTexture*>();
-	m_IDBank = new MUtilityIDBank();
+	m_IDBank = new MUtility::MUtilityIDBank();
 	m_PathToIDMap = new std::unordered_map<std::string, TextureID>();
 	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
 
