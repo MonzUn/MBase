@@ -21,7 +21,7 @@ ComponentBuffer::ComponentBuffer(const Component& templateComponent, uint32_t te
 	m_Buffer = new Byte[initialByteSize];
 	for (uint32_t i = 0; i < startingCapacity; ++i)
 	{
-		memcpy(m_Buffer + (i * m_ComponentByteSize), TemplateComponent, m_ComponentByteSize); // Copy in the templte object to all component in the buffer
+		memcpy(m_Buffer + (i * m_ComponentByteSize), TemplateComponent, m_ComponentByteSize); // Copy in the template object to all component in the buffer
 	}
 
 	uint32_t nameLength = static_cast<uint32_t>(strlen(componentName));
