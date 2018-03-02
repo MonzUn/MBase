@@ -114,7 +114,7 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
 	for(int i = 0; i < MUtility::PopCount(componentMask); ++i)
 	{
-		ComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
+		ComponentMask singleComponentMask = MUtility::GetHighestSetBit(componentMask);
 		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], singleComponentMask);
 		if (MEngineComponentManager::ReturnComponent(singleComponentMask, componentIndices[componentIndiceListIndex]))
 		{
