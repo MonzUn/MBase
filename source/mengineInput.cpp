@@ -165,6 +165,7 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 	// Handle text input
 	// TODODB: Add support for insert
 	// TODODB: Add support for marking and handling marked text
+	// TODODB: Move this code somewhere else and use MKEY interface instead
 	if (m_TextInputStringReference != nullptr)
 	{	
 		if (sdlEvent.key.keysym.sym == SDLK_BACKSPACE) // Remove last character
@@ -225,10 +226,15 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 	// Handle mouse movement input
 	else if (sdlEvent.type == SDL_MOUSEMOTION)
 	{
-		m_CursorPosX		= sdlEvent.motion.x;
-		m_CursorPosY		= sdlEvent.motion.y;
+		m_CursorPosX	= sdlEvent.motion.x;
+		m_CursorPosY	= sdlEvent.motion.y;
 		m_CursorDeltaX	= sdlEvent.motion.xrel;
 		m_CursorDeltaY	= sdlEvent.motion.yrel;
+	}
+	// Handle mouse button input
+	else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP)
+	{
+		m_PressedKeys[MKEY_MOUSE_LEFT + sdlEvent.button.button - 1 ] = (sdlEvent.key.state == SDL_PRESSED);
 	}
 	// Handle keyboard input
 	else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP)

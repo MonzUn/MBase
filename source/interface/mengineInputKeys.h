@@ -122,5 +122,12 @@ enum MENGINE_KEY // Names are based on US keyboard layout (101)
 	MKEY_APSTROPHE, // Left of enter
 	MKEY_SEMICOLON, // Left of apostrophe
 
+	// Mouse "keys"
+	MKEY_MOUSE_LEFT,
+	MKEY_MOUSE_RIGHT,
+	MKEY_MOUSE_MIDDLE,
+	MKEY_MOUSE_THUMB_BACK,
+	MKEY_MOUSE_THUMB_FORWARD,
+
 	MKEY_COUNT // Not a key but the amount of entries in the enum
 };
