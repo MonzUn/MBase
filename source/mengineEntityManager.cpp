@@ -130,6 +130,19 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 	return failedComponents;
 }
 
+void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<EntityID>& outEntities, bool requireFullMatch)
+{
+	for (int i = 0; i < m_Entities->size(); ++i)
+	{
+		ComponentMask currentMask = (*m_ComponentMasks)[i];
+		if ((currentMask & componentMask) == componentMask)
+		{
+			if (!requireFullMatch || MUtility::PopCount(componentMask) == MUtility::PopCount(currentMask))
+				outEntities.push_back(i);	
+		}
+	}
+}
+
 MEngine::Component* MEngine::GetComponentForEntity(ComponentMask componentType, EntityID entityID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
