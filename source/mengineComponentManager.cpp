@@ -9,7 +9,7 @@
 
 namespace MEngineComponentManager
 {
-	std::vector<MEngine::ComponentBuffer>* m_Buffers;
+	std::vector<MEngine::ComponentBuffer*>* m_Buffers;
 	MUtility::MUtilityBitMaskIDBank m_IDBank;
 }
 
@@ -28,7 +28,7 @@ MEngine::ComponentMask MEngine::RegisterComponentType(const MEngine::Component& 
 		return INVALID_MENGINE_COMPONENT_MASK;
 	}
 #endif
-	m_Buffers->emplace_back(templateComponent, templateComponentSize, maxCount, componentName, componentMask);
+	m_Buffers->push_back(new ComponentBuffer(templateComponent, templateComponentSize, maxCount, componentName, componentMask));
 
 	return componentMask;
 }
@@ -50,7 +50,7 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 
 	for (int i = 0; i < m_Buffers->size(); ++i)
 	{
-		if ((*m_Buffers)[i].ComponentMask == componentType)
+		if ((*m_Buffers)[i]->ComponentMask == componentType)
 		{
 			if (m_IDBank.ReturnID(componentType))
 			{
@@ -59,7 +59,7 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 			}
 			else
 			{
-				MLOG_WARNING("Failed to return the component mask for component \"" << (*m_Buffers)[i].ComponentName << "\"; the component type will not be unregistered", LOG_CATEGORY_COMPONENT_MANAGER);
+				MLOG_WARNING("Failed to return the component mask for component \"" << (*m_Buffers)[i]->ComponentName << "\"; the component type will not be unregistered", LOG_CATEGORY_COMPONENT_MANAGER);
 				return false;
 			}
 		}
@@ -86,11 +86,11 @@ MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t
 
 	for (int i = 0; i < m_Buffers->size(); ++i)
 	{
-		if ((*m_Buffers)[i].ComponentMask == componentType)
+		if ((*m_Buffers)[i]->ComponentMask == componentType)
 		{
-			return (*m_Buffers)[i].GetBuffer();
 			if(outComponentCount != nullptr)
 				*outComponentCount = static_cast<int32_t>((*m_Buffers)[i]->GetCount());
+			return (*m_Buffers)[i]->GetBuffer();
 		}
 	}
 
@@ -102,28 +102,32 @@ MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t
 
 void MEngineComponentManager::Initialize()
 {
-	m_Buffers = new std::vector<MEngine::ComponentBuffer>();
+	m_Buffers = new std::vector<MEngine::ComponentBuffer*>();
 }
 
 void MEngineComponentManager::Shutdown()
 {
+	for (int i = 0; i < m_Buffers->size(); ++i)
+	{
+		delete (*m_Buffers)[i];
+	}
 	delete m_Buffers;
 }
 
 uint32_t MEngineComponentManager::AllocateComponent(MEngine::ComponentMask componentType, EntityID owner)
 {
 	uint32_t componentBufferIndex = MUtilityMath::FastLog2(componentType);
-	return (*m_Buffers)[componentBufferIndex].AllocateComponent(owner);
+	return (*m_Buffers)[componentBufferIndex]->AllocateComponent(owner);
 }
 
 bool MEngineComponentManager::ReturnComponent(MEngine::ComponentMask componentType, uint32_t componentIndex)
 {
 	uint32_t componentBufferIndex = MUtilityMath::FastLog2(componentType);
-	return (*m_Buffers)[componentBufferIndex].ReturnComponent(componentIndex);
+	return (*m_Buffers)[componentBufferIndex]->ReturnComponent(componentIndex);
 }
 
 MEngine::Component* MEngineComponentManager::GetComponent(MEngine::ComponentMask componentType, uint32_t componentIndex)
 {
 	uint32_t componentBufferIndex = MUtilityMath::FastLog2(componentType);
-	return (*m_Buffers)[componentBufferIndex].GetComponent(componentIndex);
+	return (*m_Buffers)[componentBufferIndex]->GetComponent(componentIndex);
 }
