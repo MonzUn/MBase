@@ -1,5 +1,6 @@
 #include "interface/mengineSystem.h"
 #include "mengineSystemManagerInternal.h"
+#include "buttonSystem.h"
 #include "frameCounter.h"
 #include <MUtilityIDBank.h>
 #include <algorithm>
@@ -243,4 +244,5 @@ void RegisterInternalSystem(System* system, uint32_t priority)
 
 void RegisterInternalSystems() // TODODB: See which internal functionality could be reworked into a system
 {
+	RegisterInternalSystem(new ButtonSystem(), 0);
 }

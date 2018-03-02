@@ -35,5 +35,6 @@ void MEngineInternalComponents::Shutdown()
 
 void MEngineInternalComponents::RegisterComponentsTypes()
 {
+	MEngine::ButtonComponent::Register(MEngine::ButtonComponent(), "ButtonComponent");
 	MEngine::TextureRenderingComponent::Register(MEngine::TextureRenderingComponent(), "TextureRenderingComponent");
 }
