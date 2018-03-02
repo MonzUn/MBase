@@ -234,7 +234,7 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 	// Handle mouse button input
 	else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP)
 	{
-		m_PressedKeys[MKEY_MOUSE_LEFT + sdlEvent.button.button - 1 ] = (sdlEvent.key.state == SDL_PRESSED);
+		m_PressedKeys[MKEY_MOUSE_LEFT + sdlEvent.button.button - 1 ] = (sdlEvent.button.state == SDL_PRESSED);
 	}
 	// Handle keyboard input
 	else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP)
