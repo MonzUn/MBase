@@ -20,4 +20,7 @@ namespace MEngine
 	int32_t GetCursorDeltaY();
 
 	uint64_t GetTextInputCaretIndex();
+
+	bool IsTextInputActive();
+	bool IsInputString(const std::string* toCompare);
 }

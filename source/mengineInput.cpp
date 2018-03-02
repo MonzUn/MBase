@@ -23,7 +23,7 @@ namespace MEngineInput
 	std::unordered_map<SDL_Scancode, MENGINE_KEY>* m_SDLScanCodeToMKeyConversionTable;
 
 	// Text input
-	std::string* m_TextInputStringReference = nullptr;
+	std::string* m_TextInputStringReference = nullptr; // TODODB: Refactor text input handling
 	uint64_t m_TextInputCaretIndex = 0;
 
 	// Cursor input
@@ -32,6 +32,9 @@ namespace MEngineInput
 	int32_t m_CursorDeltaX	= -1;
 	int32_t m_CursorDeltaY	= -1;
 }
+
+using namespace MEngine;
+using namespace MEngineInput;
 
 #if PLATFORM == PLATFORM_WINDOWS
 HHOOK hook = nullptr;
@@ -130,6 +133,16 @@ int32_t MEngine::GetCursorDeltaY()
 uint64_t MEngine::GetTextInputCaretIndex()
 {
 	return m_TextInputCaretIndex;
+}
+
+bool MEngine::IsTextInputActive()
+{
+	return m_TextInputStringReference != nullptr;
+}
+
+bool MEngine::IsInputString(const std::string* toCompare)
+{
+	return m_TextInputStringReference == toCompare;
 }
 
 // ---------- INTERNAL ----------
