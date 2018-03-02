@@ -60,6 +60,16 @@ void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& t
 		MLOG_WARNING("Attempted to draw cursor at position outside of string; string = \"" << text << "\"; cursor position = " << caretIndex, LOG_CATEGORY_TEXT);
 }
 
+uint16_t MEngine::GetTextWidth(const char* text)
+{
+	return FC_GetWidth(m_Font, text);
+}
+
+uint16_t MEngine::GetTextHeight(const char* text)
+{
+	return FC_GetHeight(m_Font, text);
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineText::Initialize()
