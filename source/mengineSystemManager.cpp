@@ -189,12 +189,18 @@ void MEngineSystemManager::Initialize()
 
 void MEngineSystemManager::Shutdown()
 {
+	// Shut down the currently active systems
+	const GameModeSystemList& gameModeSystems = (*m_GameModes)[m_ActiveGameMode];
+	for (int i = 0; i < gameModeSystems.size(); ++i)
+	{
+		(*m_Systems)[gameModeSystems[i].first]->Shutdown();
+	}
+
 	delete m_GameModes;
 	delete m_GameModeIDBank;
 
 	for (auto& system : *m_Systems)
 	{
-		system->Shutdown();
 		delete system;
 	}
 	m_Systems->clear();
