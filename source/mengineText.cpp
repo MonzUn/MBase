@@ -1,7 +1,8 @@
 #include "interface/mengineText.h"
 #include "mengineTextInternal.h"
-#include "interface/mengineUtility.h"
 #include "interface/mengineColor.h"
+#include "interface/mengineInput.h"
+#include "interface/mengineUtility.h"
 #include "mengineGraphicsInternal.h"
 #include <MUtilityLog.h>
 #include <SDL_FontCache.h>
@@ -45,8 +46,11 @@ void MEngine::DrawText(int32_t posX, int32_t posY, const std::string& text)
 	m_TextRenderJobs->push_back(TextRenderJob(posX, posY, text.c_str()));
 }
 
-void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, uint16_t caretIndex)
+void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, int32_t caretIndex)
 {
+	if (caretIndex == -1)
+		caretIndex = static_cast<int32_t>(MEngine::GetTextInputCaretIndex());
+
 	if (caretIndex >= 0 && caretIndex <= text.length())
 	{
 		DrawText(posX, posY, text.c_str());
