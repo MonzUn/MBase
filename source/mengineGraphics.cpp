@@ -357,7 +357,7 @@ void MEngineGraphics::Render()
 void MEngineGraphics::RenderEntities()
 {
 	int32_t componentCount = 0;
-	MEngine::TextureRenderingComponent* textureComponents = reinterpret_cast<MEngine::TextureRenderingComponent*>(MEngine::GetComponentBuffer(MEngine::TextureRenderingComponent::GetComponentMask(), componentCount));
+	MEngine::TextureRenderingComponent* textureComponents = reinterpret_cast<MEngine::TextureRenderingComponent*>(MEngine::GetComponentBuffer(MEngine::TextureRenderingComponent::GetComponentMask(), &componentCount));
 
 	for (int i = 0; i < componentCount; ++i)
 	{

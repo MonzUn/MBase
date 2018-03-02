@@ -69,19 +69,17 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 	return false;
 }
 
-MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t& outComponentCount)
+MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t* outComponentCount) // TODODB: Maybe return Component* instead?
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Attempted to get buffer using an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
-		outComponentCount = -1;
 		return nullptr;
 	}
 	else if (!m_IDBank.IsIDActive(componentType))
 	{
 		MLOG_WARNING("Attempted to get buffer using an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
-		outComponentCount = -1;
 		return nullptr;
 	}
 #endif
@@ -90,13 +88,13 @@ MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t
 	{
 		if ((*m_Buffers)[i].ComponentMask == componentType)
 		{
-			outComponentCount = static_cast<int32_t>((*m_Buffers)[i].GetCount());
 			return (*m_Buffers)[i].GetBuffer();
+			if(outComponentCount != nullptr)
+				*outComponentCount = static_cast<int32_t>((*m_Buffers)[i]->GetCount());
 		}
 	}
 
 	MLOG_ERROR("Failed to find the component buffer for component mask " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
-	outComponentCount = -1;
 	return nullptr;
 }
 
