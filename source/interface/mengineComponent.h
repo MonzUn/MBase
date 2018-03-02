@@ -7,7 +7,7 @@ namespace MEngine
 	class Component // Do NOT inherit from this type directly
 	{
 	public:
-		virtual ~Component() { Destroy(); };
+		virtual ~Component() {};
 
 		virtual void Initialize() {};
 		virtual void Destroy() {};
