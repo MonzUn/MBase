@@ -84,12 +84,12 @@ ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, Entity
 	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
 	while (componentMask != MUtility::EMPTY_BITSET)
 	{
-		ComponentMask singleComponentMask = 1ULL << (MUtility::GetHighestSetBit(componentMask) - 1);
+		ComponentMask singleComponentMask = MUtility::GetHighestSetBit(componentMask);
 		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex(entityID, (*m_ComponentMasks)[entityID], singleComponentMask);
 		componentIndices.insert(componentIndices.begin() + componentIndiceListIndex, MEngineComponentManager::AllocateComponent(singleComponentMask, entityID));
 		(*m_ComponentMasks)[entityID] |= singleComponentMask;
 
-		componentMask &= ~(1ULL << MUtility::GetHighestSetBitIndex(componentMask));
+		componentMask &= ~MUtility::GetHighestSetBit(componentMask);
 	}
 
 	return MUtility::EMPTY_BITSET;
@@ -119,12 +119,12 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 		if (MEngineComponentManager::ReturnComponent(singleComponentMask, componentIndices[componentIndiceListIndex]))
 		{
 			componentIndices.erase(componentIndices.begin() + componentIndiceListIndex);
-			(*m_ComponentMasks)[entityID] &= ~(1ULL << MUtility::GetHighestSetBitIndex(componentMask));
+			(*m_ComponentMasks)[entityID] &= ~MUtility::GetHighestSetBit(componentMask);
 		}
 		else
-			failedComponents &= (1ULL << MUtility::GetHighestSetBitIndex(componentMask));
+			failedComponents &= MUtility::GetHighestSetBit(componentMask);
 		
-		componentMask &= ~(1ULL << MUtility::GetHighestSetBitIndex(componentMask));
+		componentMask &= ~MUtility::GetHighestSetBit(componentMask);
 	}
 
 	return failedComponents;
