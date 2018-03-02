@@ -11,6 +11,9 @@
 typedef std::vector<std::pair<MEngine::SystemID, uint32_t>> GameModeSystemList;
 typedef std::vector<GameModeSystemList> GameModeList;
 
+void RegisterInternalSystem(MEngine::System* system, uint32_t priority);
+void RegisterInternalSystems();
+
 bool CompareSystemPriorities(const std::pair<MEngine::SystemID, uint32_t>& lhs, const std::pair<MEngine::SystemID, uint32_t>& rhs)
 {
 	return lhs.second < rhs.second;
@@ -23,6 +26,9 @@ namespace MEngineSystemManager
 	MEngine::GameModeID				m_ActiveGameMode = INVALID_MENGINE_GAME_MODE_ID;
 	std::vector<MEngine::System*>*	m_Systems;
 	MUtility::MUtilityIDBank*		m_SystemIDBank;
+
+	std::vector<MEngine::SystemID>*		m_InternalSystemList;
+	std::vector<uint32_t>*				m_InternalSystemPriorities;
 
 	MEngine::FrameCounter			m_PresentationFrameCounter;
 	MEngine::FrameCounter			m_SimulationFrameCounter;
@@ -86,11 +92,18 @@ GameModeID MEngine::CreateGameMode()
 	else
 		m_GameModes->emplace(m_GameModes->begin() + gameModeID, GameModeSystemList());
 
+	for (int i = 0; i < m_InternalSystemList->size(); ++i)
+	{
+		(*m_GameModes)[gameModeID].emplace_back(std::make_pair((*m_InternalSystemList)[i], (*m_InternalSystemPriorities)[i]));
+	}
+	std::sort((*m_GameModes)[gameModeID].begin(), (*m_GameModes)[gameModeID].end(), CompareSystemPriorities);
+
 	return gameModeID;
 }
 
 bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint32_t priority) // TODODB: Add shutdown and startup priorities (could be implemented as a priorities struct that is sued to sort systems befoer shutdown and startup)
 {
+	uint32_t shiftedPriority = priority + MENGINE_MIN_SYSTEM_PRIORITY;
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (!m_GameModeIDBank->IsIDActive(gameModeID))
 	{
@@ -98,16 +111,22 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 		return false;
 	}
 
+	if (priority < MENGINE_MIN_SYSTEM_PRIORITY || priority >= MENGINE_MAX_SYSTEM_PRIORITY)
+	{
+		MLOG_WARNING("Attempted to add a system using a priorty that is outside of the allowed scope; Min = " << MENGINE_MIN_SYSTEM_PRIORITY << " max = " << MENGINE_MAX_SYSTEM_PRIORITY, LOG_CATEGORY_SYSTEM_MANAGER);
+		return false;
+	}
+
 	const GameModeSystemList& systems = (*m_GameModes)[gameModeID];
 	for (int i = 0; i < systems.size(); ++i)
 	{
-		if (systems[i].first == systemID && systems[i].second == priority)
+		if (systems[i].first == systemID && systems[i].second == shiftedPriority)
 		{
 			MLOG_WARNING("Attempted to add the same system to game mode " << gameModeID <<" more than once using the same priority; system ID = " << systemID << "; priority = " << priority, LOG_CATEGORY_SYSTEM_MANAGER);
 			return false;
 		}
 
-		if (systems[i].second == priority)
+		if (systems[i].second == shiftedPriority)
 		{
 			MLOG_WARNING("Priority collision detected when adding system with ID " << systemID << " to game mode with ID " << gameModeID << "; colliding system ID = " << systems[i].first << "; the system will not be added", LOG_CATEGORY_SYSTEM_MANAGER);
 			return false;
@@ -116,7 +135,7 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 #endif
 
 	// TODODB: Make sure that it's safe to add game modes to the active game mode while running the updates for the game mode's systems
-	(*m_GameModes)[gameModeID].emplace_back(std::make_pair(systemID, priority));
+	(*m_GameModes)[gameModeID].emplace_back(std::make_pair(systemID, shiftedPriority));
 	std::sort((*m_GameModes)[gameModeID].begin(), (*m_GameModes)[gameModeID].end(), CompareSystemPriorities);
 
 	return true;
@@ -157,10 +176,14 @@ bool MEngine::ChangeGameMode(GameModeID newGameModeID)
 
 void MEngineSystemManager::Initialize()
 {
-	m_GameModes			= new GameModeList();
-	m_GameModeIDBank	= new MUtility::MUtilityIDBank;
-	m_Systems			= new std::vector<System*>();
-	m_SystemIDBank		= new MUtility::MUtilityIDBank;
+	m_GameModes					= new GameModeList();
+	m_GameModeIDBank			= new MUtility::MUtilityIDBank;
+	m_Systems					= new std::vector<System*>();
+	m_SystemIDBank				= new MUtility::MUtilityIDBank;
+	m_InternalSystemList		= new std::vector<SystemID>();
+	m_InternalSystemPriorities	= new std::vector<uint32_t>();
+
+	RegisterInternalSystems();
 }
 
 void MEngineSystemManager::Shutdown()
@@ -176,6 +199,13 @@ void MEngineSystemManager::Shutdown()
 	m_Systems->clear();
 	delete m_Systems;
 	delete m_SystemIDBank;
+
+	for(int i = 0; i < m_InternalSystemList->size(); ++i)
+	{
+		UnregisterSystem((*m_InternalSystemList)[i]);
+	}
+	delete m_InternalSystemList;
+	delete m_InternalSystemPriorities;
 }
 
 void MEngineSystemManager::Update()
@@ -200,4 +230,17 @@ void MEngineSystemManager::Update()
 			(*m_Systems)[activeSystems[i].first]->UpdateSimulationLayer(m_SimulationTimeStep);
 		}
 	}
+}
+
+// ---------- LOCAL ----------
+
+void RegisterInternalSystem(System* system, uint32_t priority)
+{
+	SystemID ID = RegisterSystem(system);
+	m_InternalSystemList->push_back(ID);
+	m_InternalSystemPriorities->push_back(priority);
+}
+
+void RegisterInternalSystems() // TODODB: See which internal functionality could be reworked into a system
+{
 }

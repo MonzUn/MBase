@@ -8,6 +8,9 @@ namespace MEngine
 	constexpr float MENGINE_TIME_STEP_FPS_30	= 0.03333333f;
 	constexpr float MENGINE_TIME_STEP_FPS_15	= 0.06666666f;
 
+	constexpr uint32_t MENGINE_MIN_SYSTEM_PRIORITY = 100;
+	constexpr uint32_t MENGINE_MAX_SYSTEM_PRIORITY = 10000;
+
 	SystemID RegisterSystem(System* system);
 	bool UnregisterSystem(SystemID ID);
 
