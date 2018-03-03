@@ -10,6 +10,8 @@ namespace MEngine
 			BLACK,
 			WHITE,
 			RED,
+			GREEN,
+			BLUE,
 			TRANSPARENT,
 
 			COUNT
@@ -17,10 +19,12 @@ namespace MEngine
 
 		constexpr uint8_t ColorValues[PredefinedColorEnum::COUNT][4] =
 		{
-			{ 0,0,0,255 }, // Black
-			{ 255,255,255,255 }, // White
-			{ 255,0,0,255 }, // Red
-			{ 0, 0, 0, 0 } // Transparent
+			{ 0, 0, 0, 255 },		// Black
+			{ 255, 255, 255, 255 },	// White
+			{ 255, 0, 0, 255 },		// Red
+			{ 0, 255, 0, 255 },		// Green
+			{ 0, 0, 255, 255 },		// Blue
+			{ 0, 0, 0, 0 }			// Transparent
 		};
 	}
 
@@ -59,6 +63,8 @@ namespace MEngine
 			ColorData(BLACK),
 			ColorData(WHITE),
 			ColorData(RED),
+			ColorData(GREEN),
+			ColorData(BLUE),
 			ColorData(TRANSPARENT),
 		};
 	}
