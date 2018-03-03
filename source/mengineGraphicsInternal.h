@@ -41,7 +41,8 @@ namespace MEngineGraphics
 	SDL_Window*		GetWindow();
 
 	void Render();
-	void RenderEntities();
+	void RenderRectangles();
+	void RenderTextures();
 }
 
 struct SurfaceToTextureJob

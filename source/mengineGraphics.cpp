@@ -16,7 +16,7 @@
 
 #define LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
-namespace MEngineGraphics
+namespace MEngineGraphics // Rename renderer and window using m_
 {
 	SDL_Renderer*	Renderer	= nullptr;
 	SDL_Window*		Window		= nullptr;
@@ -348,20 +348,65 @@ void MEngineGraphics::Render()
 
 	SdlApiLock.lock();
 	SDL_RenderClear(Renderer);
-	RenderEntities();
+	RenderRectangles();
+	RenderTextures();
 	MEngineText::Render();
 	SDL_RenderPresent(Renderer);
 	SdlApiLock.unlock();
 }
 
-void MEngineGraphics::RenderEntities()
+void MEngineGraphics::RenderRectangles()
+{
+	uint8_t startingDrawColor[4];
+	SDL_GetRenderDrawColor(Renderer, &startingDrawColor[0], &startingDrawColor[1], &startingDrawColor[2], &startingDrawColor[3]);
+
+	int32_t componentCount = 0;
+	RectangleRenderingComponent* rectangleComponents = reinterpret_cast<RectangleRenderingComponent*>(GetComponentBuffer(RectangleRenderingComponent::GetComponentMask(), &componentCount));
+
+	// Render the rectangle insides
+	for (int i = 0; i < componentCount; ++i)
+	{
+		const RectangleRenderingComponent& rectangleComponent = rectangleComponents[i];
+		if (!rectangleComponent.FillColor.IsFullyTransparent())
+		{
+			SDL_SetRenderDrawColor(Renderer, rectangleComponent.FillColor.R, rectangleComponent.FillColor.G, rectangleComponent.FillColor.B, rectangleComponent.FillColor.A);
+			SDL_Rect destinationRect = SDL_Rect();
+			destinationRect.x = rectangleComponent.PosX;
+			destinationRect.y = rectangleComponent.PosY;
+			destinationRect.w = rectangleComponent.Width;
+			destinationRect.h = rectangleComponent.Height;
+			SDL_RenderFillRect(Renderer, &destinationRect);
+		}
+	}
+
+	// Render the rectangle borders
+	for (int i = 0; i < componentCount; ++i)
+	{
+		const RectangleRenderingComponent& rectangleComponent = rectangleComponents[i];
+		if (!rectangleComponent.BorderColor.IsFullyTransparent())
+		{
+			SDL_SetRenderDrawColor(Renderer, rectangleComponent.BorderColor.R, rectangleComponent.BorderColor.G, rectangleComponent.BorderColor.B, rectangleComponent.BorderColor.A);
+			SDL_Rect destinationRect = SDL_Rect();
+			destinationRect.x = rectangleComponent.PosX;
+			destinationRect.y = rectangleComponent.PosY;
+			destinationRect.w = rectangleComponent.Width;
+			destinationRect.h = rectangleComponent.Height;
+			SDL_RenderDrawRect(Renderer, &destinationRect);
+		}
+	}
+
+	// Reset the draw color
+	SDL_SetRenderDrawColor(Renderer, startingDrawColor[0], startingDrawColor[1], startingDrawColor[2], startingDrawColor[3]);
+}
+
+void MEngineGraphics::RenderTextures()
 {
 	int32_t componentCount = 0;
-	MEngine::TextureRenderingComponent* textureComponents = reinterpret_cast<MEngine::TextureRenderingComponent*>(MEngine::GetComponentBuffer(MEngine::TextureRenderingComponent::GetComponentMask(), &componentCount));
+	TextureRenderingComponent* textureComponents = reinterpret_cast<TextureRenderingComponent*>(GetComponentBuffer(TextureRenderingComponent::GetComponentMask(), &componentCount));
 
 	for (int i = 0; i < componentCount; ++i)
 	{
-		MEngine::TextureRenderingComponent& textureComponent = textureComponents[i];
+		const TextureRenderingComponent& textureComponent = textureComponents[i];
 		if (textureComponent.RenderIgnore || textureComponent.TextureID == INVALID_MENGINE_TEXTURE_ID)
 			continue;
 
