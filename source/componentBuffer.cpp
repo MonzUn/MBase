@@ -71,15 +71,20 @@ bool ComponentBuffer::ReturnComponent(uint32_t componentIndex)
 	if (componentIndex == m_NextIndex - 1)
 	{
 		m_Owners.pop_back();
-		memcpy(m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, TemplateComponent, m_ComponentByteSize); // Copy in the templte object to the newly freed position
 	}
 	else
 	{
-		EntityID ownerID = m_Owners[componentIndex];
-		memcpy(m_Buffer + componentIndex * m_ComponentByteSize, m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, m_ComponentByteSize); // Copy in the templte object to the newly freed position
-		MEngineEntityManager::UpdateComponentIndex(ownerID, ComponentMask, componentIndex); // Tell the owner of the moved component where it has been moved to
+		// Move the last component to the index of the removed component
+		memcpy(m_Buffer + componentIndex * m_ComponentByteSize, m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, m_ComponentByteSize);
 		m_Owners.erase(m_Owners.begin() + componentIndex);
+
+		// Tell the owner of the moved component where it has been moved to
+		EntityID ownerID = m_Owners[componentIndex];
+		MEngineEntityManager::UpdateComponentIndex(ownerID, ComponentMask, componentIndex);
 	}
+	// Copy in the template object to the newly freed position
+	memcpy(m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, TemplateComponent, m_ComponentByteSize);
+
 	--m_NextIndex;
 	return true;
 }
