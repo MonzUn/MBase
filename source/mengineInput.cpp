@@ -47,11 +47,17 @@ void PopulateConversionTables();
 
 void MEngine::StartTextInput(std::string* textInputString)
 {
-	if (textInputString == nullptr)
-		SDL_StartTextInput();
-
-	m_TextInputStringReference = textInputString;
-	m_TextInputCaretIndex = textInputString->length();
+	if (textInputString != nullptr)
+	{
+		if (m_TextInputStringReference == nullptr)
+		{
+			SDL_StartTextInput();
+			m_TextInputStringReference = textInputString;
+			m_TextInputCaretIndex = textInputString->length();
+		}
+	}
+	else
+		MLOG_WARNING("Attempted to start text input using a nullptr string*", LOG_CATEGORY_INPUT);
 }
 
 void MEngine::StopTextInput()
