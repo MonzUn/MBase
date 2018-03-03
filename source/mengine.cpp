@@ -104,8 +104,7 @@ void MEngine::Update()
 			break;
 		}
 
-		if (MEngineInput::HandleEvent(event))
-			break;
+		MEngineInput::HandleEvent(event);
 	};
 
 	MEngineSystemManager::Update();
