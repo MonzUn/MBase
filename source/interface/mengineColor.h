@@ -51,4 +51,15 @@ namespace MEngine
 			return R == otherRGBA[0] && G == otherRGBA[1] && B == otherRGBA[2] && A == otherRGBA[3];
 		}
 	};
+
+	namespace PredefinedColors
+	{
+		const ColorData Colors[PredefinedColors::PredefinedColorEnum::COUNT] =
+		{
+			ColorData(BLACK),
+			ColorData(WHITE),
+			ColorData(RED),
+			ColorData(TRANSPARENT),
+		};
+	}
 }
