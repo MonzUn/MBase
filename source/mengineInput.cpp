@@ -230,39 +230,54 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 		{
 			if (sdlEvent.key.state == SDL_PRESSED && m_TextInputCaretIndex > 0)
 				--m_TextInputCaretIndex;
+
+			consumedEvent = true;
 		}
 		else if (sdlEvent.key.keysym.sym == SDLK_RIGHT)
 		{
 			if (sdlEvent.key.state == SDL_PRESSED && m_TextInputCaretIndex < m_TextInputStringReference->length())
 				++m_TextInputCaretIndex;
+
+			consumedEvent = true;
 		}
 		else if (sdlEvent.type == SDL_TEXTINPUT)
 		{
+			if (m_TextInputStringReference->capacity() <= m_TextInputCaretIndex)
+				m_TextInputStringReference->reserve(m_TextInputStringReference->capacity() * 2);
+
 			m_TextInputStringReference->insert(m_TextInputCaretIndex++, sdlEvent.text.text);
 			consumedEvent = true;
 		}
 	}
-	// Handle mouse movement input
-	else if (sdlEvent.type == SDL_MOUSEMOTION)
+
+	if(!consumedEvent)
 	{
-		m_CursorPosX	= sdlEvent.motion.x;
-		m_CursorPosY	= sdlEvent.motion.y;
-		m_CursorDeltaX	= sdlEvent.motion.xrel;
-		m_CursorDeltaY	= sdlEvent.motion.yrel;
-	}
-	// Handle mouse button input
-	else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP)
-	{
-		m_PressedKeys[MKEY_MOUSE_LEFT + sdlEvent.button.button - 1 ] = (sdlEvent.button.state == SDL_PRESSED);
-	}
-	// Handle keyboard input
-	else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP)
-	{
-		auto scancodeAndMKey = m_SDLScanCodeToMKeyConversionTable->find(sdlEvent.key.keysym.scancode);
-		if (scancodeAndMKey != m_SDLScanCodeToMKeyConversionTable->end())
-			m_PressedKeys[scancodeAndMKey->second] = (sdlEvent.key.state == SDL_PRESSED);
-		else
-			MLOG_WARNING("A key was pressed that could not be converted into an MKEY; Scancode = " << sdlEvent.key.keysym.scancode, LOG_CATEGORY_INPUT);
+		// Handle mouse movement input
+		if (sdlEvent.type == SDL_MOUSEMOTION)
+		{
+			m_CursorPosX = sdlEvent.motion.x;
+			m_CursorPosY = sdlEvent.motion.y;
+			m_CursorDeltaX = sdlEvent.motion.xrel;
+			m_CursorDeltaY = sdlEvent.motion.yrel;
+			consumedEvent = true;
+		}
+		// Handle mouse button input
+		else if (sdlEvent.type == SDL_MOUSEBUTTONDOWN || sdlEvent.type == SDL_MOUSEBUTTONUP)
+		{
+			m_PressedKeys[MKEY_MOUSE_LEFT + sdlEvent.button.button - 1] = (sdlEvent.button.state == SDL_PRESSED);
+			consumedEvent = true;
+		}
+		// Handle keyboard input
+		else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP)
+		{
+			auto scancodeAndMKey = m_SDLScanCodeToMKeyConversionTable->find(sdlEvent.key.keysym.scancode);
+			if (scancodeAndMKey != m_SDLScanCodeToMKeyConversionTable->end())
+				m_PressedKeys[scancodeAndMKey->second] = (sdlEvent.key.state == SDL_PRESSED);
+			else
+				MLOG_WARNING("A key was pressed that could not be converted into an MKEY; Scancode = " << sdlEvent.key.keysym.scancode, LOG_CATEGORY_INPUT);
+
+			consumedEvent = true;
+		}
 	}
 
 	return consumedEvent;
