@@ -29,5 +29,20 @@ namespace MEngine
 			R(red), G(green), B(blue), A(alpha) {}
 
 		uint8_t R, G, B, A = 0;
+
+		bool IsFullyTransparent() const
+		{
+			return A == 0;
+		}
+
+		bool operator==(const ColorData& other) const
+		{
+			return R == other.R && G == other.G && B == other.B && A == other.A;
+		}
+
+		bool operator==(const uint8_t otherRGBA[4]) const
+		{
+			return R == otherRGBA[0] && G == otherRGBA[1] && B == otherRGBA[2] && A == otherRGBA[3];
+		}
 	};
 }
