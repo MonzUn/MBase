@@ -9,14 +9,17 @@ namespace MEngine
 	public:
 		virtual ~Component() {};
 
-		virtual void Initialize() {};
-		virtual void Destroy() {};
+		virtual void Initialize() = 0;
+		virtual void Destroy() = 0;
 	};
 
 	template <class Derived> // Inherit this type for component definitions; Example: class UsefullComponent : public ComponentBase<UsefullComponent>
 	class ComponentBase : public Component
 	{
 	public:
+		virtual void Initialize() {};
+		virtual void Destroy() {};
+
 		static void Register(const ComponentBase<Derived>& templateInstance, const char* componentName, uint32_t maxCount = 10)
 		{
 			ByteSize = sizeof(Derived);
