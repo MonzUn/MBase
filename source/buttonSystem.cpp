@@ -14,14 +14,20 @@ void ButtonSystem::UpdatePresentationLayer(float deltaTime)
 	ButtonComponent* buttons = reinterpret_cast<ButtonComponent*>(GetComponentBuffer(ButtonComponent::GetComponentMask(), &componentCount));
 	for (int i = 0; i < componentCount; ++i)
 	{
-		const ButtonComponent& button = buttons[i];
-		if (cursorPosX >= button.PosX && cursorPosX < button.PosX + button.Width && cursorPosY >= button.PosY && cursorPosY < button.PosY + button.Height)
+		bool wasClicked = false;
+		ButtonComponent& button = buttons[i];
+		if (button.Callback != nullptr && cursorPosX >= button.PosX && cursorPosX < button.PosX + button.Width && cursorPosY >= button.PosY && cursorPosY < button.PosY + button.Height)
 		{
 			// TODODB: Tint the button when it is hovered
 			if (KeyReleased(MKEY_MOUSE_LEFT))
-				button.Callback();
+			{
+				button.Callback->operator()();
+				wasClicked = true;
+			}
 		}
+		button.IsTriggered = wasClicked;
 
-		MEngine::DrawText(button.PosX + (button.Width / 2) - (GetTextWidth(button.text.c_str()) / 2), button.PosY + (button.Height / 2) - (GetTextHeight(button.text.c_str()) / 2), button.text); // Centered
+		if(button.text != nullptr)
+			MEngine::DrawText(button.PosX + (button.Width / 2) - (GetTextWidth(button.text->c_str()) / 2), button.PosY + (button.Height / 2) - (GetTextHeight(button.text->c_str()) / 2), *button.text); // Centered
 	}
 }

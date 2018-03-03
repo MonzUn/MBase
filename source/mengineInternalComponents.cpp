@@ -14,6 +14,14 @@ namespace MEngineInternalComponents
 
 using namespace MEngine;
 
+// ---------- COMPONENTS ----------
+
+void ButtonComponent::Destroy()
+{
+	delete text;
+	delete Callback;
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineInternalComponents::Initialize()
@@ -35,7 +43,7 @@ void MEngineInternalComponents::Shutdown()
 
 void MEngineInternalComponents::RegisterComponentsTypes()
 {
-	MEngine::ButtonComponent::Register(MEngine::ButtonComponent(), "ButtonComponent");
-	MEngine::TextureRenderingComponent::Register(MEngine::TextureRenderingComponent(), "TextureRenderingComponent");
 	RectangleRenderingComponent::Register(RectangleRenderingComponent(), "RectangleRenderingComponent");
+	TextureRenderingComponent::Register(TextureRenderingComponent(), "TextureRenderingComponent");
+	ButtonComponent::Register(ButtonComponent(), "ButtonComponent");
 }

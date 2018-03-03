@@ -33,11 +33,15 @@ namespace MEngine // TODODB: Find a cache friendly way to not have to store posi
 	class ButtonComponent : public ComponentBase<ButtonComponent>
 	{
 	public:
+		void Destroy() override;
+
 		int32_t PosX	= 0;
 		int32_t PosY	= 0;
 		int32_t Width	= 0;
 		int32_t Height	= 0;
-		std::string text = "";
-		std::function<void()> Callback; // TODODB: Attempt to make it possible to use any parameters and return type
+		std::string* text	= nullptr; // TODODB: Rename using capital
+		bool IsTriggered	= false;
+		std::function<void()>* Callback = nullptr; // TODODB: Attempt to make it possible to use any parameters and return type
+	};
 	};
 }
