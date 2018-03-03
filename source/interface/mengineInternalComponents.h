@@ -1,6 +1,7 @@
 #pragma once
 #include "mengineColor.h"
 #include "mengineComponent.h"
+#include "mengineInput.h"
 #include "MUtilityTypes.h"
 #include <MUtilityMacros.h>
 #include <functional>
@@ -43,5 +44,21 @@ namespace MEngine // TODODB: Find a cache friendly way to not have to store posi
 		bool IsTriggered	= false;
 		std::function<void()>* Callback = nullptr; // TODODB: Attempt to make it possible to use any parameters and return type
 	};
+
+	class TextBoxComponent : public ComponentBase<TextBoxComponent>
+	{
+	public:
+		void Destroy() override;
+
+		int32_t PosX	= 0;
+		int32_t PosY	= 0;
+		int32_t Width	= 0;
+		int32_t Height	= 0;
+		std::string* text = nullptr; // TODODB: Rename using capital
+
+		void StartEditing() // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead
+		{
+			MEngine::StartTextInput(text);
+		};
 	};
 }

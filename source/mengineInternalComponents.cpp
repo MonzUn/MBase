@@ -22,6 +22,11 @@ void ButtonComponent::Destroy()
 	delete Callback;
 }
 
+void TextBoxComponent::Destroy()
+{
+	delete text;
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineInternalComponents::Initialize()
@@ -46,4 +51,5 @@ void MEngineInternalComponents::RegisterComponentsTypes()
 	RectangleRenderingComponent::Register(RectangleRenderingComponent(), "RectangleRenderingComponent");
 	TextureRenderingComponent::Register(TextureRenderingComponent(), "TextureRenderingComponent");
 	ButtonComponent::Register(ButtonComponent(), "ButtonComponent");
+	TextBoxComponent::Register(TextBoxComponent(), "TextBoxComponent");
 }
