@@ -22,9 +22,11 @@ namespace MEngine
 
 	struct ColorData
 	{
+		ColorData() { R = G = B = A = 0; }
+
 		ColorData(PredefinedColors::PredefinedColorEnum color) :
-			R(PredefinedColors::PredefinedColors[color][0]), G(PredefinedColors::PredefinedColors[color][1]),
-			B(PredefinedColors::PredefinedColors[color][2]), A(PredefinedColors::PredefinedColors[color][3]) {}
+			R(PredefinedColors::ColorValues[color][0]), G(PredefinedColors::ColorValues[color][1]),
+			B(PredefinedColors::ColorValues[color][2]), A(PredefinedColors::ColorValues[color][3]) {}
 		ColorData(uint8_t red, uint8_t green, uint8_t blue, uint8_t alpha) :
 			R(red), G(green), B(blue), A(alpha) {}
 
