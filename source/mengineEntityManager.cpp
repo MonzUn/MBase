@@ -64,8 +64,6 @@ bool MEngine::DestroyEntity(EntityID entityID) // TODODB: Rename last parameter 
 			return true;
 		}
 	}
-
-	MLOG_ERROR("Failed to find entity with ID " << entityID << " even though it is marked as active", LOG_CATEGORY_ENTITY_MANAGER);
 	return false;
 }
 
@@ -120,7 +118,6 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 			return RemoveComponentsFromEntityByIndex(componentMask, entityIndex);
 	}
 
-	MLOG_ERROR("Failed to find entity with ID " << entityID << " even though it is marked as active", LOG_CATEGORY_ENTITY_MANAGER);
 	return componentMask;
 }
 
