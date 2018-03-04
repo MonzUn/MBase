@@ -15,7 +15,7 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 	buttonComponent->Width		= width;
 	buttonComponent->Height		= height;
 	buttonComponent->Callback	= new std::function<void()>(callback);
-	buttonComponent->text		= new std::string(text);
+	buttonComponent->Text		= new std::string(text);
 
 	TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID));
 	textureComponent->PosX		= posX;
@@ -47,7 +47,7 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 	textComponent->PosY		= posY;
 	textComponent->Width	= width;
 	textComponent->Height	= height;
-	textComponent->text		= new std::string(text);
+	textComponent->Text		= new std::string(text);
 
 	ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), ID));
 	buttonComponent->PosX		= posX;

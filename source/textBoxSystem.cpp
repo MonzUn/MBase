@@ -16,10 +16,10 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 	for (int i = 0; i < componentCount; ++i)
 	{
 		const TextBoxComponent& textBox = textBoxes[i];
-		if (IsInputString(textBox.text))
-			DrawTextWithCaret(textBox.PosX, textBox.PosY + (textBox.Height / 2), *textBox.text);
+		if (IsInputString(textBox.Text))
+			DrawTextWithCaret(textBox.PosX, textBox.PosY + (textBox.Height / 2), *textBox.Text);
 		else
-			DrawText(textBox.PosX, textBox.PosY + (textBox.Height / 2), *textBox.text);
+			DrawText(textBox.PosX, textBox.PosY + (textBox.Height / 2), *textBox.Text);
 	}
 
 	if (KeyReleased(MKEY_MOUSE_LEFT))

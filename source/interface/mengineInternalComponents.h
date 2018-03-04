@@ -40,7 +40,7 @@ namespace MEngine // TODODB: Find a cache friendly way to not have to store posi
 		int32_t PosY	= 0;
 		int32_t Width	= 0;
 		int32_t Height	= 0;
-		std::string* text	= nullptr; // TODODB: Rename using capital
+		std::string* Text	= nullptr;
 		bool IsTriggered	= false;
 		std::function<void()>* Callback = nullptr; // TODODB: Attempt to make it possible to use any parameters and return type
 	};
@@ -54,11 +54,11 @@ namespace MEngine // TODODB: Find a cache friendly way to not have to store posi
 		int32_t PosY	= 0;
 		int32_t Width	= 0;
 		int32_t Height	= 0;
-		std::string* text = nullptr; // TODODB: Rename using capital
+		std::string* Text = nullptr;
 
 		void StartEditing() // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead
 		{
-			MEngine::StartTextInput(text);
+			MEngine::StartTextInput(Text);
 		};
 	};
 }

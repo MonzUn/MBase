@@ -18,13 +18,13 @@ using namespace MEngine;
 
 void ButtonComponent::Destroy()
 {
-	delete text;
+	delete Text;
 	delete Callback;
 }
 
 void TextBoxComponent::Destroy()
 {
-	delete text;
+	delete Text;
 }
 
 // ---------- INTERNAL ----------

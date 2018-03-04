@@ -27,7 +27,7 @@ void ButtonSystem::UpdatePresentationLayer(float deltaTime)
 		}
 		button.IsTriggered = wasClicked;
 
-		if(button.text != nullptr)
-			MEngine::DrawText(button.PosX + (button.Width / 2) - (GetTextWidth(button.text->c_str()) / 2), button.PosY + (button.Height / 2) - (GetTextHeight(button.text->c_str()) / 2), *button.text); // Centered
+		if(button.Text != nullptr)
+			MEngine::DrawText(button.PosX + (button.Width / 2) - (GetTextWidth(button.Text->c_str()) / 2), button.PosY + (button.Height / 2) - (GetTextHeight(button.Text->c_str()) / 2), *button.Text); // Centered
 	}
 }
