@@ -50,7 +50,7 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 
 	for (int i = 0; i < m_Buffers->size(); ++i)
 	{
-		if ((*m_Buffers)[i]->ComponentMask == componentType)
+		if ((*m_Buffers)[i]->ComponentType == componentType)
 		{
 			if (m_IDBank.ReturnID(componentType))
 			{
@@ -86,7 +86,7 @@ MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t
 
 	for (int i = 0; i < m_Buffers->size(); ++i)
 	{
-		if ((*m_Buffers)[i]->ComponentMask == componentType)
+		if ((*m_Buffers)[i]->ComponentType == componentType)
 		{
 			if(outComponentCount != nullptr)
 				*outComponentCount = static_cast<int32_t>((*m_Buffers)[i]->GetCount());

@@ -12,7 +12,7 @@ using namespace MEngine;
 using MUtility::Byte;
 
 ComponentBuffer::ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, MEngine::ComponentMask componentMask) :
-	m_ComponentByteSize(templateComponentSize), m_Capacity(startingCapacity), ComponentMask(componentMask)
+	m_ComponentByteSize(templateComponentSize), m_Capacity(startingCapacity), ComponentType(componentMask)
 {
 	const_cast<Component*>(TemplateComponent) = static_cast<Component*>(malloc(templateComponentSize));
 	memcpy(TemplateComponent, &templateComponent, templateComponentSize);
@@ -80,7 +80,7 @@ bool ComponentBuffer::ReturnComponent(uint32_t componentIndex)
 
 		// Tell the owner of the moved component where it has been moved to
 		EntityID ownerID = m_Owners[componentIndex];
-		MEngineEntityManager::UpdateComponentIndex(ownerID, ComponentMask, componentIndex);
+		MEngineEntityManager::UpdateComponentIndex(ownerID, ComponentType, componentIndex);
 	}
 	// Copy in the template object to the newly freed position
 	memcpy(m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, TemplateComponent, m_ComponentByteSize);
