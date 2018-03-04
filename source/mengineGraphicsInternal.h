@@ -6,29 +6,29 @@ struct SurfaceToTextureJob;
 
 namespace MEngineGraphics
 {
-	struct MEngineTexture // TODODB: Fix casing on member variables
+	struct MEngineTexture
 	{
-		MEngineTexture(SDL_Texture* sdlTexture, SDL_Surface* sdlSurface = nullptr) : texture(sdlTexture), surface(sdlSurface)
+		MEngineTexture(SDL_Texture* sdlTexture, SDL_Surface* sdlSurface = nullptr) : Texture(sdlTexture), Surface(sdlSurface)
 		{
-			SDL_QueryTexture(sdlTexture, &format, &access, &width, &height);
+			SDL_QueryTexture(sdlTexture, &Format, &Access, &Width, &Height);
 		}
 
 		MEngineTexture(const MEngineTexture& other) = delete;
 
 		~MEngineTexture()
 		{
-			SDL_DestroyTexture(texture);
+			SDL_DestroyTexture(Texture);
 
-			if(surface)
-				SDL_FreeSurface(surface);
+			if(Surface)
+				SDL_FreeSurface(Surface);
 		}
 
-		SDL_Texture*	texture;
-		SDL_Surface*	surface;
-		int32_t			width;
-		int32_t			height;
-		uint32_t		format;
-		int32_t			access;
+		SDL_Texture*	Texture;
+		SDL_Surface*	Surface;
+		int32_t			Width;
+		int32_t			Height;
+		uint32_t		Format;
+		int32_t			Access;
 	};
 
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);

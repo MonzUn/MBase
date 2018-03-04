@@ -255,7 +255,7 @@ const TextureData MEngine::GetTextureData(TextureID textureID)
 	if (textureID != INVALID_MENGINE_TEXTURE_ID && textureID <static_cast<int64_t>(m_Textures->size()))
 	{
 		const MEngineTexture& texture = *(*m_Textures)[textureID];
-		toReturn = TextureData(texture.surface->w, texture.surface->h, texture.surface->pixels);
+		toReturn = TextureData(texture.Surface->w, texture.Surface->h, texture.Surface->pixels);
 	}
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, LOG_CATEGORY_GRAPHICS);
@@ -416,7 +416,7 @@ void MEngineGraphics::RenderTextures()
 		destinationRect.w = textureComponent.Width;
 		destinationRect.h = textureComponent.Height;
 
-		int result = SDL_RenderCopy(Renderer, (*m_Textures)[textureComponent.TextureID]->texture, nullptr, &destinationRect);
+		int result = SDL_RenderCopy(Renderer, (*m_Textures)[textureComponent.TextureID]->Texture, nullptr, &destinationRect);
 		if (result != 0)
 			MLOG_ERROR("Failed to render texture with ID: " << textureComponent.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
 	}
