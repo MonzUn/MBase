@@ -11,7 +11,7 @@ using namespace MEngineInput;
 
 #define LOG_CATEGORY_INPUT "MEngineInput"
 
-namespace MEngineInput
+namespace MEngineInput // TODODB: See if it isn't actually better to use the MEngine namespace here (less trouble with namespaces during debugging)
 {
 	bool m_WindowFocusRequired = true;
 

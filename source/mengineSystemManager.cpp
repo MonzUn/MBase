@@ -143,7 +143,7 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 	return true;
 }
 
-bool MEngine::ChangeGameMode(GameModeID newGameModeID)
+bool MEngine::ChangeGameMode(GameModeID newGameModeID) // TODODB: Delay the actual change until end of frame
 {
 	if (m_ActiveGameMode == newGameModeID)
 	{
