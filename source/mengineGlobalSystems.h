@@ -2,6 +2,7 @@
 #include "interface/mengineUtility.h"
 #include "mengineComponentManagerInternal.h"
 #include "mengineConfigInternal.h"
+#include "mengineConsoleInternal.h"
 #include "mengineEntityManagerInternal.h"
 #include "mengineGraphicsInternal.h"
 #include "mengineInternalComponentsInternal.h"
@@ -15,6 +16,7 @@ namespace MEngineGlobalSystems
 	void Start()
 	{
 		MEngineUtility::Initialize();
+		MEngineConsole::Initialize();
 		MEngineEntityManager::Initialize();
 		MEngineComponentManager::Initialize();
 		MEngineInternalComponents::Initialize();
@@ -34,6 +36,7 @@ namespace MEngineGlobalSystems
 		MEngineComponentManager::Shutdown();
 		MEngineEntityManager::Shutdown();
 		MEngineGraphics::Shutdown();
+		MEngineConsole::shutdown();
 		MEngineUtility::Shutdown();
 	}
 
