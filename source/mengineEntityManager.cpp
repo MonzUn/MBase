@@ -40,34 +40,34 @@ EntityID MEngine::CreateEntity() // TODODB: Take component mask and add the comp
 	return ID;
 }
 
-bool MEngine::DestroyEntity(EntityID entityID) // TODODB: Rename last parameter to ID for consistency
+bool MEngine::DestroyEntity(EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (!m_IDBank->IsIDActive(entityID))
+	if (!m_IDBank->IsIDActive(ID))
 	{
-		MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return false;
 	}
 #endif
 
-	int32_t entityIndex = GetEntityIndex(entityID);
+	int32_t entityIndex = GetEntityIndex(ID);
 	if (entityIndex >= 0)
 	{
-		if ((*MEngineEntityManager::m_Entities)[entityIndex] == entityID)
+		if ((*MEngineEntityManager::m_Entities)[entityIndex] == ID)
 		{
 			RemoveComponentsFromEntityByIndex((*m_ComponentMasks)[entityIndex], entityIndex);
 
 			m_Entities->erase(m_Entities->begin() + entityIndex);
 			m_ComponentMasks->erase(m_ComponentMasks->begin() + entityIndex);
 			m_ComponentIndices->erase(m_ComponentIndices->begin() + entityIndex);
-			m_IDBank->ReturnID(entityID);
+			m_IDBank->ReturnID(ID);
 			return true;
 		}
 	}
 	return false;
 }
 
-ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, EntityID entityID) // TODODB: Rename last parameter to ID for consistency
+ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
@@ -75,20 +75,20 @@ ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, Entity
 		MLOG_WARNING("Attempted to add component(s) to entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
-	else if (!m_IDBank->IsIDActive(entityID))
+	else if (!m_IDBank->IsIDActive(ID))
 	{
-		MLOG_WARNING("Attempted to add components to an entity that doesn't exist; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to add components to an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 #endif
 
-	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityID];
+	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[ID];
 	while (componentMask != MUtility::EMPTY_BITSET)
 	{
 		ComponentMask singleComponentMask = MUtility::GetHighestSetBit(componentMask);
-		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex((*m_ComponentMasks)[entityID], singleComponentMask);
-		componentIndices.insert(componentIndices.begin() + componentIndiceListIndex, MEngineComponentManager::AllocateComponent(singleComponentMask, entityID));
-		(*m_ComponentMasks)[entityID] |= singleComponentMask;
+		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex((*m_ComponentMasks)[ID], singleComponentMask);
+		componentIndices.insert(componentIndices.begin() + componentIndiceListIndex, MEngineComponentManager::AllocateComponent(singleComponentMask, ID));
+		(*m_ComponentMasks)[ID] |= singleComponentMask;
 
 		componentMask &= ~MUtility::GetHighestSetBit(componentMask);
 	}
@@ -96,7 +96,7 @@ ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, Entity
 	return MUtility::EMPTY_BITSET;
 }
 
-ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, EntityID entityID) // TODODB: Rename last parameter to ID for consistency
+ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
@@ -104,17 +104,17 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 		MLOG_WARNING("Attempted to removed component(s) from entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
-	else if (!m_IDBank->IsIDActive(entityID))
+	else if (!m_IDBank->IsIDActive(ID))
 	{
-		MLOG_WARNING("Attempted to remove component(s) from an entity that doesn't exist; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to remove component(s) from an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
 #endif
 
-	int32_t entityIndex = GetEntityIndex(entityID);
+	int32_t entityIndex = GetEntityIndex(ID);
 	if(entityIndex >= 0)
 	{
-		if((*m_Entities)[entityIndex] == entityID)
+		if((*m_Entities)[entityIndex] == ID)
 			return RemoveComponentsFromEntityByIndex(componentMask, entityIndex);
 	}
 
