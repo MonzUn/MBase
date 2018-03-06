@@ -18,11 +18,10 @@ using namespace MEngine;
 
 void ButtonComponent::Destroy()
 {
-	delete Text;
 	delete Callback;
 }
 
-void TextBoxComponent::Destroy()
+void TextComponent::Destroy()
 {
 	delete Text;
 }
@@ -48,8 +47,9 @@ void MEngineInternalComponents::Shutdown()
 
 void MEngineInternalComponents::RegisterComponentsTypes()
 {
+	PosSizeComponent::Register(PosSizeComponent(), "PosSizeComponent");
 	RectangleRenderingComponent::Register(RectangleRenderingComponent(), "RectangleRenderingComponent");
 	TextureRenderingComponent::Register(TextureRenderingComponent(), "TextureRenderingComponent");
 	ButtonComponent::Register(ButtonComponent(), "ButtonComponent");
-	TextBoxComponent::Register(TextBoxComponent(), "TextBoxComponent");
+	TextComponent::Register(TextComponent(), "TextBoxComponent");
 }

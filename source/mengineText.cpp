@@ -1,6 +1,8 @@
 #include "interface/mengineText.h"
 #include "mengineTextInternal.h"
 #include "interface/mengineColor.h"
+#include "interface/mengineEntityManager.h"
+#include "interface/mengineInternalComponents.h"
 #include "interface/mengineInput.h"
 #include "interface/mengineUtility.h"
 #include "mengineGraphicsInternal.h"
@@ -49,6 +51,11 @@ void MEngine::DrawText(int32_t posX, int32_t posY, const std::string& text)
 	if(text != "")
 		m_TextRenderJobs->push_back(TextRenderJob(posX, posY, text.c_str()));
 }
+
+void MEngine::DrawTextInBox(int32_t posX, int32_t posY, int32_t width, int32_t height, const std::string& text)
+{
+	if (text != "")
+		m_TextRenderJobs->push_back(TextRenderJob(posX, posY, width, height, text.c_str()));
 }
 
 void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, int32_t caretIndex)
@@ -99,12 +106,51 @@ void MEngineText::Shutdown()
 	delete m_CaretRenderJobs;
 }
 
+void MEngineText::Update()
+{
+	std::vector<EntityID> entities;
+	GetEntitiesMatchingMask(PosSizeComponent::GetComponentMask() | TextComponent::GetComponentMask(), entities);
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		const TextComponent* textComponent = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
+		if (textComponent->Text != nullptr)
+		{
+			const PosSizeComponent* posSizeComponent = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+			if (IsInputString(textComponent->Text))
+				DrawTextWithCaret(posSizeComponent->PosX, posSizeComponent->PosY + posSizeComponent->Height - GetTextHeight(textComponent->Text->c_str()), *textComponent->Text);
+			else
+				DrawTextInBox(posSizeComponent->PosX, posSizeComponent->PosY, posSizeComponent->Width, posSizeComponent->Height, *textComponent->Text);
+		}
+	}
+}
+
 void MEngineText::Render()
 {
 	for(int i = 0; i < m_TextRenderJobs->size(); ++i)
 	{
 		const TextRenderJob& textJob = (*m_TextRenderJobs)[i];
-		FC_Draw(m_Font, MEngineGraphics::GetRenderer(), static_cast<float>(textJob.PosX), static_cast<float>(textJob.PosY), textJob.Text);
+		switch (textJob.Type)
+		{
+			case TextRenderJobType::PLAIN:
+			{
+				FC_Draw(m_Font, MEngineGraphics::GetRenderer(), static_cast<float>(textJob.PosX), static_cast<float>(textJob.PosY), textJob.Text);
+			} break;
+
+			case TextRenderJobType::BOX:
+			{
+				SDL_Rect rect;
+				rect.x = textJob.PosX;
+				rect.y = textJob.PosY;
+				rect.w = textJob.Width;
+				rect.h = textJob.Height;
+				
+				FC_DrawBox(m_Font, MEngineGraphics::GetRenderer(), rect, textJob.Text);
+			} break;
+
+			case TextRenderJobType::INVALID:
+			default:
+			break;
+		}
 	}
 	m_TextRenderJobs->clear();
 
@@ -116,7 +162,7 @@ void MEngineText::Render()
 	m_CaretRenderJobs->clear();
 }
 
-// ---------- INTERNAL ----------
+// ---------- LOCAL ----------
 
 void FreeFont(FC_Font*& font)
 {

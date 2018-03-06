@@ -3,8 +3,8 @@
 #include "mengineTypes.h"
 #include "mengineInternalComponents.h"
 
-#define BUTTON_ENTITY_MASK ButtonComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask()
-#define TEXT_BOX_ENTITY_MASK RectangleRenderingComponent::GetComponentMask() | TextBoxComponent::GetComponentMask() | ButtonComponent::GetComponentMask()
+#define BUTTON_ENTITY_MASK PosSizeComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask()
+#define TEXT_BOX_ENTITY_MASK PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask()
 
 namespace MEngine
 {

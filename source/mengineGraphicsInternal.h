@@ -41,6 +41,8 @@ namespace MEngineGraphics
 	SDL_Window*		GetWindow();
 
 	void Render();
+
+	// TODODB: These should probably not be exposed outside the cpp
 	void RenderRectangles();
 	void RenderTextures();
 }

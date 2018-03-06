@@ -36,14 +36,15 @@ namespace MEngineGlobalSystems
 		MEngineInternalComponents::Shutdown();
 		MEngineComponentManager::Shutdown();
 		MEngineEntityManager::Shutdown();
-		MEngineGraphics::Shutdown();
 		MEngineConsole::shutdown();
 		MEngineUtility::Shutdown();
+		MEngineGraphics::Shutdown(); // TODODB: Place this where it should be after the initialize has been moved in to Start()
 	}
 
 	void Update()
 	{
 		MEngineUtility::Update();
 		MEngineInput::Update();
+		MEngineText::Update();
 	}
 }

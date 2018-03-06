@@ -11,17 +11,6 @@ using namespace MEngine;
 
 void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 {
-	int32_t componentCount = -1;
-	TextBoxComponent* textBoxes = reinterpret_cast<TextBoxComponent*>(GetComponentBuffer(TextBoxComponent::GetComponentMask(), &componentCount));
-	for (int i = 0; i < componentCount; ++i)
-	{
-		const TextBoxComponent& textBox = textBoxes[i];
-		if (IsInputString(textBox.Text))
-			DrawTextWithCaret(textBox.PosX, textBox.PosY + textBox.Height - GetTextHeight(textBox.Text->c_str()), *textBox.Text);
-		else
-			DrawText(textBox.PosX, textBox.PosY + textBox.Height - GetTextHeight(textBox.Text->c_str()), *textBox.Text);
-	}
-
 	if (KeyReleased(MKEY_MOUSE_LEFT))
 	{
 		std::vector<EntityID> textBoxEntites;

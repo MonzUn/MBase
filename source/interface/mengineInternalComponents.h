@@ -9,13 +9,18 @@
 
 namespace MEngine // TODODB: Find a cache friendly way to not have to store positions and other shared data in each and every component
 {
-	class RectangleRenderingComponent : public ComponentBase<RectangleRenderingComponent>
+	class PosSizeComponent : public ComponentBase<PosSizeComponent>
 	{
 	public:
 		int32_t PosX	= 0;
 		int32_t PosY	= 0;
 		int32_t Width	= 0;
 		int32_t Height	= 0;
+	};
+
+	class RectangleRenderingComponent : public ComponentBase<RectangleRenderingComponent>
+	{
+	public:
 		ColorData BorderColor	= ColorData(PredefinedColors::TRANSPARENT);
 		ColorData FillColor		= ColorData(PredefinedColors::TRANSPARENT);
 	};
@@ -23,10 +28,6 @@ namespace MEngine // TODODB: Find a cache friendly way to not have to store posi
 	class TextureRenderingComponent : public ComponentBase<TextureRenderingComponent>
 	{
 	public:
-		int32_t PosX	= 0;
-		int32_t PosY	= 0;
-		int32_t Width	= 0;
-		int32_t Height	= 0;
 		bool RenderIgnore = false;
 		TextureID TextureID = INVALID_MENGINE_TEXTURE_ID;
 	};
@@ -36,24 +37,15 @@ namespace MEngine // TODODB: Find a cache friendly way to not have to store posi
 	public:
 		void Destroy() override;
 
-		int32_t PosX	= 0;
-		int32_t PosY	= 0;
-		int32_t Width	= 0;
-		int32_t Height	= 0;
-		std::string* Text	= nullptr;
-		bool IsTriggered	= false;
+		bool IsTriggered = false;
 		std::function<void()>* Callback = nullptr; // TODODB: Attempt to make it possible to use any parameters and return type
 	};
 
-	class TextBoxComponent : public ComponentBase<TextBoxComponent>
+	// TODODB: Add text rendering alignment
+	class TextComponent : public ComponentBase<TextComponent>
 	{
 	public:
 		void Destroy() override;
-
-		int32_t PosX	= 0;
-		int32_t PosY	= 0;
-		int32_t Width	= 0;
-		int32_t Height	= 0;
 		std::string* Text = nullptr;
 
 		void StartEditing() // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead

@@ -1,6 +1,8 @@
 #include "mengineGraphicsInternal.h"
 #include "interface/mengineComponentManager.h"
+#include "interface/mengineEntityManager.h"
 #include "interface/mengineInternalComponents.h"
+#include "interface/mengineText.h"
 #include "interface/mengineUtility.h"
 #include "mengineTextInternal.h"
 #include "sdlLock.h"
@@ -374,37 +376,25 @@ void MEngineGraphics::RenderRectangles()
 	uint8_t startingDrawColor[4];
 	SDL_GetRenderDrawColor(Renderer, &startingDrawColor[0], &startingDrawColor[1], &startingDrawColor[2], &startingDrawColor[3]);
 
-	int32_t componentCount = 0;
-	RectangleRenderingComponent* rectangleComponents = reinterpret_cast<RectangleRenderingComponent*>(GetComponentBuffer(RectangleRenderingComponent::GetComponentMask(), &componentCount));
+	std::vector<EntityID> entities;
+	GetEntitiesMatchingMask(PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask(), entities);
 
-	// Render the rectangle insides
-	for (int i = 0; i < componentCount; ++i)
+	for (int i = 0; i < entities.size(); ++i)
 	{
-		const RectangleRenderingComponent& rectangleComponent = rectangleComponents[i];
-		if (!rectangleComponent.FillColor.IsFullyTransparent())
+		// Render the rectangle insides
+		const PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+		const RectangleRenderingComponent* rectangleComponent = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
+		SDL_Rect destinationRect = SDL_Rect({ posSizeComponent->PosX, posSizeComponent->PosY, posSizeComponent->Width, posSizeComponent->Height });
+		if (!rectangleComponent->FillColor.IsFullyTransparent())
 		{
-			SDL_SetRenderDrawColor(Renderer, rectangleComponent.FillColor.R, rectangleComponent.FillColor.G, rectangleComponent.FillColor.B, rectangleComponent.FillColor.A);
-			SDL_Rect destinationRect = SDL_Rect();
-			destinationRect.x = rectangleComponent.PosX;
-			destinationRect.y = rectangleComponent.PosY;
-			destinationRect.w = rectangleComponent.Width;
-			destinationRect.h = rectangleComponent.Height;
+			SDL_SetRenderDrawColor(Renderer, rectangleComponent->FillColor.R, rectangleComponent->FillColor.G, rectangleComponent->FillColor.B, rectangleComponent->FillColor.A);
 			SDL_RenderFillRect(Renderer, &destinationRect);
 		}
-	}
 
-	// Render the rectangle borders
-	for (int i = 0; i < componentCount; ++i)
-	{
-		const RectangleRenderingComponent& rectangleComponent = rectangleComponents[i];
-		if (!rectangleComponent.BorderColor.IsFullyTransparent())
+		// Render the rectangle borders
+		if (!rectangleComponent->BorderColor.IsFullyTransparent())
 		{
-			SDL_SetRenderDrawColor(Renderer, rectangleComponent.BorderColor.R, rectangleComponent.BorderColor.G, rectangleComponent.BorderColor.B, rectangleComponent.BorderColor.A);
-			SDL_Rect destinationRect = SDL_Rect();
-			destinationRect.x = rectangleComponent.PosX;
-			destinationRect.y = rectangleComponent.PosY;
-			destinationRect.w = rectangleComponent.Width;
-			destinationRect.h = rectangleComponent.Height;
+			SDL_SetRenderDrawColor(Renderer, rectangleComponent->BorderColor.R, rectangleComponent->BorderColor.G, rectangleComponent->BorderColor.B, rectangleComponent->BorderColor.A);
 			SDL_RenderDrawRect(Renderer, &destinationRect);
 		}
 	}
@@ -415,23 +405,20 @@ void MEngineGraphics::RenderRectangles()
 
 void MEngineGraphics::RenderTextures()
 {
-	int32_t componentCount = 0;
-	TextureRenderingComponent* textureComponents = reinterpret_cast<TextureRenderingComponent*>(GetComponentBuffer(TextureRenderingComponent::GetComponentMask(), &componentCount));
+	std::vector<EntityID> entities;
+	GetEntitiesMatchingMask(PosSizeComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask(), entities);
 
-	for (int i = 0; i < componentCount; ++i)
+	for (int i = 0; i < entities.size(); ++i)
 	{
-		const TextureRenderingComponent& textureComponent = textureComponents[i];
-		if (textureComponent.RenderIgnore || textureComponent.TextureID == INVALID_MENGINE_TEXTURE_ID)
+		const TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
+		if (textureComponent->RenderIgnore || textureComponent->TextureID == INVALID_MENGINE_TEXTURE_ID)
 			continue;
 
-		SDL_Rect destinationRect = SDL_Rect();
-		destinationRect.x = textureComponent.PosX;
-		destinationRect.y = textureComponent.PosY;
-		destinationRect.w = textureComponent.Width;
-		destinationRect.h = textureComponent.Height;
+		const PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+		SDL_Rect destinationRect = SDL_Rect({ posSizeComponent->PosX, posSizeComponent->PosY, posSizeComponent->Width, posSizeComponent->Height });
 
-		int result = SDL_RenderCopy(Renderer, (*m_Textures)[textureComponent.TextureID]->Texture, nullptr, &destinationRect);
+		int result = SDL_RenderCopy(Renderer, (*m_Textures)[textureComponent->TextureID]->Texture, nullptr, &destinationRect);
 		if (result != 0)
-			MLOG_ERROR("Failed to render texture with ID: " << textureComponent.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
+			MLOG_ERROR("Failed to render texture with ID: " << textureComponent->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
 	}
 }
