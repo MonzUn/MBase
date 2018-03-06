@@ -121,16 +121,36 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 	return componentMask;
 }
 
-void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<EntityID>& outEntities, bool requireFullMatch)
+void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<EntityID>& outEntities, MaskMatchMode matchMode)
 {
 	for (int i = 0; i < m_Entities->size(); ++i)
 	{
 		ComponentMask currentMask = (*m_ComponentMasks)[i];
-		if ((currentMask & componentMask) == componentMask)
+		bool isMatch = false;
+		switch (matchMode)
 		{
-			if (!requireFullMatch || MUtility::PopCount(componentMask) == MUtility::PopCount(currentMask))
-				outEntities.push_back(i);	
+			case MaskMatchMode::Any:
+			{
+				isMatch = ((currentMask & componentMask) != 0);
+			} break;
+
+			case MaskMatchMode::Partial:
+			{
+				isMatch = ((currentMask & componentMask) == componentMask);
+			} break;
+
+			case MaskMatchMode::Exact:
+			{
+				isMatch = ((currentMask & componentMask) == componentMask && MUtility::PopCount(componentMask) == MUtility::PopCount(currentMask));
+			} break;
+
+		default:
+			MLOG_ERROR("Received unknown matchMode", LOG_CATEGORY_ENTITY_MANAGER);
+			break;
 		}
+
+		if (isMatch)
+			outEntities.push_back(i);	
 	}
 }
 

@@ -14,7 +14,7 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 	if (KeyReleased(MKEY_MOUSE_LEFT))
 	{
 		std::vector<EntityID> textBoxEntites;
-		GetEntitiesMatchingMask(TEXT_BOX_ENTITY_MASK, textBoxEntites, true);
+		GetEntitiesMatchingMask(TEXT_BOX_ENTITY_MASK, textBoxEntites, MaskMatchMode::Exact);
 
 		bool anyTextBoxPressed = false;
 		for (int i = 0; i < textBoxEntites.size(); ++i)
