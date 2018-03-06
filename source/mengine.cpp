@@ -30,7 +30,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
-	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight))
+	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight)) // TODODB: Make this initialize as all the other internal global systems
 	{
 		MLOG_ERROR("Failed to initialize MEngineGraphics", LOG_CATEGORY_GENERAL);
 		MUtilityLog::Shutdown();
