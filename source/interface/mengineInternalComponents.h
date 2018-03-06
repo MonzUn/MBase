@@ -7,7 +7,7 @@
 #include <functional>
 #include <string>
 
-namespace MEngine // TODODB: Find a cache friendly way to not have to store positions and other shared data in each and every component
+namespace MEngine
 {
 	class PosSizeComponent : public ComponentBase<PosSizeComponent>
 	{
