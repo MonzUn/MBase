@@ -13,6 +13,7 @@
 constexpr int32_t DEFAULT_POINT_SIZE = 20;
 constexpr int32_t CARET_HEIGHT_OFFSET_TOP = 3;
 constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM = 2;
+constexpr int32_t CARET_END_OF_STRING_PFFSET = 1;
 const MEngine::ColorData DEFAULT_TEXT_COLOR = MEngine::ColorData(MEngine::PredefinedColors::BLACK);
 
 void FreeFont(FC_Font*& font);
@@ -62,6 +63,10 @@ void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& t
 		std::string measureString = text.substr(0, caretIndex);
 		uint16_t width = FC_GetWidth(m_Font, measureString.c_str());
 		uint16_t height = FC_GetHeight(m_Font, measureString.c_str());
+
+		if (caretIndex >= text.length())
+			posX += CARET_END_OF_STRING_PFFSET;
+
 		m_CaretRenderJobs->push_back(CaretRenderJob(posX + width, posY, height));
 	}
 	else
