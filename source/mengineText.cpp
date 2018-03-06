@@ -45,7 +45,9 @@ void MEngine::SetFont(const std::string& relativeFontPath)
 
 void MEngine::DrawText(int32_t posX, int32_t posY, const std::string& text)
 {
-	m_TextRenderJobs->push_back(TextRenderJob(posX, posY, text.c_str()));
+	if(text != "")
+		m_TextRenderJobs->push_back(TextRenderJob(posX, posY, text.c_str()));
+}
 }
 
 void MEngine::DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, int32_t caretIndex)
