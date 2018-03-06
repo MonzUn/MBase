@@ -21,6 +21,9 @@ namespace MEngineGraphics // Rename renderer and window using m_
 	SDL_Renderer*	Renderer	= nullptr;
 	SDL_Window*		Window		= nullptr;
 
+	int32_t m_WindowWidth	= -1;
+	int32_t m_WindowHeight	= -1;
+
 	std::vector<MEngineTexture*>* m_Textures;
 	MUtility::MUtilityIDBank* m_IDBank;
 	std::unordered_map<std::string, MEngine::TextureID>* m_PathToIDMap;
@@ -263,6 +266,16 @@ const TextureData MEngine::GetTextureData(TextureID textureID)
 	return toReturn;
 }
 
+int32_t MEngine::GetWindowWidth()
+{
+	return m_WindowWidth;
+}
+
+int32_t MEngine::GetWindowHeight()
+{
+	return m_WindowHeight;
+}
+
 // ---------- INTERNAL ----------
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
@@ -273,6 +286,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
+	SDL_GetWindowSize(Window, &m_WindowWidth, &m_WindowHeight);
 	
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
 	if (Renderer == nullptr)

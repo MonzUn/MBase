@@ -18,11 +18,14 @@ namespace MEngine
 	};
 
 	TextureID	GetTextureFromPath(const std::string& pathWithExtension);
-	void				UnloadTexture(TextureID textureID);
+	void		UnloadTexture(TextureID textureID);
 
 	TextureID	CreateSubTextureFromTextureData(const TextureData& originalTexture, int32_t upperLeftOffsetX, int32_t upperLeftOffsetY, int32_t lowerRightOffsetX, int32_t lowerRightOffsetY, bool storeCopyInRAM = false);
 	TextureID	CreateTextureFromTextureData(const TextureData& textureData, bool storeCopyInRAM = false);
 	TextureID	CaptureScreenToTexture(bool storeCopyInRAM = false);
 
 	const TextureData GetTextureData(TextureID textureID);
+
+	int32_t		GetWindowWidth();
+	int32_t		GetWindowHeight();
 }
