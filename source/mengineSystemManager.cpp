@@ -1,4 +1,5 @@
 #include "interface/mengineSystem.h"
+#include "interface/mengineSettings.h"
 #include "mengineSystemManagerInternal.h"
 #include "buttonSystem.h"
 #include "textBoxSystem.h"
@@ -13,6 +14,7 @@
 typedef std::vector<std::pair<MEngine::SystemID, uint32_t>> GameModeSystemList;
 typedef std::vector<GameModeSystemList> GameModeList;
 
+void ChangeToRequestedGameMode();
 void RegisterInternalSystem(MEngine::System* system, uint32_t priority);
 void RegisterInternalSystems();
 
@@ -25,7 +27,8 @@ namespace MEngineSystemManager
 {
 	GameModeList*					m_GameModes;
 	MUtility::MUtilityIDBank*		m_GameModeIDBank;
-	MEngine::GameModeID				m_ActiveGameMode = INVALID_MENGINE_GAME_MODE_ID;
+	MEngine::GameModeID				m_ActiveGameMode	= INVALID_MENGINE_GAME_MODE_ID;
+	MEngine::GameModeID				m_RequestedGameMode	= INVALID_MENGINE_GAME_MODE_ID;
 	std::vector<MEngine::System*>*	m_Systems;
 	MUtility::MUtilityIDBank*		m_SystemIDBank;
 
@@ -143,7 +146,7 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 	return true;
 }
 
-bool MEngine::ChangeGameMode(GameModeID newGameModeID) // TODODB: Delay the actual change until end of frame
+bool MEngine::RequestGameModeChange(GameModeID newGameModeID)
 {
 	if (m_ActiveGameMode == newGameModeID)
 	{
@@ -151,26 +154,10 @@ bool MEngine::ChangeGameMode(GameModeID newGameModeID) // TODODB: Delay the actu
 		return false;
 	}
 
-	// Stop all running systems
-	if (m_ActiveGameMode != INVALID_MENGINE_GAME_MODE_ID)
-	{
-		const GameModeSystemList& currentSystems = (*m_GameModes)[m_ActiveGameMode];
-		if (m_ActiveGameMode != INVALID_MENGINE_GAME_MODE_ID)
-		{
-			for (int i = 0; i < currentSystems.size(); ++i)
-			{
-				(*m_Systems)[currentSystems[i].first]->Shutdown();
-			}
-		}
-	}
-	
-	// Start systems for the new game mode
-	const GameModeSystemList& newSystems = (*m_GameModes)[newGameModeID];
-	for (int i = 0; i < newSystems.size(); ++i)
-	{
-		(*m_Systems)[newSystems[i].first]->Initialize();
-	}
-	m_ActiveGameMode = newGameModeID;
+	if (m_RequestedGameMode != INVALID_MENGINE_GAME_MODE_ID && Settings::HighLogLevel)
+		MLOG_WARNING("Requested game mode change before the last request could be fulfilled; game mode with ID " << m_RequestedGameMode << "will be skipped and game mode with ID " << newGameModeID << " will be used instead", LOG_CATEGORY_SYSTEM_MANAGER);
+
+	m_RequestedGameMode = newGameModeID;
 	return true;
 }
 
@@ -219,8 +206,13 @@ void MEngineSystemManager::Shutdown()
 void MEngineSystemManager::Update()
 {
 	m_PresentationFrameCounter.Tick();
-	float deltaTime = m_PresentationFrameCounter.GetDeltaTime();
 
+	// Change game mode if requested
+	if (m_RequestedGameMode != INVALID_MENGINE_GAME_MODE_ID)
+		ChangeToRequestedGameMode();
+
+	// Update systems
+	float deltaTime = m_PresentationFrameCounter.GetDeltaTime();
 	const GameModeSystemList& activeSystems = (*m_GameModes)[m_ActiveGameMode];
 	for(int i = 0; i < activeSystems.size(); ++i)
 	{
@@ -241,6 +233,31 @@ void MEngineSystemManager::Update()
 }
 
 // ---------- LOCAL ----------
+
+void ChangeToRequestedGameMode()
+{
+	// Stop all running systems
+	if (m_ActiveGameMode != INVALID_MENGINE_GAME_MODE_ID)
+	{
+		const GameModeSystemList& currentSystems = (*m_GameModes)[m_ActiveGameMode];
+		if (m_ActiveGameMode != INVALID_MENGINE_GAME_MODE_ID)
+		{
+			for (int i = 0; i < currentSystems.size(); ++i)
+			{
+				(*m_Systems)[currentSystems[i].first]->Shutdown();
+			}
+		}
+	}
+
+	// Start systems for the new game mode
+	const GameModeSystemList& newSystems = (*m_GameModes)[m_RequestedGameMode];
+	for (int i = 0; i < newSystems.size(); ++i)
+	{
+		(*m_Systems)[newSystems[i].first]->Initialize();
+	}
+	m_ActiveGameMode = m_RequestedGameMode;
+	m_RequestedGameMode = INVALID_MENGINE_GAME_MODE_ID;
+}
 
 void RegisterInternalSystem(System* system, uint32_t priority)
 {
