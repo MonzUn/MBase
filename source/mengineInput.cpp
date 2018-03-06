@@ -175,6 +175,10 @@ void MEngineInput::Update()
 
 	m_CursorDeltaX = 0;
 	m_CursorDeltaY = 0;
+
+	// Make sure that the caret can never be outside the input string
+	if (m_TextInputStringReference != nullptr && m_TextInputCaretIndex >= m_TextInputStringReference->length())
+		m_TextInputCaretIndex = m_TextInputStringReference->length();
 }
 
 bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
