@@ -17,9 +17,9 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 	{
 		const TextBoxComponent& textBox = textBoxes[i];
 		if (IsInputString(textBox.Text))
-			DrawTextWithCaret(textBox.PosX, textBox.PosY + (textBox.Height / 2), *textBox.Text);
+			DrawTextWithCaret(textBox.PosX, textBox.PosY + textBox.Height - GetTextHeight(textBox.Text->c_str()), *textBox.Text);
 		else
-			DrawText(textBox.PosX, textBox.PosY + (textBox.Height / 2), *textBox.Text);
+			DrawText(textBox.PosX, textBox.PosY + textBox.Height - GetTextHeight(textBox.Text->c_str()), *textBox.Text);
 	}
 
 	if (KeyReleased(MKEY_MOUSE_LEFT))
