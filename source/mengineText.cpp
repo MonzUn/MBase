@@ -11,6 +11,8 @@
 #define LOG_CATEGORY_TEXT "MEngineText"
 
 constexpr int32_t DEFAULT_POINT_SIZE = 20;
+constexpr int32_t CARET_HEIGHT_OFFSET_TOP = 3;
+constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM = 2;
 const MEngine::ColorData DEFAULT_TEXT_COLOR = MEngine::ColorData(MEngine::PredefinedColors::BLACK);
 
 void FreeFont(FC_Font*& font);
@@ -94,13 +96,15 @@ void MEngineText::Render()
 {
 	for(int i = 0; i < m_TextRenderJobs->size(); ++i)
 	{
-		FC_Draw(m_Font, MEngineGraphics::GetRenderer(), static_cast<float>((*m_TextRenderJobs)[i].PosX), static_cast<float>((*m_TextRenderJobs)[i].PosY), (*m_TextRenderJobs)[i].Text);
+		const TextRenderJob& textJob = (*m_TextRenderJobs)[i];
+		FC_Draw(m_Font, MEngineGraphics::GetRenderer(), static_cast<float>(textJob.PosX), static_cast<float>(textJob.PosY), textJob.Text);
 	}
 	m_TextRenderJobs->clear();
 
 	for (int i = 0; i < m_CaretRenderJobs->size(); ++i)
 	{
-		SDL_RenderDrawLine(MEngineGraphics::GetRenderer(), (*m_CaretRenderJobs)[i].PosX, (*m_CaretRenderJobs)[i].TopPosY, (*m_CaretRenderJobs)[i].PosX, (*m_CaretRenderJobs)[i].TopPosY + (*m_CaretRenderJobs)[i].Height);
+		const CaretRenderJob& caretJob = (*m_CaretRenderJobs)[i];
+		SDL_RenderDrawLine(MEngineGraphics::GetRenderer(), caretJob.PosX, caretJob.TopPosY + CARET_HEIGHT_OFFSET_TOP, caretJob.PosX, caretJob.TopPosY + caretJob.Height - CARET_HEIGHT_OFFSET_BOTTOM);
 	}
 	m_CaretRenderJobs->clear();
 }
