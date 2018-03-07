@@ -12,15 +12,18 @@ namespace MEngine
 	class PosSizeComponent : public ComponentBase<PosSizeComponent>
 	{
 	public:
-		int32_t PosX	= 0;
-		int32_t PosY	= 0;
-		int32_t Width	= 0;
-		int32_t Height	= 0;
+		int32_t		PosX	= 0;
+		int32_t		PosY	= 0;
+		uint32_t	PosZ	= ~0U;
+		int32_t		Width	= 0;
+		int32_t		Height	= 0;
 	};
 
 	class RectangleRenderingComponent : public ComponentBase<RectangleRenderingComponent>
 	{
 	public:
+		bool IsFullyTransparent() const { return BorderColor.IsFullyTransparent() && FillColor.IsFullyTransparent(); }
+
 		ColorData BorderColor	= ColorData(PredefinedColors::TRANSPARENT);
 		ColorData FillColor		= ColorData(PredefinedColors::TRANSPARENT);
 	};

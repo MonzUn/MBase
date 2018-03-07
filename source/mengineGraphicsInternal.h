@@ -49,6 +49,7 @@ namespace MEngineGraphics
 	{
 		JobTypeMask JobMask				= JobTypeMask::INVALID;
 		SDL_Rect DestinationRect		= {0,0,0,0};
+		uint32_t Depth					= 0;
 		MEngine::TextureID TextureID	= INVALID_MENGINE_TEXTURE_ID;
 		MEngine::ColorData FillColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
 		MEngine::ColorData BorderColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];

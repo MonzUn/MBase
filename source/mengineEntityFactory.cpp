@@ -4,7 +4,7 @@
 using namespace MEngine;
 using namespace PredefinedColors;
 
-EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, TextureID texture, const std::string& text)
+EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, const std::string& text)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(BUTTON_ENTITY_MASK, ID);
@@ -12,6 +12,7 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), ID));
 	posSizeComponent->PosX = posX;
 	posSizeComponent->PosY = posY;
+	posSizeComponent->PosZ = posZ;
 	posSizeComponent->Width = width;
 	posSizeComponent->Height = height;
 
@@ -29,7 +30,7 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 	return ID;
 }
 
-EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, bool editable, const std::string& text, const ColorData& backgroundColor, const ColorData& borderColor)
+EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, uint32_t posZ, bool editable, const std::string& text, const ColorData& backgroundColor, const ColorData& borderColor)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(TEXT_BOX_ENTITY_MASK, ID);
@@ -37,6 +38,7 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), ID));
 	posSizeComponent->PosX		= posX;
 	posSizeComponent->PosY		= posY;
+	posSizeComponent->PosZ		= posZ;
 	posSizeComponent->Width		= width;
 	posSizeComponent->Height	= height;
 

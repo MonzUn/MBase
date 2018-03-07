@@ -13,6 +13,7 @@
 #include <MUtilityWindowsInclude.h>
 #include <SDL.h>
 #include <SDL_image.h>
+#include <algorithm>
 #include <mutex>
 #include <unordered_map>
 
@@ -20,6 +21,11 @@
 
 namespace MEngineGraphics // Rename renderer and window using m_
 {
+	bool IsDeeper(const RenderJob& lhs, const RenderJob& rhs)
+	{
+		return lhs.Depth > rhs.Depth;
+	};
+
 	void CreateRenderJobs();
 	void ExecuteRenderJobs();
 
@@ -421,6 +427,7 @@ void MEngineGraphics::CreateRenderJobs()
 			{
 				const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
 				job.DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
+				job.Depth = posSizeComp->PosZ;
 				m_RenderJobs->push_back(job);
 			}
 			else
@@ -429,6 +436,8 @@ void MEngineGraphics::CreateRenderJobs()
 		else
 			MLOG_WARNING("Found entity without any renderable component; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
 	}
+
+	std::sort(m_RenderJobs->begin(), m_RenderJobs->end(), IsDeeper);
 }
 
 void MEngineGraphics::ExecuteRenderJobs()
