@@ -312,7 +312,7 @@ LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam)
 
 // ---------- LOCAL ----------
 
-void PopulateConversionTables()  // TODODB: Implement a more efficient way to map scancodes to MKEYs (can make an array with all MKEYs mapped to a scancode if we can calculate an offset for the scancodes to use as index)
+void PopulateConversionTables() // TODODB: Implement a more efficient way to map scancodes to MKEYs (can make an array with all MKEYs mapped to a scancode if we can calculate an offset for the scancodes to use as index)
 {
 	// Letters
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_A, MKEY_A));
@@ -476,7 +476,7 @@ void PopulateConversionTables()  // TODODB: Implement a more efficient way to ma
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PAUSE, MKEY_PAUSE_BREAK));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUM_LOCK, MKEY_NUM_LOCK));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_COMMA, MKEY_COMMA));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_PERIOD, MKEY_NUMPAD_COMMA));
+	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_COMMA, MKEY_NUMPAD_COMMA));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PERIOD, MKEY_PERIOD));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_SLASH, MKEY_SLASH));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_APOSTROPHE, MKEY_APSTROPHE));
@@ -505,7 +505,7 @@ void PopulateConversionTables()  // TODODB: Implement a more efficient way to ma
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_PAUSE, MKEY_PAUSE_BREAK));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_NUMLOCKCLEAR, MKEY_NUM_LOCK));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_COMMA, MKEY_COMMA));
-	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_KP_COMMA, MKEY_NUMPAD_COMMA));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_KP_PERIOD, MKEY_NUMPAD_COMMA)); // TODODB: Why does SDL_SCANCODE_KP_PERIOD get triggered when numpad comma is button is pressed? (This mapping should be with KP_comma but that doesn't work)
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_PERIOD, MKEY_PERIOD));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_SLASH, MKEY_SLASH));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_APOSTROPHE, MKEY_APSTROPHE));
