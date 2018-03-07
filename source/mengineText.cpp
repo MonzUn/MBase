@@ -113,7 +113,7 @@ void MEngineText::Update()
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		const TextComponent* textComponent = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
-		if (textComponent->Text != nullptr)
+		if (!textComponent->RenderIgnore && textComponent->Text != nullptr && *textComponent->Text != "")
 		{
 			const PosSizeComponent* posSizeComponent = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
 			if (IsInputString(textComponent->Text))

@@ -26,12 +26,13 @@ namespace MEngine
 
 		ColorData BorderColor	= ColorData(PredefinedColors::TRANSPARENT);
 		ColorData FillColor		= ColorData(PredefinedColors::TRANSPARENT);
+		bool RenderIgnore		= false;
 	};
 
 	class TextureRenderingComponent : public ComponentBase<TextureRenderingComponent>
 	{
 	public:
-		bool RenderIgnore = false;
+		bool RenderIgnore	= false;
 		TextureID TextureID = INVALID_MENGINE_TEXTURE_ID;
 	};
 
@@ -50,6 +51,7 @@ namespace MEngine
 	public:
 		void Destroy() override;
 		std::string* Text = nullptr;
+		bool RenderIgnore = false;
 
 		void StartEditing() // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead
 		{

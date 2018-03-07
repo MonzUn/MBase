@@ -399,7 +399,7 @@ void MEngineGraphics::CreateRenderJobs()
 		if ((entityComponentMask & RectangleRenderingComponent::GetComponentMask()) != 0)
 		{
 			const RectangleRenderingComponent* rectComp = static_cast<const RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
-			if (!rectComp->IsFullyTransparent())
+			if (!rectComp->RenderIgnore && !rectComp->IsFullyTransparent())
 			{
 				if (!rectComp->BorderColor.IsFullyTransparent())
 					job.BorderColor = rectComp->BorderColor;
