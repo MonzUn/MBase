@@ -433,8 +433,6 @@ void MEngineGraphics::CreateRenderJobs()
 			else
 				MLOG_WARNING("Found entity with a renderable component that lacks position data; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
 		}
-		else
-			MLOG_WARNING("Found entity without any renderable component; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
 	}
 
 	std::sort(m_RenderJobs->begin(), m_RenderJobs->end(), IsDeeper);
