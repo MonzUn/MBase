@@ -7,6 +7,7 @@
 
 namespace MEngine
 {
+	// TODODB: Remove "entity" from the getter names (Always need an entityID anyway)
 	enum class MaskMatchMode
 	{
 		Exact,		// The mask must contain only the components described by the comparison mask
@@ -23,4 +24,5 @@ namespace MEngine
 	void GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<EntityID>& outEntities, MaskMatchMode matchMode = MaskMatchMode::Partial);
 
 	MEngine::Component* GetComponentForEntity(ComponentMask componentMask, EntityID entityID);
+	ComponentMask GetComponentMask(EntityID ID);
 }

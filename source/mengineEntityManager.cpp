@@ -121,6 +121,7 @@ ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, E
 	return componentMask;
 }
 
+// TODODB: Validate component mask in debug mode
 void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<EntityID>& outEntities, MaskMatchMode matchMode)
 {
 	for (int i = 0; i < m_Entities->size(); ++i)
@@ -190,6 +191,19 @@ MEngine::Component* MEngine::GetComponentForEntity(ComponentMask componentType, 
 	}
 
 	return nullptr;
+}
+
+ComponentMask MEngine::GetComponentMask(EntityID ID)
+{
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (!m_IDBank->IsIDActive(ID))
+	{
+		MLOG_WARNING("Attempted to get component mask from an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
+		return INVALID_MENGINE_COMPONENT_MASK;
+	}
+#endif
+
+	return (*m_ComponentMasks)[ID];
 }
 
 // ---------- INTERNAL ----------
