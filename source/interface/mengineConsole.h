@@ -9,6 +9,7 @@ namespace MEngine
 	bool RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback);
 	bool UnregisterCommand(std::string& commandName);
 	void UnregisterAllCommands();
-
 	bool ExecuteCommand(const std::string& command, std::string* outResponse);
+
+	void SetConsoleActive(bool active);
 }

@@ -13,14 +13,13 @@
 
 namespace MEngineGlobalSystems
 {
-	void Start()
 	void Start() // TODODB: Check if any systm can fail to initialize and return bool accordingly (log inside each system's Initialize() function)
 	{
 		MEngineUtility::Initialize();
-		MEngineConsole::Initialize();
 		MEngineEntityManager::Initialize();
 		MEngineComponentManager::Initialize();
 		MEngineInternalComponents::Initialize();
+		MEngineConsole::Initialize();
 		MEngineInput::Initialize();
 		MEngineText::Initialize();
 		MEngineConfig::Initialize();
@@ -33,10 +32,10 @@ namespace MEngineGlobalSystems
 		MEngineConfig::Shutdown();
 		MEngineText::Shutdown();
 		MEngineInput::Shutdown();
+		MEngineConsole::shutdown();
 		MEngineInternalComponents::Shutdown();
 		MEngineComponentManager::Shutdown();
 		MEngineEntityManager::Shutdown();
-		MEngineConsole::shutdown();
 		MEngineUtility::Shutdown();
 		MEngineGraphics::Shutdown(); // TODODB: Place this where it should be after the initialize has been moved in to Start()
 	}
@@ -45,6 +44,7 @@ namespace MEngineGlobalSystems
 	{
 		MEngineUtility::Update();
 		MEngineInput::Update();
+		MEngineConsole::Update();
 		MEngineText::Update();
 	}
 }
