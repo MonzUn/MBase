@@ -53,9 +53,15 @@ namespace MEngine
 		std::string* Text = nullptr;
 		bool RenderIgnore = false;
 
-		void StartEditing() // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead
+		void StartEditing() const // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead
 		{
 			MEngine::StartTextInput(Text);
 		};
+
+		void StopEditing() const // TODODB: See if there are any additional places we should call this (direct calls to MEngineInput was used before this was created)
+		{
+			if (MEngine::IsInputString(Text))
+				MEngine::StopTextInput();
+		}
 	};
 }
