@@ -196,6 +196,11 @@ void MEngineConsole::Update()
 			*inputText->Text = "";
 		}
 
+		// Write new log messages
+		std::string newMessages;
+		if (MUtilityLog::FetchUnreadMessages(newMessages))
+			*outputText->Text += newMessages;
+
 		// Keep the output text within the console
 		PosSizeComponent* outputTextPos = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_OutputTextboxID));
 		uint16_t fullTextHeight = GetTextHeight(outputText->Text->c_str());
