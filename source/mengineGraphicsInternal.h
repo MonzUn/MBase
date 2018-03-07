@@ -1,11 +1,25 @@
 #pragma once
 #include "interface/mengineGraphics.h"
+#include "interface/mengineColor.h"
 #include <SDL.h>
 
 struct SurfaceToTextureJob;
 
 namespace MEngineGraphics
 {
+	enum JobTypeMask : uint32_t // TODODB: Incorporate text rendering
+	{
+		INVALID = 0,
+
+		RECTANGLE = 1 << 0,
+		TEXTURE = 1 << 1,
+	};
+
+	inline JobTypeMask& operator |=(JobTypeMask& a, JobTypeMask b)
+	{
+		return a = static_cast<JobTypeMask>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
+	}
+
 	struct MEngineTexture
 	{
 		MEngineTexture(SDL_Texture* sdlTexture, SDL_Surface* sdlSurface = nullptr) : Texture(sdlTexture), Surface(sdlSurface)
@@ -31,6 +45,15 @@ namespace MEngineGraphics
 		int32_t			Access;
 	};
 
+	struct RenderJob
+	{
+		JobTypeMask JobMask				= JobTypeMask::INVALID;
+		SDL_Rect DestinationRect		= {0,0,0,0};
+		MEngine::TextureID TextureID	= INVALID_MENGINE_TEXTURE_ID;
+		MEngine::ColorData FillColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
+		MEngine::ColorData BorderColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
+	};
+
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
 	void Shutdown();
 	MEngine::TextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngine::TextureID reservedTextureID = INVALID_MENGINE_TEXTURE_ID);
@@ -41,10 +64,6 @@ namespace MEngineGraphics
 	SDL_Window*		GetWindow();
 
 	void Render();
-
-	// TODODB: These should probably not be exposed outside the cpp
-	void RenderRectangles();
-	void RenderTextures();
 }
 
 struct SurfaceToTextureJob

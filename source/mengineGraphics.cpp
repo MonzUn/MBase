@@ -20,14 +20,18 @@
 
 namespace MEngineGraphics // Rename renderer and window using m_
 {
+	void CreateRenderJobs();
+	void ExecuteRenderJobs();
+
 	SDL_Renderer*	Renderer	= nullptr;
 	SDL_Window*		Window		= nullptr;
 
 	int32_t m_WindowWidth	= -1;
 	int32_t m_WindowHeight	= -1;
 
+	std::vector<RenderJob>* m_RenderJobs;
 	std::vector<MEngineTexture*>* m_Textures;
-	MUtility::MUtilityIDBank* m_IDBank;
+	MUtility::MUtilityIDBank* m_IDBank; // TODODB: Rename to textureIDBank
 	std::unordered_map<std::string, MEngine::TextureID>* m_PathToIDMap;
 	std::mutex m_PathToIDLock;
 	MUtility::LocklessQueue<SurfaceToTextureJob*>* m_SurfaceToTextureQueue;
@@ -297,9 +301,10 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 		return false;
 	}
 
-	m_Textures = new std::vector<MEngineTexture*>();
-	m_IDBank = new MUtility::MUtilityIDBank();
-	m_PathToIDMap = new std::unordered_map<std::string, TextureID>();
+	m_RenderJobs			= new std::vector<RenderJob>();
+	m_Textures				= new std::vector<MEngineTexture*>();
+	m_IDBank				= new MUtility::MUtilityIDBank();
+	m_PathToIDMap			= new std::unordered_map<std::string, TextureID>();
 	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
 
 	return true;
@@ -307,6 +312,8 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 
 void MEngineGraphics::Shutdown()
 {
+	delete m_RenderJobs;
+
 	for (int i = 0; i < m_Textures->size(); ++i)
 	{
 		delete (*m_Textures)[i];
@@ -364,61 +371,99 @@ void MEngineGraphics::Render()
 
 	SdlApiLock.lock();
 	SDL_RenderClear(Renderer);
-	RenderRectangles();
-	RenderTextures();
+	CreateRenderJobs();
+	ExecuteRenderJobs();
 	MEngineText::Render();
 	SDL_RenderPresent(Renderer);
 	SdlApiLock.unlock();
 }
 
-void MEngineGraphics::RenderRectangles()
+// ---------- LOCAL ----------
+
+void MEngineGraphics::CreateRenderJobs()
 {
+	std::vector<EntityID> entities;
+	ComponentMask compareMask = PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask();
+	GetEntitiesMatchingMask(compareMask, entities, MaskMatchMode::Any);
+
+	for (int i = 0; i < entities.size(); ++i)
+	{
+		RenderJob job;
+		ComponentMask entityComponentMask = GetComponentMask(entities[i]);
+		if ((entityComponentMask & RectangleRenderingComponent::GetComponentMask()) != 0)
+		{
+			const RectangleRenderingComponent* rectComp = static_cast<const RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
+			if (!rectComp->IsFullyTransparent())
+			{
+				if (!rectComp->BorderColor.IsFullyTransparent())
+					job.BorderColor = rectComp->BorderColor;
+
+				if (!rectComp->FillColor.IsFullyTransparent())
+					job.FillColor = rectComp->FillColor;
+
+				job.JobMask |= JobTypeMask::RECTANGLE;
+			}
+		}
+
+		if ((entityComponentMask & TextureRenderingComponent::GetComponentMask()) != 0)
+		{
+			const TextureRenderingComponent* textComp = static_cast<const TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
+			if (!textComp->RenderIgnore && textComp->TextureID != INVALID_MENGINE_TEXTURE_ID)
+			{
+				job.TextureID = textComp->TextureID;
+				job.JobMask |= JobTypeMask::TEXTURE;
+			}
+		}
+
+		if (job.JobMask != JobTypeMask::INVALID)
+		{
+			if ((entityComponentMask & PosSizeComponent::GetComponentMask()) != 0)
+			{
+				const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+				job.DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
+				m_RenderJobs->push_back(job);
+			}
+			else
+				MLOG_WARNING("Found entity with a renderable component that lacks position data; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
+		}
+		else
+			MLOG_WARNING("Found entity without any renderable component; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
+	}
+}
+
+void MEngineGraphics::ExecuteRenderJobs()
+{
+	// Store the draw color used before
 	uint8_t startingDrawColor[4];
 	SDL_GetRenderDrawColor(Renderer, &startingDrawColor[0], &startingDrawColor[1], &startingDrawColor[2], &startingDrawColor[3]);
 
-	std::vector<EntityID> entities;
-	GetEntitiesMatchingMask(PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask(), entities);
-
-	for (int i = 0; i < entities.size(); ++i)
+	for (int i = 0; i < m_RenderJobs->size(); ++i)
 	{
-		// Render the rectangle insides
-		const PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
-		const RectangleRenderingComponent* rectangleComponent = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
-		SDL_Rect destinationRect = SDL_Rect({ posSizeComponent->PosX, posSizeComponent->PosY, posSizeComponent->Width, posSizeComponent->Height });
-		if (!rectangleComponent->FillColor.IsFullyTransparent())
+		const RenderJob& job = (*m_RenderJobs)[i]; // Guaranteed to have position data
+		if ((job.JobMask & JobTypeMask::RECTANGLE) != 0)
 		{
-			SDL_SetRenderDrawColor(Renderer, rectangleComponent->FillColor.R, rectangleComponent->FillColor.G, rectangleComponent->FillColor.B, rectangleComponent->FillColor.A);
-			SDL_RenderFillRect(Renderer, &destinationRect);
+			if (!job.FillColor.IsFullyTransparent())
+			{
+				SDL_SetRenderDrawColor(Renderer, job.FillColor.R, job.FillColor.G, job.FillColor.B, job.FillColor.A);
+				SDL_RenderFillRect(Renderer, &job.DestinationRect);
+			}
+
+			if (!job.BorderColor.IsFullyTransparent())
+			{
+				SDL_SetRenderDrawColor(Renderer, job.BorderColor.R, job.BorderColor.G, job.BorderColor.B, job.BorderColor.A);
+				SDL_RenderDrawRect(Renderer, &job.DestinationRect);
+			}
 		}
 
-		// Render the rectangle borders
-		if (!rectangleComponent->BorderColor.IsFullyTransparent())
+		if ((job.JobMask & JobTypeMask::TEXTURE) != 0)
 		{
-			SDL_SetRenderDrawColor(Renderer, rectangleComponent->BorderColor.R, rectangleComponent->BorderColor.G, rectangleComponent->BorderColor.B, rectangleComponent->BorderColor.A);
-			SDL_RenderDrawRect(Renderer, &destinationRect);
+			int result = SDL_RenderCopy(Renderer, (*m_Textures)[job.TextureID]->Texture, nullptr, &job.DestinationRect);
+			if (result != 0)
+				MLOG_ERROR("Failed to render texture with ID: " << job.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
 		}
 	}
+	m_RenderJobs->clear();
 
-	// Reset the draw color
+	// Restore draw color
 	SDL_SetRenderDrawColor(Renderer, startingDrawColor[0], startingDrawColor[1], startingDrawColor[2], startingDrawColor[3]);
-}
-
-void MEngineGraphics::RenderTextures()
-{
-	std::vector<EntityID> entities;
-	GetEntitiesMatchingMask(PosSizeComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask(), entities);
-
-	for (int i = 0; i < entities.size(); ++i)
-	{
-		const TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
-		if (textureComponent->RenderIgnore || textureComponent->TextureID == INVALID_MENGINE_TEXTURE_ID)
-			continue;
-
-		const PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
-		SDL_Rect destinationRect = SDL_Rect({ posSizeComponent->PosX, posSizeComponent->PosY, posSizeComponent->Width, posSizeComponent->Height });
-
-		int result = SDL_RenderCopy(Renderer, (*m_Textures)[textureComponent->TextureID]->Texture, nullptr, &destinationRect);
-		if (result != 0)
-			MLOG_ERROR("Failed to render texture with ID: " << textureComponent->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
-	}
 }
