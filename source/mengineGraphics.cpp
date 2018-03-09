@@ -26,9 +26,9 @@ constexpr int32_t CARET_END_OF_STRING_OFFSET	= 1;
 
 namespace MEngineGraphics
 {
-	bool IsDeeper(const RenderJob& lhs, const RenderJob& rhs)
+	bool IsDeeper(const RenderJob* lhs, const RenderJob* rhs)
 	{
-		return lhs.Depth > rhs.Depth;
+		return lhs->Depth > rhs->Depth;
 	};
 
 	void CreateRenderJobs();
@@ -40,7 +40,7 @@ namespace MEngineGraphics
 	int32_t m_WindowWidth	= -1;
 	int32_t m_WindowHeight	= -1;
 
-	std::vector<RenderJob>* m_RenderJobs;
+	std::vector<RenderJob*>* m_RenderJobs; // TODODB: Use a frame allocator so that we don't lose performance on all the "new" calls
 	std::vector<MEngineTexture*>* m_Textures;
 	MUtility::MUtilityIDBank* m_IDBank; // TODODB: Rename to textureIDBank
 	std::unordered_map<std::string, MEngine::TextureID>* m_PathToIDMap;
@@ -313,7 +313,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 		return false;
 	}
 
-	m_RenderJobs			= new std::vector<RenderJob>();
+	m_RenderJobs			= new std::vector<RenderJob*>();
 	m_Textures				= new std::vector<MEngineTexture*>();
 	m_IDBank				= new MUtility::MUtilityIDBank();
 	m_PathToIDMap			= new std::unordered_map<std::string, TextureID>();
@@ -399,7 +399,7 @@ void MEngineGraphics::CreateRenderJobs()
 
 	for (int i = 0; i < entities.size(); ++i)
 	{
-		RenderJob job;
+		RenderJob* job = new RenderJob();
 		ComponentMask entityComponentMask = GetComponentMask(entities[i]);
 		if ((entityComponentMask & RectangleRenderingComponent::GetComponentMask()) != 0)
 		{
@@ -407,12 +407,12 @@ void MEngineGraphics::CreateRenderJobs()
 			if (!rectComp->RenderIgnore && !rectComp->IsFullyTransparent())
 			{
 				if (!rectComp->BorderColor.IsFullyTransparent())
-					job.BorderColor = rectComp->BorderColor;
+					job->BorderColor = rectComp->BorderColor;
 
 				if (!rectComp->FillColor.IsFullyTransparent())
-					job.FillColor = rectComp->FillColor;
+					job->FillColor = rectComp->FillColor;
 
-				job.JobMask |= JobTypeMask::RECTANGLE;
+				job->JobMask |= JobTypeMask::RECTANGLE;
 			}
 		}
 
@@ -421,8 +421,8 @@ void MEngineGraphics::CreateRenderJobs()
 			const TextureRenderingComponent* textureComp = static_cast<const TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
 			if (!textureComp->RenderIgnore && textureComp->TextureID != INVALID_MENGINE_TEXTURE_ID)
 			{
-				job.TextureID = textureComp->TextureID;
-				job.JobMask |= JobTypeMask::TEXTURE;
+				job->TextureID = textureComp->TextureID;
+				job->JobMask |= JobTypeMask::TEXTURE;
 			}
 		}
 
@@ -431,29 +431,31 @@ void MEngineGraphics::CreateRenderJobs()
 			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
 			if (textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr && *textComp->Text != "")
 			{
-				job.CopyText(textComp->Text->c_str());
+				job->CopyText(textComp->Text->c_str());
 				if (IsInputString(textComp->Text))
 				{
-					job.CaretIndex	= GetTextInputCaretIndex();
-					job.TextWidth	= GetTextWidth(textComp->FontID, job.Text);
-					job.TextHeight	= GetTextHeight(textComp->FontID, job.Text);
+					job->CaretIndex	= GetTextInputCaretIndex();
+					job->TextWidth	= GetTextWidth(textComp->FontID, job->Text);
+					job->TextHeight	= GetTextHeight(textComp->FontID, job->Text);
 				}
-				job.JobMask |= JobTypeMask::TEXT;
+				job->JobMask |= JobTypeMask::TEXT;
 			}
 		}
 
-		if (job.JobMask != JobTypeMask::INVALID)
+		if (job->JobMask != JobTypeMask::INVALID)
 		{
 			if ((entityComponentMask & PosSizeComponent::GetComponentMask()) != 0)
 			{
 				const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
-				job.DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
-				job.Depth = posSizeComp->PosZ;
+				job->DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
+				job->Depth = posSizeComp->PosZ;
 				m_RenderJobs->push_back(job);
 			}
 			else
 				MLOG_WARNING("Found entity with a renderable component that lacks position data; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
 		}
+		else
+			delete job;
 	}
 	std::sort(m_RenderJobs->begin(), m_RenderJobs->end(), IsDeeper);
 }
@@ -466,41 +468,41 @@ void MEngineGraphics::ExecuteRenderJobs()
 
 	for (int i = 0; i < m_RenderJobs->size(); ++i)
 	{
-		const RenderJob& job = (*m_RenderJobs)[i]; // Guaranteed to have position data
-		if ((job.JobMask & JobTypeMask::RECTANGLE) != 0)
+		const RenderJob* job = (*m_RenderJobs)[i]; // Guaranteed to have position data
+		if ((job->JobMask & JobTypeMask::RECTANGLE) != 0)
 		{
-			if (!job.FillColor.IsFullyTransparent())
+			if (!job->FillColor.IsFullyTransparent())
 			{
-				SDL_SetRenderDrawColor(m_Renderer, job.FillColor.R, job.FillColor.G, job.FillColor.B, job.FillColor.A);
-				SDL_RenderFillRect(m_Renderer, &job.DestinationRect);
+				SDL_SetRenderDrawColor(m_Renderer, job->FillColor.R, job->FillColor.G, job->FillColor.B, job->FillColor.A);
+				SDL_RenderFillRect(m_Renderer, &job->DestinationRect);
 			}
 
-			if (!job.BorderColor.IsFullyTransparent())
+			if (!job->BorderColor.IsFullyTransparent())
 			{
-				SDL_SetRenderDrawColor(m_Renderer, job.BorderColor.R, job.BorderColor.G, job.BorderColor.B, job.BorderColor.A);
-				SDL_RenderDrawRect(m_Renderer, &job.DestinationRect);
+				SDL_SetRenderDrawColor(m_Renderer, job->BorderColor.R, job->BorderColor.G, job->BorderColor.B, job->BorderColor.A);
+				SDL_RenderDrawRect(m_Renderer, &job->DestinationRect);
 			}
 		}
 
-		if ((job.JobMask & JobTypeMask::TEXTURE) != 0)
+		if ((job->JobMask & JobTypeMask::TEXTURE) != 0)
 		{
-			int result = SDL_RenderCopy(m_Renderer, (*m_Textures)[job.TextureID]->Texture, nullptr, &job.DestinationRect);
+			int result = SDL_RenderCopy(m_Renderer, (*m_Textures)[job->TextureID]->Texture, nullptr, &job->DestinationRect);
 			if (result != 0)
-				MLOG_ERROR("Failed to render texture with ID: " << job.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
+				MLOG_ERROR("Failed to render texture with ID: " << job->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
 		}
 
-		if ((job.JobMask & JobTypeMask::TEXT) != 0)
+		if ((job->JobMask & JobTypeMask::TEXT) != 0)
 		{
-			switch (job.TextRenderMode)
+			switch (job->TextRenderMode)
 			{
 				case TextRenderMode::PLAIN:
 				{
-					FC_Draw(GetFont(job.FontID), m_Renderer, static_cast<float>(job.DestinationRect.x), static_cast<float>(job.DestinationRect.y), job.Text);
+					FC_Draw(GetFont(job->FontID), m_Renderer, static_cast<float>(job->DestinationRect.x), static_cast<float>(job->DestinationRect.y), job->Text);
 				} break;
 
 				case TextRenderMode::BOX:
 				{
-					FC_DrawBox(GetFont(job.FontID), m_Renderer, job.DestinationRect, job.Text);
+					FC_DrawBox(GetFont(job->FontID), m_Renderer, job->DestinationRect, job->Text);
 				} break;
 
 				case TextRenderMode::INVALID:
@@ -508,11 +510,16 @@ void MEngineGraphics::ExecuteRenderJobs()
 					break;
 			}
 
-			if (job.CaretIndex != -1)
+			if (job->CaretIndex != -1)
 			{
-				SDL_RenderDrawLine(m_Renderer, job.DestinationRect.x, job.DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job.DestinationRect.x, job.DestinationRect.y + job.DestinationRect.h - CARET_HEIGHT_OFFSET_BOTTOM);
+				SDL_RenderDrawLine(m_Renderer, job->DestinationRect.x, job->DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job->DestinationRect.x, job->DestinationRect.y + job->DestinationRect.h - CARET_HEIGHT_OFFSET_BOTTOM);
 			}
 		}
+	}
+
+	for (int i = 0; i < m_RenderJobs->size(); ++i)
+	{
+		delete (*m_RenderJobs)[i];
 	}
 	m_RenderJobs->clear();
 

@@ -58,18 +58,8 @@ namespace MEngineGraphics
 	struct RenderJob
 	{
 		RenderJob() {}
-		~RenderJob()
-		{
-			delete[] Text; Text = nullptr;
-		}
-
-		RenderJob(const RenderJob& other)
-		{
-			memcpy(this, &other, sizeof(RenderJob));
-
-			if ((JobMask & TEXT) != 0)
-				CopyText(other.Text);
-		}
+		~RenderJob(){ delete[] Text; Text = nullptr; }
+		RenderJob(const RenderJob& other) = delete;
 
 		// Genric
 		JobTypeMask JobMask				= JobTypeMask::INVALID;
