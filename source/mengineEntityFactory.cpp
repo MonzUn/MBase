@@ -4,7 +4,7 @@
 using namespace MEngine;
 using namespace PredefinedColors;
 
-EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, const std::string& text)
+EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, MEngineFontID fontID, const std::string& text)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(BUTTON_ENTITY_MASK, ID);
@@ -26,11 +26,12 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 
 	TextComponent* textComponent = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), ID));
 	textComponent->Text = new std::string(text);
+	textComponent->FontID = fontID;
 
 	return ID;
 }
 
-EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, uint32_t posZ, bool editable, const std::string& text, const ColorData& backgroundColor, const ColorData& borderColor)
+EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, MEngineFontID fontID, uint32_t posZ, bool editable, const std::string& text, const ColorData& backgroundColor, const ColorData& borderColor)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(TEXT_BOX_ENTITY_MASK, ID);
@@ -47,7 +48,8 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 	rectangleComponent->BorderColor = borderColor;
 
 	TextComponent* textComponent = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), ID));
-	textComponent->Text	= new std::string(text);
+	textComponent->Text		= new std::string(text);
+	textComponent->FontID	= fontID;
 
 	if (editable)
 	{

@@ -401,6 +401,7 @@ void MEngineGraphics::CreateRenderJobs()
 	{
 		RenderJob* job = new RenderJob();
 		ComponentMask entityComponentMask = GetComponentMask(entities[i]);
+		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
 		if ((entityComponentMask & RectangleRenderingComponent::GetComponentMask()) != 0)
 		{
 			const RectangleRenderingComponent* rectComp = static_cast<const RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
@@ -431,7 +432,9 @@ void MEngineGraphics::CreateRenderJobs()
 			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
 			if (textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr && *textComp->Text != "")
 			{
+				job->FontID = textComp->FontID;
 				job->CopyText(textComp->Text->c_str());
+				job->TextRenderMode = ((posSizeComp->Width > 0 && posSizeComp->Height > 0) ? TextRenderMode::BOX : TextRenderMode::PLAIN);
 				if (IsInputString(textComp->Text))
 				{
 					job->CaretIndex	= GetTextInputCaretIndex();
@@ -446,7 +449,6 @@ void MEngineGraphics::CreateRenderJobs()
 		{
 			if ((entityComponentMask & PosSizeComponent::GetComponentMask()) != 0)
 			{
-				const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
 				job->DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
 				job->Depth = posSizeComp->PosZ;
 				m_RenderJobs->push_back(job);
