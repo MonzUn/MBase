@@ -24,7 +24,7 @@ constexpr int32_t CARET_HEIGHT_OFFSET_TOP		= 3;
 constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM	= 2;
 constexpr int32_t CARET_END_OF_STRING_OFFSET	= 1;
 
-namespace MEngineGraphics // Rename renderer and window using m_
+namespace MEngineGraphics
 {
 	bool IsDeeper(const RenderJob& lhs, const RenderJob& rhs)
 	{
@@ -34,8 +34,8 @@ namespace MEngineGraphics // Rename renderer and window using m_
 	void CreateRenderJobs();
 	void ExecuteRenderJobs();
 
-	SDL_Renderer*	Renderer	= nullptr;
-	SDL_Window*		Window		= nullptr;
+	SDL_Renderer*	m_Renderer	= nullptr;
+	SDL_Window*		m_Window	= nullptr;
 
 	int32_t m_WindowWidth	= -1;
 	int32_t m_WindowHeight	= -1;
@@ -68,7 +68,7 @@ TextureID MEngine::GetTextureFromPath(const std::string& pathWithExtension)
 		else
 		{
 			std::string absolutePath = MEngine::GetExecutablePath() + "/" + pathWithExtension;
-			SDL_Texture* texture = IMG_LoadTexture(Renderer, absolutePath.c_str());
+			SDL_Texture* texture = IMG_LoadTexture(m_Renderer, absolutePath.c_str());
 			if (texture != nullptr)
 			{
 				returnID = AddTexture(texture);
@@ -128,7 +128,7 @@ TextureID MEngine::CreateSubTextureFromTextureData(const TextureData& originalTe
 	}
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
-	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(m_Window), NULL);
 	SdlApiLock.unlock();
 
 	// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
@@ -160,7 +160,7 @@ TextureID MEngine::CreateTextureFromTextureData(const TextureData& textureData, 
 	memcpy(surface->pixels, textureData.Pixels, textureData.Width * textureData.Height * MENGINE_BYTES_PER_PIXEL);
 	if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
-	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+	SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(m_Window), NULL);
 	SdlApiLock.unlock();
 
 	// The image is in BGR format but needs to be in RGB. Flip the values of the R and B positions.
@@ -247,7 +247,7 @@ TextureID MEngine::CaptureScreenToTexture(bool storeCopyInRAM)
 		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
 		// Convert surface to display format
-		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(Window), NULL);
+		SDL_Surface* convertedSurface = SDL_ConvertSurfaceFormat(surface, SDL_GetWindowPixelFormat(m_Window), NULL);
 		SdlApiLock.unlock();
 
 		TextureID reservedID = GetNextTextureID();
@@ -298,16 +298,16 @@ int32_t MEngine::GetWindowHeight()
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
 {
-	Window = SDL_CreateWindow(appName, 100, 100, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
-	if (Window == nullptr)
+	m_Window = SDL_CreateWindow(appName, 100, 100, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
+	if (m_Window == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
-	SDL_GetWindowSize(Window, &m_WindowWidth, &m_WindowHeight);
+	SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
 	
-	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
-	if (Renderer == nullptr)
+	m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	if (m_Renderer == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GRAPHICS);
 		return false;
@@ -352,7 +352,7 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 	while (m_SurfaceToTextureQueue->Consume(job))
 	{
 		SdlApiLock.lock();
-		SDL_Texture* texture = SDL_CreateTextureFromSurface(Renderer, job->Surface );
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(m_Renderer, job->Surface );
 		SdlApiLock.unlock();
 		MEngineGraphics::AddTexture(texture, (job->StoreSurfaceInRAM ? job->Surface : nullptr), job->ReservedID);
 
@@ -369,12 +369,12 @@ TextureID MEngineGraphics::GetNextTextureID()
 
 SDL_Renderer* MEngineGraphics::GetRenderer()
 {
-	return Renderer;
+	return m_Renderer;
 }
 
 SDL_Window* MEngineGraphics::GetWindow()
 {
-	return Window;
+	return m_Window;
 }
 
 void MEngineGraphics::Render()
@@ -382,10 +382,10 @@ void MEngineGraphics::Render()
 	HandleSurfaceToTextureConversions();
 
 	SdlApiLock.lock();
-	SDL_RenderClear(Renderer);
+	SDL_RenderClear(m_Renderer);
 	CreateRenderJobs();
 	ExecuteRenderJobs();
-	SDL_RenderPresent(Renderer);
+	SDL_RenderPresent(m_Renderer);
 	SdlApiLock.unlock();
 }
 
@@ -462,7 +462,7 @@ void MEngineGraphics::ExecuteRenderJobs()
 {
 	// Store the draw color used before
 	uint8_t startingDrawColor[4];
-	SDL_GetRenderDrawColor(Renderer, &startingDrawColor[0], &startingDrawColor[1], &startingDrawColor[2], &startingDrawColor[3]);
+	SDL_GetRenderDrawColor(m_Renderer, &startingDrawColor[0], &startingDrawColor[1], &startingDrawColor[2], &startingDrawColor[3]);
 
 	for (int i = 0; i < m_RenderJobs->size(); ++i)
 	{
@@ -471,20 +471,20 @@ void MEngineGraphics::ExecuteRenderJobs()
 		{
 			if (!job.FillColor.IsFullyTransparent())
 			{
-				SDL_SetRenderDrawColor(Renderer, job.FillColor.R, job.FillColor.G, job.FillColor.B, job.FillColor.A);
-				SDL_RenderFillRect(Renderer, &job.DestinationRect);
+				SDL_SetRenderDrawColor(m_Renderer, job.FillColor.R, job.FillColor.G, job.FillColor.B, job.FillColor.A);
+				SDL_RenderFillRect(m_Renderer, &job.DestinationRect);
 			}
 
 			if (!job.BorderColor.IsFullyTransparent())
 			{
-				SDL_SetRenderDrawColor(Renderer, job.BorderColor.R, job.BorderColor.G, job.BorderColor.B, job.BorderColor.A);
-				SDL_RenderDrawRect(Renderer, &job.DestinationRect);
+				SDL_SetRenderDrawColor(m_Renderer, job.BorderColor.R, job.BorderColor.G, job.BorderColor.B, job.BorderColor.A);
+				SDL_RenderDrawRect(m_Renderer, &job.DestinationRect);
 			}
 		}
 
 		if ((job.JobMask & JobTypeMask::TEXTURE) != 0)
 		{
-			int result = SDL_RenderCopy(Renderer, (*m_Textures)[job.TextureID]->Texture, nullptr, &job.DestinationRect);
+			int result = SDL_RenderCopy(m_Renderer, (*m_Textures)[job.TextureID]->Texture, nullptr, &job.DestinationRect);
 			if (result != 0)
 				MLOG_ERROR("Failed to render texture with ID: " << job.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
 		}
@@ -495,12 +495,12 @@ void MEngineGraphics::ExecuteRenderJobs()
 			{
 				case TextRenderMode::PLAIN:
 				{
-					FC_Draw(GetFont(job.FontID), Renderer, static_cast<float>(job.DestinationRect.x), static_cast<float>(job.DestinationRect.y), job.Text);
+					FC_Draw(GetFont(job.FontID), m_Renderer, static_cast<float>(job.DestinationRect.x), static_cast<float>(job.DestinationRect.y), job.Text);
 				} break;
 
 				case TextRenderMode::BOX:
 				{
-					FC_DrawBox(GetFont(job.FontID), Renderer, job.DestinationRect, job.Text);
+					FC_DrawBox(GetFont(job.FontID), m_Renderer, job.DestinationRect, job.Text);
 				} break;
 
 				case TextRenderMode::INVALID:
@@ -510,12 +510,12 @@ void MEngineGraphics::ExecuteRenderJobs()
 
 			if (job.CaretIndex != -1)
 			{
-				SDL_RenderDrawLine(Renderer, job.DestinationRect.x, job.DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job.DestinationRect.x, job.DestinationRect.y + job.DestinationRect.h - CARET_HEIGHT_OFFSET_BOTTOM);
+				SDL_RenderDrawLine(m_Renderer, job.DestinationRect.x, job.DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job.DestinationRect.x, job.DestinationRect.y + job.DestinationRect.h - CARET_HEIGHT_OFFSET_BOTTOM);
 			}
 		}
 	}
 	m_RenderJobs->clear();
 
 	// Restore draw color
-	SDL_SetRenderDrawColor(Renderer, startingDrawColor[0], startingDrawColor[1], startingDrawColor[2], startingDrawColor[3]);
+	SDL_SetRenderDrawColor(m_Renderer, startingDrawColor[0], startingDrawColor[1], startingDrawColor[2], startingDrawColor[3]);
 }
