@@ -50,6 +50,7 @@ namespace MEngine
 	{
 	public:
 		void Destroy() override;
+		MEngineFontID FontID = INVALID_MENGINE_FONT_ID;
 		std::string* Text = nullptr;
 		bool RenderIgnore = false;
 

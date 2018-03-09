@@ -6,12 +6,14 @@
 #define INVALID_MENGINE_TEXTURE_ID -1
 #define INVALID_MENGINE_SYSTEM_ID -1
 #define INVALID_MENGINE_GAME_MODE_ID -1
+#define INVALID_MENGINE_FONT_ID -1
 
-namespace MEngine
+namespace MEngine // TODODB: Remove MEnginePrefix on typenames as the namespace already delcare the required context
 {
 	typedef MUtilityBitmaskID ComponentMask;
 	typedef MUtilityID	EntityID;
 	typedef MUtilityID	TextureID;
 	typedef MUtilityID	SystemID;
 	typedef MUtilityID	GameModeID;
+	typedef MUtilityID	MEngineFontID;
 }

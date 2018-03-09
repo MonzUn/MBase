@@ -1,13 +1,13 @@
 #pragma once
+#include "mengineTypes.h"
 #include <string>
 
-namespace MEngine
+namespace MEngine // TODODB: Create a way to draw text without using the component system (for easy access to text rendering)
 {
-	void SetFont(const std::string& relativeFontPath);
-	void DrawText(int32_t posX, int32_t posY, const std::string& text); // TODODB: Take const dchar* instead of string
-	void DrawTextInBox(int32_t posX, int32_t posY, int32_t width, int32_t height, const std::string& text);
-	void DrawTextWithCaret(int32_t posX, int32_t posY, const std::string& text, int32_t CaretIndex = -1);
+	MEngineFontID CreateFont(const std::string& relativeFontPath);
+	bool DestroyFont(MEngineFontID ID);
 
-	uint16_t GetTextWidth(const char* text);
-	uint16_t GetTextHeight(const char* text);
+	// Size is returned as uint16_t, int32_t is used so that -1 can be returned in case of an error
+	int32_t GetTextWidth(MEngineFontID ID, const char* text);
+	int32_t GetTextHeight(MEngineFontID ID, const char* text);
 }

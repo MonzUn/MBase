@@ -12,12 +12,17 @@
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
 #include <SDL.h>
+#include <SDL_FontCache.h>
 #include <SDL_image.h>
 #include <algorithm>
 #include <mutex>
 #include <unordered_map>
 
 #define LOG_CATEGORY_GRAPHICS "MEngineGraphics"
+
+constexpr int32_t CARET_HEIGHT_OFFSET_TOP		= 3;
+constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM	= 2;
+constexpr int32_t CARET_END_OF_STRING_OFFSET	= 1;
 
 namespace MEngineGraphics // Rename renderer and window using m_
 {
@@ -45,6 +50,7 @@ namespace MEngineGraphics // Rename renderer and window using m_
 
 using namespace MEngine;
 using namespace MEngineGraphics;
+using namespace MEngineText;
 
 // ---------- INTERFACE ----------
 
@@ -379,7 +385,6 @@ void MEngineGraphics::Render()
 	SDL_RenderClear(Renderer);
 	CreateRenderJobs();
 	ExecuteRenderJobs();
-	MEngineText::Render();
 	SDL_RenderPresent(Renderer);
 	SdlApiLock.unlock();
 }
@@ -413,11 +418,27 @@ void MEngineGraphics::CreateRenderJobs()
 
 		if ((entityComponentMask & TextureRenderingComponent::GetComponentMask()) != 0)
 		{
-			const TextureRenderingComponent* textComp = static_cast<const TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
-			if (!textComp->RenderIgnore && textComp->TextureID != INVALID_MENGINE_TEXTURE_ID)
+			const TextureRenderingComponent* textureComp = static_cast<const TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
+			if (!textureComp->RenderIgnore && textureComp->TextureID != INVALID_MENGINE_TEXTURE_ID)
 			{
-				job.TextureID = textComp->TextureID;
+				job.TextureID = textureComp->TextureID;
 				job.JobMask |= JobTypeMask::TEXTURE;
+			}
+		}
+
+		if ((entityComponentMask & TextComponent::GetComponentMask()) != 0)
+		{
+			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
+			if (textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr && *textComp->Text != "")
+			{
+				job.CopyText(textComp->Text->c_str());
+				if (IsInputString(textComp->Text))
+				{
+					job.CaretIndex	= GetTextInputCaretIndex();
+					job.TextWidth	= GetTextWidth(textComp->FontID, job.Text);
+					job.TextHeight	= GetTextHeight(textComp->FontID, job.Text);
+				}
+				job.JobMask |= JobTypeMask::TEXT;
 			}
 		}
 
@@ -434,7 +455,6 @@ void MEngineGraphics::CreateRenderJobs()
 				MLOG_WARNING("Found entity with a renderable component that lacks position data; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
 		}
 	}
-
 	std::sort(m_RenderJobs->begin(), m_RenderJobs->end(), IsDeeper);
 }
 
@@ -467,6 +487,31 @@ void MEngineGraphics::ExecuteRenderJobs()
 			int result = SDL_RenderCopy(Renderer, (*m_Textures)[job.TextureID]->Texture, nullptr, &job.DestinationRect);
 			if (result != 0)
 				MLOG_ERROR("Failed to render texture with ID: " << job.TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
+		}
+
+		if ((job.JobMask & JobTypeMask::TEXT) != 0)
+		{
+			switch (job.TextRenderMode)
+			{
+				case TextRenderMode::PLAIN:
+				{
+					FC_Draw(GetFont(job.FontID), Renderer, static_cast<float>(job.DestinationRect.x), static_cast<float>(job.DestinationRect.y), job.Text);
+				} break;
+
+				case TextRenderMode::BOX:
+				{
+					FC_DrawBox(GetFont(job.FontID), Renderer, job.DestinationRect, job.Text);
+				} break;
+
+				case TextRenderMode::INVALID:
+				default:
+					break;
+			}
+
+			if (job.CaretIndex != -1)
+			{
+				SDL_RenderDrawLine(Renderer, job.DestinationRect.x, job.DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job.DestinationRect.x, job.DestinationRect.y + job.DestinationRect.h - CARET_HEIGHT_OFFSET_BOTTOM);
+			}
 		}
 	}
 	m_RenderJobs->clear();

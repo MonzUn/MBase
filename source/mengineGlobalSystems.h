@@ -45,6 +45,5 @@ namespace MEngineGlobalSystems
 		MEngineUtility::Update();
 		MEngineInput::Update();
 		MEngineConsole::Update();
-		MEngineText::Update();
 	}
 }

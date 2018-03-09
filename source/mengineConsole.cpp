@@ -155,7 +155,7 @@ void MEngineConsole::Initialize()
 	int32_t fullWidth = GetWindowWidth();
 
 	m_BackgroundID = CreateEntity();
-	AddComponentsToEntity( PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask(), m_BackgroundID);
+	AddComponentsToEntity(PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask(), m_BackgroundID);
 
 	PosSizeComponent* posSize = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_BackgroundID));
 	posSize->PosX	= 0;
@@ -203,7 +203,7 @@ void MEngineConsole::Update()
 
 		// Keep the output text within the console
 		PosSizeComponent* outputTextPos = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_OutputTextboxID));
-		uint16_t fullTextHeight = GetTextHeight(outputText->Text->c_str());
+		uint16_t fullTextHeight = GetTextHeight(outputText->FontID, outputText->Text->c_str());
 		int32_t diff = fullTextHeight + outputTextPos->PosY - m_OutputTextBoxOriginalHeight;
 		if (diff > 0)
 		{
