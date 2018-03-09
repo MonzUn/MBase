@@ -87,6 +87,11 @@ int32_t MEngine::GetTextHeight(MEngineFontID ID, const char* text)
 	return FC_GetHeight((*m_Fonts)[ID], text);
 }
 
+bool MEngine::IsFontIDValid(MEngineFontID ID)
+{
+	return m_FontIDBank->IsIDActive(ID);
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineText::Initialize()
