@@ -13,13 +13,10 @@
 
 #define LOG_CATEGORY_TEXT "MEngineText"
 
-constexpr int32_t DEFAULT_POINT_SIZE = 20;
-const MEngine::ColorData DEFAULT_TEXT_COLOR = MEngine::ColorData(MEngine::PredefinedColors::BLACK);
-
 namespace MEngine
 {
-	std::vector<FC_Font*>*						m_Fonts;
-	MUtility::MUtilityIDBank*					m_FontIDBank;
+	std::vector<FC_Font*>*		m_Fonts;
+	MUtility::MUtilityIDBank*	m_FontIDBank;
 }
 
 using namespace MEngine;
@@ -27,12 +24,12 @@ using namespace MEngineText;
 
 // ---------- INTERFACE ----------
 
-MEngineFontID MEngine::CreateFont(const std::string& relativeFontPath)
+MEngineFontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t fontSize, const ColorData& textColor)
 {
 	MEngineFontID ID = INVALID_MENGINE_FONT_ID;
 	FC_Font* font = FC_CreateFont();
 	const std::string absolutePath = MEngine::GetExecutablePath() + '/' + relativeFontPath;
-	if (!FC_LoadFont(font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), DEFAULT_POINT_SIZE, FC_MakeColor(DEFAULT_TEXT_COLOR.R, DEFAULT_TEXT_COLOR.G, DEFAULT_TEXT_COLOR.B, DEFAULT_TEXT_COLOR.A), TTF_STYLE_NORMAL))
+	if (!FC_LoadFont(font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), fontSize, FC_MakeColor(textColor.R, textColor.G, textColor.B, textColor.A), TTF_STYLE_NORMAL))
 	{
 		MLOG_WARNING("Failed to load font at path \"" << absolutePath << '\"', LOG_CATEGORY_TEXT);
 		FC_FreeFont(font);

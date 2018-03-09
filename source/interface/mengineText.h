@@ -1,10 +1,14 @@
 #pragma once
 #include "mengineTypes.h"
+#include "mengineColor.h"
 #include <string>
 
 namespace MEngine // TODODB: Create a way to draw text without using the component system (for easy access to text rendering)
 {
-	MEngineFontID CreateFont(const std::string& relativeFontPath);
+	constexpr int32_t CONSOLE_DEFAULT_TEXT_SIZE = 20;
+	const MEngine::ColorData CONSOLE_DEFAULT_TEXT_COLOR = PredefinedColors::Colors[PredefinedColors::BLACK];
+
+	MEngineFontID CreateFont(const std::string& relativeFontPath, int32_t fontSize = CONSOLE_DEFAULT_TEXT_SIZE, const ColorData& textColor = CONSOLE_DEFAULT_TEXT_COLOR);
 	bool DestroyFont(MEngineFontID ID);
 
 	// Size is returned as uint16_t, int32_t is used so that -1 can be returned in case of an error
