@@ -1,4 +1,5 @@
 #include "interface/mengineEntityManager.h"
+#include "interface/mengineSettings.h"
 #include "mengineEntityManagerInternal.h"
 #include "mengineComponentManagerInternal.h"
 #include <MUtilityIDBank.h>
@@ -45,7 +46,9 @@ bool MEngine::DestroyEntity(EntityID ID)
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (!m_IDBank->IsIDActive(ID))
 	{
-		MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
+		if(Settings::HighLogLevel)
+			MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
+
 		return false;
 	}
 #endif
