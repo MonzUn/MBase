@@ -298,7 +298,11 @@ LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam)
 			if (wParam == WM_KEYDOWN || wParam == WM_KEYUP)
 			{
 				keyStruct = *reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
-				auto iterator = m_ScanCodeToMKeyConversionTable->find(keyStruct.scanCode);
+				uint32_t scanCode = keyStruct.scanCode;
+				if (((keyStruct.flags & LLKHF_EXTENDED) != 0))
+					scanCode |= 0xE000; // Prefix the scancode with the extension
+				
+				auto iterator = m_ScanCodeToMKeyConversionTable->find(scanCode);
 				if (iterator != m_ScanCodeToMKeyConversionTable->end())
 					m_PressedKeysBuffer[iterator->second] = (wParam == WM_KEYDOWN); // Set key pressed to true if wparam is WM_KEYDOWN
 			}
