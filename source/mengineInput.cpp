@@ -333,6 +333,7 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_P, MKEY_P));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_Q, MKEY_Q));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_R, MKEY_R));
+	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_S, MKEY_S));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_T, MKEY_T));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_U, MKEY_U));
 	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_V, MKEY_V));
@@ -359,6 +360,7 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_P, MKEY_P));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_Q, MKEY_Q));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_R, MKEY_R));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_S, MKEY_S));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_T, MKEY_T));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_U, MKEY_U));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_V, MKEY_V));
