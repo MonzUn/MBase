@@ -16,4 +16,17 @@ namespace MEngine // TODODB: Remove MEnginePrefix on typenames as the namespace 
 	typedef MUtilityID	SystemID;
 	typedef MUtilityID	GameModeID;
 	typedef MUtilityID	MEngineFontID;
+
+	enum class TextAlignment
+	{
+		TopLeft,
+		TopCentered,
+		TopRight,
+		CenterLeft,
+		CenterCentered,
+		CenterRight,
+		BottomLeft,
+		BottomCentered,
+		BottomRight
+	};
 }

@@ -52,6 +52,7 @@ namespace MEngine
 		void Destroy() override;
 		MEngineFontID FontID = INVALID_MENGINE_FONT_ID;
 		std::string* Text = nullptr;
+		TextAlignment Alignment;
 		bool RenderIgnore = false;
 
 		void StartEditing() const // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead

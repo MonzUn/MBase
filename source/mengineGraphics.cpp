@@ -402,6 +402,19 @@ void MEngineGraphics::CreateRenderJobs()
 		RenderJob* job = new RenderJob();
 		ComponentMask entityComponentMask = GetComponentMask(entities[i]);
 		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+		if ((entityComponentMask & PosSizeComponent::GetComponentMask()) != 0)
+		{
+			job->DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
+			job->Depth = posSizeComp->PosZ;
+
+		}
+		else
+		{
+			MLOG_WARNING("Found entity with a renderable component that lacks position data; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
+			delete job;
+			continue;
+		}
+
 		if ((entityComponentMask & RectangleRenderingComponent::GetComponentMask()) != 0)
 		{
 			const RectangleRenderingComponent* rectComp = static_cast<const RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
@@ -435,26 +448,72 @@ void MEngineGraphics::CreateRenderJobs()
 				job->FontID = textComp->FontID;
 				job->CopyText(textComp->Text->c_str());
 				job->TextRenderMode = ((posSizeComp->Width > 0 && posSizeComp->Height > 0) ? TextRenderMode::BOX : TextRenderMode::PLAIN);
-				if (IsInputString(textComp->Text))
+				job->TextWidth	= GetTextWidth(textComp->FontID, job->Text);
+				job->TextHeight = GetTextHeight(textComp->FontID, job->Text);
+				job->TextRect = job->DestinationRect;
+
+				// Horizontal alignment
+				switch (textComp->Alignment)
 				{
-					job->CaretIndex	= GetTextInputCaretIndex();
-					job->TextWidth	= GetTextWidth(textComp->FontID, job->Text);
-					job->TextHeight	= GetTextHeight(textComp->FontID, job->Text);
+					case TextAlignment::TopLeft:
+					case TextAlignment::CenterLeft:
+					case TextAlignment::BottomLeft:
+					{
+						job->HorizontalTextAlignment = FC_ALIGN_LEFT;
+					} break;
+
+					case TextAlignment::TopCentered:
+					case TextAlignment::CenterCentered:
+					case TextAlignment::BottomCentered:
+					{
+						job->HorizontalTextAlignment = FC_ALIGN_CENTER;
+					} break;
+
+					case TextAlignment::TopRight:
+					case TextAlignment::CenterRight:
+					case TextAlignment::BottomRight:
+					{
+						job->HorizontalTextAlignment = FC_ALIGN_RIGHT;
+					} break;
+
+					default:
+						break;
 				}
+
+				// Vertical alignment
+				switch (textComp->Alignment)
+				{
+					case TextAlignment::CenterLeft:
+					case TextAlignment::CenterCentered:
+					case TextAlignment::CenterRight:
+					{
+						job->TextRect.y += (job->DestinationRect.h / 2) - (job->TextHeight / 2);
+					} break;
+
+					case TextAlignment::BottomLeft:
+					case TextAlignment::BottomCentered:
+					case TextAlignment::BottomRight:
+					{
+						job->TextRect.y += job->DestinationRect.h - job->TextHeight;
+					} break;
+
+					case TextAlignment::TopLeft:
+					case TextAlignment::TopCentered:
+					case TextAlignment::TopRight:
+					default:
+						break;
+				}
+
+				if (IsInputString(textComp->Text))
+					job->CaretIndex	= GetTextInputCaretIndex();
+
 				job->JobMask |= JobTypeMask::TEXT;
 			}
 		}
 
 		if (job->JobMask != JobTypeMask::INVALID)
 		{
-			if ((entityComponentMask & PosSizeComponent::GetComponentMask()) != 0)
-			{
-				job->DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
-				job->Depth = posSizeComp->PosZ;
-				m_RenderJobs->push_back(job);
-			}
-			else
-				MLOG_WARNING("Found entity with a renderable component that lacks position data; entityID = " << entities[i], LOG_CATEGORY_GRAPHICS);
+			m_RenderJobs->push_back(job);
 		}
 		else
 			delete job;
@@ -499,12 +558,12 @@ void MEngineGraphics::ExecuteRenderJobs()
 			{
 				case TextRenderMode::PLAIN:
 				{
-					FC_Draw(GetFont(job->FontID), m_Renderer, static_cast<float>(job->DestinationRect.x), static_cast<float>(job->DestinationRect.y), job->Text);
+					FC_DrawAlign(GetFont(job->FontID), m_Renderer, static_cast<float>(job->TextRect.x), static_cast<float>(job->TextRect.y), job->HorizontalTextAlignment, job->Text);
 				} break;
 
 				case TextRenderMode::BOX:
 				{
-					FC_DrawBox(GetFont(job->FontID), m_Renderer, job->DestinationRect, job->Text);
+					FC_DrawBoxAlign(GetFont(job->FontID), m_Renderer, job->TextRect, job->HorizontalTextAlignment, job->Text);
 				} break;
 
 				case TextRenderMode::INVALID:

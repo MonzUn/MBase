@@ -3,6 +3,7 @@
 #include "interface/mengineColor.h"
 #include "interface/mengineTypes.h"
 #include <SDL.h>
+#include <SDL_FontCache.h>
 
 struct SurfaceToTextureJob;
 
@@ -74,12 +75,14 @@ namespace MEngineGraphics
 		MEngine::ColorData BorderColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
 
 		// Text
-		TextRenderMode	TextRenderMode	= TextRenderMode::INVALID;
-		MEngine::MEngineFontID	FontID	= INVALID_MENGINE_FONT_ID;
-		char*			Text			= nullptr;
-		uint64_t		CaretIndex		= -1;
-		int32_t			TextWidth		= -1;
-		int32_t			TextHeight		= -1;
+		TextRenderMode	TextRenderMode					= TextRenderMode::INVALID;
+		MEngine::MEngineFontID	FontID					= INVALID_MENGINE_FONT_ID;
+		char*					Text					= nullptr;
+		FC_AlignEnum			HorizontalTextAlignment = FC_ALIGN_LEFT;
+		SDL_Rect				TextRect				= {0,0,0,0};
+		uint64_t				CaretIndex				= -1;
+		int32_t					TextWidth				= -1;
+		int32_t					TextHeight				= -1;
 
 		void CopyText(const char* str)
 		{
