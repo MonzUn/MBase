@@ -443,7 +443,7 @@ void MEngineGraphics::CreateRenderJobs()
 		if ((entityComponentMask & TextComponent::GetComponentMask()) != 0)
 		{
 			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
-			if (textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr && *textComp->Text != "")
+			if (!textComp->RenderIgnore && textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr && *textComp->Text != "" )
 			{
 				job->FontID = textComp->FontID;
 				job->CopyText(textComp->Text->c_str());
