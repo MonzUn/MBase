@@ -1,8 +1,6 @@
 #pragma once
 #include <stdint.h>
 
-// TODODB: Rename all files using uppercase initial character
-
 namespace MEngine
 {
 	bool				Initialize(const char* appName = "MEngineApp", int32_t windowWidth = 1024, int32_t windowHeight = 768);
