@@ -19,8 +19,8 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 		bool anyTextBoxPressed = false;
 		for (int i = 0; i < textBoxEntites.size(); ++i)
 		{
-			ButtonComponent* button = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
-			if (button->IsTriggered)
+			ButtonComponent* buttonComp = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
+			if (buttonComp->IsTriggered)
 			{
 				anyTextBoxPressed = true;
 				break;
@@ -28,6 +28,16 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 		}
 
 		if (IsTextInputActive() && !anyTextBoxPressed)
-			StopTextInput();
+		{
+			for (int i = 0; i < textBoxEntites.size(); ++i)
+			{
+				TextComponent* textComp = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), textBoxEntites[i]));
+				if (IsInputString(textComp->Text))
+				{
+					textComp->StopEditing();
+					break;
+				}
+			}
+		}
 	}
 }
