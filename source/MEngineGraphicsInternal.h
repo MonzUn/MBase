@@ -9,7 +9,7 @@ struct SurfaceToTextureJob;
 
 namespace MEngineGraphics
 {
-	enum JobTypeMask : uint32_t // TODODB: Incorporate text rendering
+	enum JobTypeMask : uint32_t
 	{
 		INVALID = 0,
 
