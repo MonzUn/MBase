@@ -287,7 +287,7 @@ void CreateComponents()
 	background->FillColor = ColorData(0, 128, 0, 128);
 
 	m_OutputTextboxID = CreateTextBox(0, 0, fullWidth, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, m_OutputFont, 0U);
-	m_InputTextboxID = CreateTextBox(0, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, fullWidth, INPUT_TEXTBOX_HEIGHT, m_InputFont, 0U, true, "", MEngine::TextAlignment::BottomLeft, Colors[TRANSPARENT], Colors[BLUE]);
+	m_InputTextboxID = CreateTextBox(0, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, fullWidth, INPUT_TEXTBOX_HEIGHT, m_InputFont, 0U, "", MEngine::TextAlignment::BottomLeft, TextBoxEditFlags::Editable, Colors[TRANSPARENT], Colors[BLUE]);
 
 	SetConsoleActive(false);
 }
