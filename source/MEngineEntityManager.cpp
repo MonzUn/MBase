@@ -15,14 +15,16 @@ using namespace MEngine;
 using namespace MEngineEntityManager;
 using MUtility::MUtilityIDBank;
 
-// ---------- LOCAL ----------
-
+// TODODB: Rework these namespaces in all files so that it's easy to debug and find get the correct context when coding using local functions and variables
 namespace MEngineEntityManager
 {
 	int32_t GetEntityIndex(EntityID ID);
 	uint32_t CalcComponentIndiceListIndex(ComponentMask entityComponentMask, ComponentMask componentType);
 	ComponentMask RemoveComponentsFromEntityByIndex(ComponentMask componentMask, int32_t entityIndex);
+}
 
+namespace
+{
 	std::vector<EntityID>*		m_Entities;
 	std::vector<ComponentMask>*	m_ComponentMasks;
 	std::vector<std::vector<uint32_t>>* m_ComponentIndices;
@@ -56,7 +58,7 @@ bool MEngine::DestroyEntity(EntityID ID)
 	int32_t entityIndex = GetEntityIndex(ID);
 	if (entityIndex >= 0)
 	{
-		if ((*MEngineEntityManager::m_Entities)[entityIndex] == ID)
+		if ((*m_Entities)[entityIndex] == ID)
 		{
 			RemoveComponentsFromEntityByIndex((*m_ComponentMasks)[entityIndex], entityIndex);
 
@@ -85,13 +87,14 @@ ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, Entity
 	}
 #endif
 
-	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[ID];
+	int32_t entityIndex = GetEntityIndex(ID);
+	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityIndex];
 	while (componentMask != MUtility::EMPTY_BITSET)
 	{
 		ComponentMask singleComponentMask = MUtility::GetHighestSetBit(componentMask);
-		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex((*m_ComponentMasks)[ID], singleComponentMask);
+		uint32_t componentIndiceListIndex = CalcComponentIndiceListIndex((*m_ComponentMasks)[entityIndex], singleComponentMask);
 		componentIndices.insert(componentIndices.begin() + componentIndiceListIndex, MEngineComponentManager::AllocateComponent(singleComponentMask, ID));
-		(*m_ComponentMasks)[ID] |= singleComponentMask;
+		(*m_ComponentMasks)[entityIndex] |= singleComponentMask;
 
 		componentMask &= ~MUtility::GetHighestSetBit(componentMask);
 	}
@@ -206,7 +209,7 @@ ComponentMask MEngine::GetComponentMask(EntityID ID)
 	}
 #endif
 
-	return (*m_ComponentMasks)[ID];
+	return (*m_ComponentMasks)[GetEntityIndex(ID)];
 }
 
 // ---------- INTERNAL ----------
@@ -269,7 +272,7 @@ uint32_t MEngineEntityManager::CalcComponentIndiceListIndex(ComponentMask entity
 ComponentMask MEngineEntityManager::RemoveComponentsFromEntityByIndex(ComponentMask componentMask, int32_t entityIndex)
 {
 	ComponentMask failedComponents = 0ULL;
-	std::vector<uint32_t>& componentIndices = (*MEngineEntityManager::m_ComponentIndices)[entityIndex];
+	std::vector<uint32_t>& componentIndices = (*m_ComponentIndices)[entityIndex];
 	while (componentMask != MUtility::EMPTY_BITSET)
 	{
 		ComponentMask singleComponentMask = MUtility::GetHighestSetBit(componentMask);
