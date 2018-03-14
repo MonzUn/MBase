@@ -11,11 +11,12 @@ namespace MEngineGraphics
 {
 	enum JobTypeMask : uint32_t
 	{
-		INVALID = 0,
+		INVALID		= 0,
 
-		RECTANGLE = 1 << 0,
-		TEXTURE = 1 << 1,
-		TEXT = 1 << 2,
+		RECTANGLE	= 1 << 0,
+		TEXTURE		= 1 << 1,
+		TEXT		= 1 << 2,
+		CARET		= 1 << 3,
 	};
 
 	enum class TextRenderMode
@@ -80,8 +81,7 @@ namespace MEngineGraphics
 		char*					Text					= nullptr;
 		FC_AlignEnum			HorizontalTextAlignment = FC_ALIGN_LEFT;
 		SDL_Rect				TextRect				= {0,0,0,0};
-		uint64_t				CaretIndex				= -1;
-		int32_t					TextWidth				= -1;
+		int32_t					CaretOffsetX			= -1;
 		int32_t					TextHeight				= -1;
 
 		void CopyText(const char* str)

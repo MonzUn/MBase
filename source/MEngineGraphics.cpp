@@ -21,8 +21,8 @@
 #define LOG_CATEGORY_GRAPHICS "MEngineGraphics"
 
 constexpr int32_t CARET_HEIGHT_OFFSET_TOP		= 3;
-constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM	= 2;
-constexpr int32_t CARET_END_OF_STRING_OFFSET	= 1;
+constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM	= 5 + CARET_HEIGHT_OFFSET_TOP;
+constexpr int32_t CARET_END_OF_STRING_OFFSET	= 2;
 
 namespace MEngineGraphics
 {
@@ -51,6 +51,7 @@ namespace MEngineGraphics
 using namespace MEngine;
 using namespace MEngineGraphics;
 using namespace MEngineText;
+using namespace PredefinedColors;
 
 // ---------- INTERFACE ----------
 
@@ -443,71 +444,95 @@ void MEngineGraphics::CreateRenderJobs()
 		if ((entityComponentMask & TextComponent::GetComponentMask()) != 0)
 		{
 			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
-			if (!textComp->RenderIgnore && textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr && *textComp->Text != "" )
+			if (!textComp->RenderIgnore && textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr)
 			{
-				job->FontID = textComp->FontID;
-				job->CopyText(textComp->Text->c_str());
-				job->TextRenderMode = ((posSizeComp->Width > 0 && posSizeComp->Height > 0) ? TextRenderMode::BOX : TextRenderMode::PLAIN);
-				job->TextWidth	= GetTextWidth(textComp->FontID, job->Text);
-				job->TextHeight = GetTextHeight(textComp->FontID, job->Text);
-				job->TextRect = job->DestinationRect;
-
-				// Horizontal alignment
-				switch (textComp->Alignment)
+				if (*textComp->Text != "")
 				{
-					case TextAlignment::TopLeft:
-					case TextAlignment::CenterLeft:
-					case TextAlignment::BottomLeft:
+					job->FontID = textComp->FontID;
+					job->CopyText(textComp->Text->c_str());
+					job->TextRenderMode = ((posSizeComp->Width > 0 && posSizeComp->Height > 0) ? TextRenderMode::BOX : TextRenderMode::PLAIN);
+					job->TextHeight = GetTextHeight(textComp->FontID, job->Text);
+					job->TextRect = job->DestinationRect;
+
+					// Horizontal alignment
+					switch (textComp->Alignment)
 					{
-						job->HorizontalTextAlignment = FC_ALIGN_LEFT;
-					} break;
+						case TextAlignment::TopLeft:
+						case TextAlignment::CenterLeft:
+						case TextAlignment::BottomLeft:
+						{
+							job->HorizontalTextAlignment = FC_ALIGN_LEFT;
+						} break;
+	
+						case TextAlignment::TopCentered:
+						case TextAlignment::CenterCentered:
+						case TextAlignment::BottomCentered:
+						{
+							job->HorizontalTextAlignment = FC_ALIGN_CENTER;
+						} break;
+	
+						case TextAlignment::TopRight:
+						case TextAlignment::CenterRight:
+						case TextAlignment::BottomRight:
+						{
+							job->HorizontalTextAlignment = FC_ALIGN_RIGHT;
+						} break;
+	
+						default:
+							break;
+					}
 
-					case TextAlignment::TopCentered:
-					case TextAlignment::CenterCentered:
-					case TextAlignment::BottomCentered:
+					// Vertical alignment
+					switch (textComp->Alignment)
 					{
-						job->HorizontalTextAlignment = FC_ALIGN_CENTER;
-					} break;
+						case TextAlignment::CenterLeft:
+						case TextAlignment::CenterCentered:
+						case TextAlignment::CenterRight:
+						{
+							job->TextRect.y += (job->DestinationRect.h / 2) - (job->TextHeight / 2);
+						} break;
 
-					case TextAlignment::TopRight:
-					case TextAlignment::CenterRight:
-					case TextAlignment::BottomRight:
-					{
-						job->HorizontalTextAlignment = FC_ALIGN_RIGHT;
-					} break;
+						case TextAlignment::BottomLeft:
+						case TextAlignment::BottomCentered:
+						case TextAlignment::BottomRight:
+						{
+							job->TextRect.y += job->DestinationRect.h - job->TextHeight;
+						} break;
 
-					default:
-						break;
-				}
+						case TextAlignment::TopLeft:
+						case TextAlignment::TopCentered:
+						case TextAlignment::TopRight:
+						default:
+							break;
+					}
 
-				// Vertical alignment
-				switch (textComp->Alignment)
-				{
-					case TextAlignment::CenterLeft:
-					case TextAlignment::CenterCentered:
-					case TextAlignment::CenterRight:
-					{
-						job->TextRect.y += (job->DestinationRect.h / 2) - (job->TextHeight / 2);
-					} break;
-
-					case TextAlignment::BottomLeft:
-					case TextAlignment::BottomCentered:
-					case TextAlignment::BottomRight:
-					{
-						job->TextRect.y += job->DestinationRect.h - job->TextHeight;
-					} break;
-
-					case TextAlignment::TopLeft:
-					case TextAlignment::TopCentered:
-					case TextAlignment::TopRight:
-					default:
-						break;
+					job->JobMask |= JobTypeMask::TEXT;
 				}
 
 				if (IsInputString(textComp->Text))
-					job->CaretIndex	= GetTextInputCaretIndex();
+				{
+					if ((job->JobMask & JobTypeMask::TEXT) == 0)
+					{
+						job->FontID = textComp->FontID;
+						job->TextHeight = (*textComp->Text == "" ? GetTextHeight(textComp->FontID, "I") : GetTextHeight(textComp->FontID, job->Text)); // Measure a dummy string if the text is empty
+					}
 
-				job->JobMask |= JobTypeMask::TEXT;
+					// Add caret drawing data
+					const uint64_t caretIndex = GetTextInputCaretIndex();
+
+					// TODODB: Put char* substr logic into MUtility
+					char* substr = static_cast<char*>(malloc(caretIndex + 1));
+					memcpy(substr, textComp->Text->c_str(), caretIndex);
+					substr[caretIndex] = '\0';
+
+					job->CaretOffsetX = GetTextWidth(textComp->FontID, substr);
+					free(substr);
+
+					if (caretIndex >= strlen(textComp->Text->c_str()))
+						job->CaretOffsetX += CARET_END_OF_STRING_OFFSET;
+
+					job->JobMask |= JobTypeMask::CARET;
+				}
 			}
 		}
 
@@ -570,11 +595,12 @@ void MEngineGraphics::ExecuteRenderJobs()
 				default:
 					break;
 			}
+		}
 
-			if (job->CaretIndex != -1)
-			{
-				SDL_RenderDrawLine(m_Renderer, job->DestinationRect.x, job->DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job->DestinationRect.x, job->DestinationRect.y + job->DestinationRect.h - CARET_HEIGHT_OFFSET_BOTTOM);
-			}
+		if ((job->JobMask & JobTypeMask::CARET) != 0)
+		{
+			SDL_SetRenderDrawColor(m_Renderer, Colors[BLACK].R, Colors[BLACK].G, Colors[BLACK].B, Colors[BLACK].A); // TODODB: Make this a settable color
+			SDL_RenderDrawLine(m_Renderer, job->DestinationRect.x + job->CaretOffsetX, job->DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job->DestinationRect.x + job->CaretOffsetX, job->DestinationRect.y + job->TextHeight - CARET_HEIGHT_OFFSET_BOTTOM);
 		}
 	}
 

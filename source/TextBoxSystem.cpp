@@ -11,7 +11,7 @@ using namespace MEngine;
 
 void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 {
-	if (KeyReleased(MKEY_MOUSE_LEFT))
+	if (KeyReleased(MKEY_MOUSE_LEFT)) // TODODB: Fix issue that StopEditing isn't executed for the text box being inactivated when pressing anohter textbox
 	{
 		std::vector<EntityID> textBoxEntites;
 		GetEntitiesMatchingMask(TEXT_BOX_ENTITY_MASK, textBoxEntites, MaskMatchMode::Exact);

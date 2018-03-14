@@ -22,5 +22,5 @@ namespace MEngine
 	uint64_t GetTextInputCaretIndex();
 
 	bool IsTextInputActive();
-	bool IsInputString(const std::string* toCompare);
+	bool IsInputString(const std::string* toCompare); // Pointer comparsion
 }
