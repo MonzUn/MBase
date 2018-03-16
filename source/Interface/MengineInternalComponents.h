@@ -14,9 +14,10 @@ namespace MEngine
 	{
 		None = 0,
 
-		Editable = 1 << 0,
-		OverwriteOnDefaultTextMatch = 1 << 1,
-		ResetToDefaultWhenEmpty = 1 << 2,
+		Editable					= 1 << 0,
+		Scrollable					= 1 << 1,
+		OverwriteOnDefaultTextMatch = 1 << 2,
+		ResetToDefaultWhenEmpty		= 1 << 3,
 	};
 
 	// TODODB: Can we hide this using a custom underlying type defined in MUtility?
@@ -74,12 +75,14 @@ namespace MEngine
 	{
 	public:
 		void Destroy() override;
-		MEngineFontID FontID = INVALID_MENGINE_FONT_ID;
-		std::string* Text = nullptr;
-		const std::string* DefaultText = nullptr;
-		TextAlignment Alignment;
-		bool RenderIgnore = false;
-		TextBoxFlags EditFlags = TextBoxFlags::None;
+
+		MEngineFontID FontID			= INVALID_MENGINE_FONT_ID;
+		std::string* Text				= nullptr;
+		const std::string* DefaultText	= nullptr;
+		TextAlignment Alignment			= TextAlignment::BottomLeft;
+		bool RenderIgnore				= false;
+		TextBoxFlags EditFlags			= TextBoxFlags::None;
+		uint32_t ScrolledLinesCount		= 0;
 
 		void StartEditing() const // TODODB: When we can use any parameter for button callbacks; move this to the relevant system instead
 		{

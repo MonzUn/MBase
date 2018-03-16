@@ -510,6 +510,15 @@ void MEngineGraphics::CreateRenderJobs()
 					job->JobMask |= JobTypeMask::TEXT;
 				}
 
+				// Scroll
+				if (textComp->ScrolledLinesCount > 0)
+				{
+					uint32_t scrollHeight = GetLineHeight(textComp->FontID) * textComp->ScrolledLinesCount;
+					job->TextRect.y -= scrollHeight;
+					job->TextRect.h += scrollHeight;
+				}
+
+				// Caret
 				if (IsInputString(textComp->Text))
 				{
 					if ((job->JobMask & JobTypeMask::TEXT) == 0)

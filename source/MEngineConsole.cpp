@@ -232,12 +232,19 @@ void MEngineConsole::Update()
 		if (isActive)
 		{
 			const TextComponent* inputText = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_InputTextboxID));
-			const TextComponent* outputText = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_OutputTextboxID));
+			TextComponent* outputText = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_OutputTextboxID));
+			int32_t initialTextHeight = GetTextHeight(outputText->FontID, outputText->Text->c_str());
+			int32_t initialTextLength = static_cast<int32_t>(outputText->Text->length());
+
+			// Handle commands
 			if (*inputText->Text != "" && IsInputString(inputText->Text) && KeyReleased(MKEY_MAIN_ENTER) || KeyReleased(MKEY_NUMPAD_ENTER))
 			{
 				std::string response;
 				ExecuteCommand(*inputText->Text, &response);
-				*outputText->Text += ">" + *inputText->Text + '\n' + " - " + response + '\n';
+
+				if(!outputText->Text->empty())
+					*outputText->Text += '\n';
+				*outputText->Text += "\n>" + *inputText->Text + '\n' + " - " + response;
 
 				*inputText->Text = "";
 			}
@@ -247,14 +254,23 @@ void MEngineConsole::Update()
 			if (MUtilityLog::FetchUnreadMessages(newMessages))
 				*outputText->Text += newMessages;
 
-			// Keep the output text within the console
-			PosSizeComponent* outputTextPos = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_OutputTextboxID));
-			uint16_t fullTextHeight = GetTextHeight(outputText->FontID, outputText->Text->c_str());
-			int32_t diff = fullTextHeight + outputTextPos->PosY - m_OutputTextBoxOriginalHeight;
-			if (diff > 0)
+			if (outputText->Text->length() > initialTextLength)
 			{
-				outputTextPos->PosY -= diff;
-				outputTextPos->Height += diff;
+				// Move the console along with the output text
+				PosSizeComponent* outputTextPos = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_OutputTextboxID));
+				int32_t AddedTextHeight = GetTextHeight(outputText->FontID, outputText->Text->c_str()) - initialTextHeight;
+				int32_t lineHeight = GetLineHeight(outputText->FontID);
+
+				if (AddedTextHeight > 0)
+				{
+					if (initialTextHeight + AddedTextHeight > outputTextPos->Height)
+					{
+						int32_t leftOverSpace = std::max(outputTextPos->Height - initialTextHeight, 0);
+						int32_t leftOverRows = leftOverSpace / lineHeight;
+						int32_t scrollLines = (AddedTextHeight / lineHeight) - leftOverRows;
+						outputText->ScrolledLinesCount += scrollLines; // TODODB: Make the console only scroll if it's currently bottomed out
+					}
+				}
 			}
 		}
 
@@ -286,7 +302,7 @@ void CreateComponents()
 	RectangleRenderingComponent* background = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_BackgroundID));
 	background->FillColor = ColorData(0, 128, 0, 128);
 
-	m_OutputTextboxID = CreateTextBox(0, 0, fullWidth, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, m_OutputFont, 0U);
+	m_OutputTextboxID = CreateTextBox(0, 0, fullWidth, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, m_OutputFont, 0U, "", TextAlignment::TopLeft, TextBoxFlags::Scrollable);
 	m_InputTextboxID = CreateTextBox(0, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, fullWidth, INPUT_TEXTBOX_HEIGHT, m_InputFont, 0U, "", MEngine::TextAlignment::BottomLeft, TextBoxFlags::Editable, Colors[TRANSPARENT], Colors[BLUE]);
 
 	SetConsoleActive(false);
