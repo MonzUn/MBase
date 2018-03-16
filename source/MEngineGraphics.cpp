@@ -299,7 +299,7 @@ int32_t MEngine::GetWindowHeight()
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
 {
-	m_Window = SDL_CreateWindow(appName, 100, 100, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
+	m_Window = SDL_CreateWindow(appName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
 	if (m_Window == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GRAPHICS);
