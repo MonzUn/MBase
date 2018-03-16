@@ -82,7 +82,6 @@ namespace MEngineGraphics
 		FC_AlignEnum			HorizontalTextAlignment = FC_ALIGN_LEFT;
 		SDL_Rect				TextRect				= {0,0,0,0};
 		int32_t					CaretOffsetX			= -1;
-		int32_t					TextHeight				= -1;
 
 		void CopyText(const char* str)
 		{

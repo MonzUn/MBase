@@ -451,8 +451,9 @@ void MEngineGraphics::CreateRenderJobs()
 					job->FontID = textComp->FontID;
 					job->CopyText(textComp->Text->c_str());
 					job->TextRenderMode = ((posSizeComp->Width > 0 && posSizeComp->Height > 0) ? TextRenderMode::BOX : TextRenderMode::PLAIN);
-					job->TextHeight = GetTextHeight(textComp->FontID, job->Text);
 					job->TextRect = job->DestinationRect;
+
+					int32_t textHeight = GetTextHeight(textComp->FontID, job->Text);
 
 					// Horizontal alignment
 					switch (textComp->Alignment)
@@ -489,14 +490,14 @@ void MEngineGraphics::CreateRenderJobs()
 						case TextAlignment::CenterCentered:
 						case TextAlignment::CenterRight:
 						{
-							job->TextRect.y += (job->DestinationRect.h / 2) - (job->TextHeight / 2);
+							job->TextRect.y += (job->DestinationRect.h / 2) - (textHeight / 2);
 						} break;
 
 						case TextAlignment::BottomLeft:
 						case TextAlignment::BottomCentered:
 						case TextAlignment::BottomRight:
 						{
-							job->TextRect.y += job->DestinationRect.h - job->TextHeight;
+							job->TextRect.y += job->DestinationRect.h - textHeight;
 						} break;
 
 						case TextAlignment::TopLeft:
@@ -512,10 +513,7 @@ void MEngineGraphics::CreateRenderJobs()
 				if (IsInputString(textComp->Text))
 				{
 					if ((job->JobMask & JobTypeMask::TEXT) == 0)
-					{
 						job->FontID = textComp->FontID;
-						job->TextHeight = (*textComp->Text == "" ? GetTextHeight(textComp->FontID, "I") : GetTextHeight(textComp->FontID, job->Text)); // Measure a dummy string if the text is empty
-					}
 
 					// Add caret drawing data
 					const uint64_t caretIndex = GetTextInputCaretIndex();
@@ -600,7 +598,7 @@ void MEngineGraphics::ExecuteRenderJobs()
 		if ((job->JobMask & JobTypeMask::CARET) != 0)
 		{
 			SDL_SetRenderDrawColor(m_Renderer, Colors[BLACK].R, Colors[BLACK].G, Colors[BLACK].B, Colors[BLACK].A); // TODODB: Make this a settable color
-			SDL_RenderDrawLine(m_Renderer, job->DestinationRect.x + job->CaretOffsetX, job->DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job->DestinationRect.x + job->CaretOffsetX, job->DestinationRect.y + job->TextHeight - CARET_HEIGHT_OFFSET_BOTTOM);
+			SDL_RenderDrawLine(m_Renderer, job->DestinationRect.x + job->CaretOffsetX, job->DestinationRect.y + CARET_HEIGHT_OFFSET_TOP, job->DestinationRect.x + job->CaretOffsetX, job->DestinationRect.y + GetLineHeight(job->FontID) - CARET_HEIGHT_OFFSET_BOTTOM);
 		}
 	}
 
