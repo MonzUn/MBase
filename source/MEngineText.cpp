@@ -17,7 +17,6 @@ namespace MEngine
 {
 	std::vector<FC_Font*>*		m_Fonts;
 	MUtility::MUtilityIDBank*	m_FontIDBank;
-	std::vector<int32_t>*		m_LineHeights;
 }
 
 using namespace MEngine;
@@ -41,15 +40,9 @@ MEngineFontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t f
 	{
 		ID = m_FontIDBank->GetID();
 		if (ID == m_FontIDBank->PeekNextID() - 1)
-		{
 			m_Fonts->push_back(font);
-			m_LineHeights->push_back(FC_GetHeight(font, "I"));
-		}
 		else
-		{
 			(*m_Fonts)[ID] = font;
-			(*m_LineHeights)[ID] = FC_GetHeight(font, "I");
-		}
 	}
 
 	return ID;
@@ -68,7 +61,6 @@ bool MEngine::DestroyFont(MEngineFontID ID)
 	{
 		FC_FreeFont((*m_Fonts)[ID]);
 		(*m_Fonts)[ID] = nullptr;
-		(*m_LineHeights)[ID] = -1;
 	}
 	return result;
 }
@@ -103,7 +95,7 @@ int32_t MEngine::GetLineHeight(MEngineFontID ID)
 		return -1;
 	}
 
-	return (*m_LineHeights)[ID];
+	return FC_GetLineHeight((*m_Fonts)[ID]);
 }
 
 bool MEngine::IsFontIDValid(MEngineFontID ID)
@@ -117,7 +109,6 @@ void MEngineText::Initialize()
 {
 	m_Fonts			= new std::vector<FC_Font*>();
 	m_FontIDBank	= new MUtility::MUtilityIDBank();
-	m_LineHeights	= new std::vector<int32_t>();
 }
 
 void MEngineText::Shutdown()
@@ -128,7 +119,6 @@ void MEngineText::Shutdown()
 	}
 	delete m_Fonts;
 	delete m_FontIDBank;
-	delete m_LineHeights;
 }
 
 FC_Font* MEngineText::GetFont(MEngineFontID ID)
