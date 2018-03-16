@@ -16,16 +16,16 @@ using namespace MEngine;
 
 // ---------- FLAGS ----------
 
-TextBoxEditFlags MEngine::operator|(const TextBoxEditFlags& lhs, const TextBoxEditFlags& rhs) { return static_cast<const TextBoxEditFlags>(static_cast<const uint32_t>(lhs) | static_cast<const uint32_t>(rhs)); }
-TextBoxEditFlags MEngine::operator&(const TextBoxEditFlags& lhs, const TextBoxEditFlags& rhs) { return static_cast<const TextBoxEditFlags>(static_cast<const uint32_t>(lhs) & static_cast<const uint32_t>(rhs)); }
-TextBoxEditFlags& MEngine::operator|=(TextBoxEditFlags& lhs, const TextBoxEditFlags& rhs) { return lhs = (lhs | rhs); }
-TextBoxEditFlags& MEngine::operator&=(TextBoxEditFlags& lhs, const TextBoxEditFlags& rhs) { return lhs = (lhs & rhs); }
-bool MEngine::operator==(const TextBoxEditFlags& lhs, const TextBoxEditFlags& rhs) { return static_cast<const uint32_t>(lhs) == static_cast<const uint32_t>(rhs); };
-bool MEngine::operator!=(const TextBoxEditFlags& lhs, const TextBoxEditFlags& rhs) { return static_cast<const uint32_t>(lhs) != static_cast<const uint32_t>(rhs); };
-bool MEngine::operator==(const TextBoxEditFlags& lhs, const uint32_t& rhs) { return static_cast<const uint32_t>(lhs) == rhs; };
-bool MEngine::operator!=(const TextBoxEditFlags& lhs, const uint32_t& rhs) { return static_cast<const uint32_t>(lhs) != rhs; };
-bool MEngine::operator==(const uint32_t& lhs, const TextBoxEditFlags& rhs) { return lhs == static_cast<const uint32_t>(rhs); };
-bool MEngine::operator!=(const uint32_t& lhs, const TextBoxEditFlags& rhs) { return lhs != static_cast<const uint32_t>(rhs); };
+TextBoxFlags MEngine::operator|(const TextBoxFlags& lhs, const TextBoxFlags& rhs) { return static_cast<const TextBoxFlags>(static_cast<const uint32_t>(lhs) | static_cast<const uint32_t>(rhs)); }
+TextBoxFlags MEngine::operator&(const TextBoxFlags& lhs, const TextBoxFlags& rhs) { return static_cast<const TextBoxFlags>(static_cast<const uint32_t>(lhs) & static_cast<const uint32_t>(rhs)); }
+TextBoxFlags& MEngine::operator|=(TextBoxFlags& lhs, const TextBoxFlags& rhs) { return lhs = (lhs | rhs); }
+TextBoxFlags& MEngine::operator&=(TextBoxFlags& lhs, const TextBoxFlags& rhs) { return lhs = (lhs & rhs); }
+bool MEngine::operator==(const TextBoxFlags& lhs, const TextBoxFlags& rhs) { return static_cast<const uint32_t>(lhs) == static_cast<const uint32_t>(rhs); };
+bool MEngine::operator!=(const TextBoxFlags& lhs, const TextBoxFlags& rhs) { return static_cast<const uint32_t>(lhs) != static_cast<const uint32_t>(rhs); };
+bool MEngine::operator==(const TextBoxFlags& lhs, const uint32_t& rhs) { return static_cast<const uint32_t>(lhs) == rhs; };
+bool MEngine::operator!=(const TextBoxFlags& lhs, const uint32_t& rhs) { return static_cast<const uint32_t>(lhs) != rhs; };
+bool MEngine::operator==(const uint32_t& lhs, const TextBoxFlags& rhs) { return lhs == static_cast<const uint32_t>(rhs); };
+bool MEngine::operator!=(const uint32_t& lhs, const TextBoxFlags& rhs) { return lhs != static_cast<const uint32_t>(rhs); };
 
 // ---------- COMPONENTS ----------
 

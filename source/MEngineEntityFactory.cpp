@@ -33,7 +33,7 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 	return ID;
 }
 
-EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, MEngineFontID fontID, uint32_t posZ, const std::string& text, TextAlignment alignment, TextBoxEditFlags editFlags, const ColorData& backgroundColor, const ColorData& borderColor)
+EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, MEngineFontID fontID, uint32_t posZ, const std::string& text, TextAlignment alignment, TextBoxFlags editFlags, const ColorData& backgroundColor, const ColorData& borderColor)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(TEXT_BOX_ENTITY_MASK, ID);
@@ -56,7 +56,7 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 	textComponent->Alignment		= alignment;
 	textComponent->EditFlags		= editFlags;
 
-	if ((editFlags & TextBoxEditFlags::Editable) != 0)
+	if ((editFlags & TextBoxFlags::Editable) != 0)
 	{
 		ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), ID));
 		buttonComponent->Callback = new std::function<void()>(std::bind(&TextComponent::StartEditing, textComponent));
