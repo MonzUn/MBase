@@ -14,6 +14,7 @@ namespace MEngine // TODODB: Create a way to draw text without using the compone
 	// Size is returned as uint16_t, int32_t is used so that -1 can be returned in case of an error
 	int32_t GetTextWidth(MEngineFontID ID, const char* text);
 	int32_t GetTextHeight(MEngineFontID ID, const char* text);
+	int32_t GetLineHeight(MEngineFontID ID);
 
 	bool IsFontIDValid(MEngineFontID ID); // Create a collecttion of these functions in MEngineTypes.h so that host applications can easiliy check the validity of their IDs
 }
