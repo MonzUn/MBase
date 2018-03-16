@@ -13,11 +13,14 @@ namespace MEngine
 	bool KeyUp(MENGINE_KEY key);		// Is the key not pressed down? (Up)
 	bool KeyPressed(MENGINE_KEY key);	// Was the key just pressed down? (Up->Down) 
 	bool KeyReleased(MENGINE_KEY key);	// Was the key just released? (Down->Up)
+	bool ScrolledUp();
+	bool ScrolledDown();
 
 	int32_t GetCursorPosX();
 	int32_t GetCursorPosY();
 	int32_t GetCursorDeltaX();
 	int32_t GetCursorDeltaY();
+	int32_t GetScrollValue();
 
 	uint64_t GetTextInputCaretIndex();
 

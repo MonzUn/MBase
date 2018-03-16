@@ -31,6 +31,8 @@ namespace MEngineInput // TODODB: See if it isn't actually better to use the MEn
 	int32_t m_CursorPosY	= -1;
 	int32_t m_CursorDeltaX	= -1;
 	int32_t m_CursorDeltaY	= -1;
+
+	int32_t m_ScrollValue	= 0;
 }
 
 using namespace MEngine;
@@ -116,6 +118,16 @@ bool MEngine::KeyReleased(MENGINE_KEY key)
 	return (m_PreviouslyPressedKeys[key] && !m_PressedKeys[key]);
 }
 
+bool MEngine::ScrolledUp()
+{
+	return m_ScrollValue > 0;
+}
+
+bool MEngine::ScrolledDown()
+{
+	return m_ScrollValue < 0;
+}
+
 int32_t MEngine::GetCursorPosX()
 {
 	return m_CursorPosX;
@@ -134,6 +146,11 @@ int32_t MEngine::GetCursorDeltaX()
 int32_t MEngine::GetCursorDeltaY()
 {
 	return m_CursorDeltaY;
+}
+
+int32_t MEngine::GetScrollValue()
+{
+	return m_ScrollValue;
 }
 
 uint64_t MEngine::GetTextInputCaretIndex()
@@ -173,8 +190,9 @@ void MEngineInput::Update()
 	if (!m_WindowFocusRequired)
 		memcpy(&m_PressedKeys, &m_PressedKeysBuffer, sizeof(m_PressedKeys));
 
-	m_CursorDeltaX = 0;
-	m_CursorDeltaY = 0;
+	m_CursorDeltaX	= 0;
+	m_CursorDeltaY	= 0;
+	m_ScrollValue	= 0;
 
 	// Make sure that the caret can never be outside the input string
 	if (m_TextInputStringReference != nullptr && m_TextInputCaretIndex >= m_TextInputStringReference->length())
@@ -270,6 +288,13 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 		{
 			m_PressedKeys[MKEY_MOUSE_LEFT + sdlEvent.button.button - 1] = (sdlEvent.button.state == SDL_PRESSED);
 			consumedEvent = true;
+		}
+		// Handle mouse wheel input
+		else if (sdlEvent.type == SDL_MOUSEWHEEL)
+		{
+			m_ScrollValue = sdlEvent.wheel.y;
+			if(sdlEvent.wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
+				m_ScrollValue *= -1;
 		}
 		// Handle keyboard input
 		else if (sdlEvent.type == SDL_KEYDOWN || sdlEvent.type == SDL_KEYUP)
