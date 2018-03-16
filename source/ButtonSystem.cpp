@@ -18,10 +18,12 @@ void ButtonSystem::UpdatePresentationLayer(float deltaTime)
 	for (int i = 0; i < entities.size(); ++i)
 	{
 		bool wasClicked = false;
-		PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
-		ButtonComponent* button = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), entities[i]));
 
-		if (button->Callback != nullptr && cursorPosX >= posSizeComponent->PosX && cursorPosX < posSizeComponent->PosX + posSizeComponent->Width && cursorPosY >= posSizeComponent->PosY && cursorPosY < posSizeComponent->PosY + posSizeComponent->Height)
+		ButtonComponent* button = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), entities[i]));
+		const PosSizeComponent* posSizeComponent = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+
+		button->IsMouseOver = button->IsActive && cursorPosX >= posSizeComponent->PosX && cursorPosX < posSizeComponent->PosX + posSizeComponent->Width && cursorPosY >= posSizeComponent->PosY && cursorPosY < posSizeComponent->PosY + posSizeComponent->Height;
+		if (button->Callback != nullptr && button->IsMouseOver)
 		{
 			// TODODB: Tint the button when it is hovered
 			if (KeyReleased(MKEY_MOUSE_LEFT))

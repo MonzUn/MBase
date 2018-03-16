@@ -63,7 +63,9 @@ namespace MEngine
 	public:
 		void Destroy() override;
 
-		bool IsTriggered = false;
+		bool IsActive		= true;
+		bool IsTriggered	= false;
+		bool IsMouseOver	= false;
 		std::function<void()>* Callback = nullptr; // TODODB: Attempt to make it possible to use any parameters and return type
 	};
 
