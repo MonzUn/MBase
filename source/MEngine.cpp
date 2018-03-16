@@ -13,19 +13,19 @@
 
 namespace MEngine
 {
-	bool m_Initialized = false;
-	bool m_QuitRequested = false;
+	bool m_Initialized		= false;
+	bool m_QuitRequested	= false;
 }
 
 bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
 {
-	assert(!IsInitialized() && "Calling SDLWrapper::Initialize but it has already been initialized");
+	assert(!IsInitialized() && "Calling Initialize after initialization has already been performed");
 
 	MUtilityLog::Initialize();
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
-		MLOG_ERROR("MEngine initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GENERAL);
+		MLOG_ERROR("Initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GENERAL);
 		MUtilityLog::Shutdown();
 		return false;
 	}
@@ -47,7 +47,7 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 
 void MEngine::Shutdown()
 {
-	assert(IsInitialized() && "Calling SDLWrapper::Shutdown but it has not yet been initialized");
+	assert(IsInitialized() && "Calling Shutdown before initialization has been performed");
 
 	MEngineGlobalSystems::Stop();
 
@@ -70,8 +70,7 @@ bool MEngine::ShouldQuit()
 
 void MEngine::Update()
 {
-	MEngineGlobalSystems::Update();
-
+	MEngineGlobalSystems::PreEventUpdate();
 	SDL_Event event;
 	while (SDL_PollEvent(&event) != 0)
 	{
@@ -83,6 +82,7 @@ void MEngine::Update()
 
 		MEngineInput::HandleEvent(event);
 	};
+	MEngineGlobalSystems::PostEventUpdate();
 
 	MEngineSystemManager::Update();
 }

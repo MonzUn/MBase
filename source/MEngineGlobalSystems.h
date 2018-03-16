@@ -40,10 +40,14 @@ namespace MEngineGlobalSystems
 		MEngineGraphics::Shutdown(); // TODODB: Place this where it should be after the initialize has been moved in to Start()
 	}
 
-	void Update()
+	void PreEventUpdate()
 	{
 		MEngineUtility::Update();
 		MEngineInput::Update();
+	}
+
+	void PostEventUpdate()
+	{
 		MEngineConsole::Update();
 	}
 }
