@@ -190,6 +190,7 @@ bool MEngine::SetConsoleActive(bool active)
 	RectangleRenderingComponent* outputTextBackground = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_OutputTextboxID));
 	TextComponent* inputText = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_InputTextboxID));
 	RectangleRenderingComponent* inputTextbackground = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_InputTextboxID));
+	ButtonComponent* inputButton = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), m_InputTextboxID));
 	if (active)
 	{
 		mainBackground->RenderIgnore		= false;
@@ -197,6 +198,7 @@ bool MEngine::SetConsoleActive(bool active)
 		outputTextBackground->RenderIgnore	= false;
 		inputText->RenderIgnore				= false;
 		inputTextbackground->RenderIgnore	= false;
+		inputButton->IsActive				= true;
 		inputText->StartEditing();
 	}
 	else
@@ -206,6 +208,7 @@ bool MEngine::SetConsoleActive(bool active)
 		outputTextBackground->RenderIgnore	= true;
 		inputText->RenderIgnore				= true;
 		inputTextbackground->RenderIgnore	= true;
+		inputButton->IsActive				= false;
 		inputText->StopEditing();
 	}
 	isActive = active;

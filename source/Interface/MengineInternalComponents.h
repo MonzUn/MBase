@@ -40,6 +40,11 @@ namespace MEngine
 		uint32_t	PosZ	= ~0U;
 		int32_t		Width	= 0;
 		int32_t		Height	= 0;
+
+		bool IsMouseOver() const
+		{
+			return GetCursorPosX() >= PosX && GetCursorPosX() < PosX + Width && GetCursorPosY() >= PosY && GetCursorPosY() < PosY + Height;
+		}
 	};
 
 	class RectangleRenderingComponent : public ComponentBase<RectangleRenderingComponent>

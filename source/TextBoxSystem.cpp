@@ -16,12 +16,12 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 	bool anyTextBoxPressed = false;
 	for (int i = 0; i < textBoxEntites.size(); ++i)
 	{
-		ButtonComponent*	buttonComp	= static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
-		TextComponent*		textComp	= static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), textBoxEntites[i]));
-		buttonComp->IsActive = !textComp->RenderIgnore;
-		if (buttonComp->IsMouseOver)
-		{
-			
+		const PosSizeComponent*	posSizeComp	= static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), textBoxEntites[i]));
+		ButtonComponent*		buttonComp	= static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
+		TextComponent*			textComp	= static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), textBoxEntites[i]));
+		
+		if (posSizeComp->IsMouseOver())
+		{	
 			if ((textComp->EditFlags & TextBoxFlags::Scrollable) != 0)
 			{
 				PosSizeComponent* posSizeComp = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), textBoxEntites[i]));
