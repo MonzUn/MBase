@@ -6,8 +6,8 @@
 #define BUTTON_ENTITY_MASK PosSizeComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask()
 #define TEXT_BOX_ENTITY_MASK PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask()
 
-constexpr uint32_t MENGINE_DEFAULT_UI_BUTTON_DEPTH	= 10;
-constexpr uint32_t MENGINE_DEFAULT_UI_TEXTBOX_DEPTH = 9;
+constexpr uint32_t MENGINE_DEFAULT_UI_BUTTON_DEPTH	= 50;
+constexpr uint32_t MENGINE_DEFAULT_UI_TEXTBOX_DEPTH = 25;
 
 const MEngine::TextBoxFlags TEXT_BOX_EDIT_OVERWRITE_RESET_FLAG = (MEngine::TextBoxFlags::Editable | MEngine::TextBoxFlags::OverwriteOnDefaultTextMatch | MEngine::TextBoxFlags::ResetToDefaultWhenEmpty); // TODODB: Why can't this be a constexpr (Causes error: "Expression must have constant value")? Everything seems to be const...
 
