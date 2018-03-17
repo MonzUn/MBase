@@ -1,6 +1,7 @@
 #pragma once
 #include "MEngineSystem.h"
 
+// TODODB: Validate systemID in all functgions using it as parameter
 namespace MEngine
 {
 	constexpr float MENGINE_TIME_STEP_FPS_120	= 0.00833333f;
@@ -13,6 +14,9 @@ namespace MEngine
 
 	SystemID RegisterSystem(System* system);
 	bool UnregisterSystem(SystemID ID);
+
+	void RequestSuspendSystem(SystemID ID);
+	void RequestResumeSystem(SystemID ID);
 
 	GameModeID CreateGameMode(); // TODODB: Make a function for removing game a game mode
 
