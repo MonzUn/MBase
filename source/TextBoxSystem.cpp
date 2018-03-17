@@ -30,7 +30,7 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 				{
 					if (ScrolledUp() && textComp->ScrolledLinesCount > 0)
 						--textComp->ScrolledLinesCount;
-					else if (ScrolledDown() && static_cast<int32_t>(textComp->ScrolledLinesCount) < ((textHeight - posSizeComp->Height) / GetLineHeight(textComp->FontID)))
+					else if (ScrolledDown() && static_cast<int32_t>(textComp->ScrolledLinesCount) < (static_cast<float>((textHeight - posSizeComp->Height)) / GetLineHeight(textComp->FontID)))
 						++textComp->ScrolledLinesCount;
 				}
 			}
