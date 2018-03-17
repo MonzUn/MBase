@@ -5,11 +5,18 @@
 #include <SDL.h>
 #include <atomic>
 
+// TODODB: Use namespace and m_ prefix
+const std::string*	ApplicationName = nullptr;
 const std::string*	ExecutablePath	= nullptr;
 std::atomic<bool>	HasFocus		= false;
 std::atomic<bool>	IsHovered		= false;
 
 // ---------- INTERFACE ----------
+
+const std::string& MEngine::GetApplicationName()
+{
+	return *ApplicationName;
+}
 
 const std::string& MEngine::GetExecutablePath()
 {
@@ -28,8 +35,9 @@ bool MEngine::WindowIsHovered()
 
 // ---------- INTERNAL ----------
 
-void MEngineUtility::Initialize()
+void MEngineUtility::Initialize(const char* applicationName)
 {
+	ApplicationName = new std::string(applicationName);
 	ExecutablePath = new std::string(MUtility::GetExecutableDirectoryPath());
 	HasFocus = SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_INPUT_FOCUS;
 	IsHovered = SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_MOUSE_FOCUS;
@@ -37,6 +45,7 @@ void MEngineUtility::Initialize()
 
 void MEngineUtility::Shutdown()
 {
+	delete ApplicationName;
 	delete ExecutablePath;
 }
 

@@ -13,9 +13,9 @@
 
 namespace MEngineGlobalSystems
 {
-	void Start() // TODODB: Check if any systm can fail to initialize and return bool accordingly (log inside each system's Initialize() function)
+	void Start(const char* applicationName) // TODODB: Check if any system can fail to initialize and return bool accordingly (log inside each system's Initialize() function)
 	{
-		MEngineUtility::Initialize();
+		MEngineUtility::Initialize(applicationName);
 		MEngineEntityManager::Initialize();
 		MEngineComponentManager::Initialize();
 		MEngineInternalComponents::Initialize();

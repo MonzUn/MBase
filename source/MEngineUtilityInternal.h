@@ -2,7 +2,7 @@
 
 namespace MEngineUtility
 {
-	void Initialize();
+	void Initialize(const char* applicationName);
 	void Shutdown();
 	void Update();
 }

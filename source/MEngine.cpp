@@ -19,7 +19,7 @@ namespace MEngine
 	bool m_QuitRequested	= false;
 }
 
-bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
+bool MEngine::Initialize(const char* applicationName, int32_t windowWidth, int32_t windowHeight)
 {
 	assert(!IsInitialized() && "Calling Initialize after initialization has already been performed");
 
@@ -32,14 +32,14 @@ bool MEngine::Initialize(const char* appName, int32_t windowWidth, int32_t windo
 		return false;
 	}
 
-	if (!MEngineGraphics::Initialize(appName, windowWidth, windowHeight)) // TODODB: Make this initialize as all the other internal global systems
+	if (!MEngineGraphics::Initialize(applicationName, windowWidth, windowHeight)) // TODODB: Make this initialize as all the other internal global systems
 	{
 		MLOG_ERROR("Failed to initialize MEngineGraphics", LOG_CATEGORY_GENERAL);
 		MUtilityLog::Shutdown();
 		return false;
 	}
 
-	MEngineGlobalSystems::Start();
+	MEngineGlobalSystems::Start(applicationName);
 
 	MLOG_INFO("MEngine initialized successfully", LOG_CATEGORY_GENERAL);
 
