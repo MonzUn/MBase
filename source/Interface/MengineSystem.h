@@ -9,7 +9,7 @@ namespace MEngine
 	public:
 		virtual ~System() {};
 		virtual void Initialize() {}; // TODODB: Add checks in debug mode to check so that the system is not initialized or shutdown in the wrong state
-		virtual void Shutdown() {}; // TODODB: Make sure that suspension bool is reset
+		virtual void Shutdown() { m_IsSuspended = false; };
 		virtual void Suspend() { m_IsSuspended = true; };
 		virtual void Resume() { m_IsSuspended = false; };
 
