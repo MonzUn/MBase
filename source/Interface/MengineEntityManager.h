@@ -8,6 +8,7 @@
 namespace MEngine
 {
 	// TODODB: Remove "entity" from the getter names (Always need an entityID anyway)
+	// TODODB: Fix stack/heap corruption caused by entities being created but never removed
 	enum class MaskMatchMode
 	{
 		Exact,		// The mask must contain only the components described by the comparison mask
