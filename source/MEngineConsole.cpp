@@ -21,6 +21,7 @@ constexpr int32_t INPUT_TEXTBOX_HEIGHT = 25;
 
 void CreateComponents();
 void DestroyComponents();
+bool ExecuteHelpCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse);
 
 namespace MEngineConsole
 {
@@ -50,6 +51,8 @@ bool MEngine::InitializeConsole(MEngineFontID inputFontID, MEngineFontID outputF
 		m_InputFont			= inputFontID;
 		m_OutputFont		= outputFontID;
 		CreateComponents();
+
+		RegisterCommand("help", MEngineConsoleCallback(ExecuteHelpCommand), "Displays a list of all commands"); // TODODB: Add short and long descriptions and use the short one here
 	}
 	else
 		MLOG_WARNING("Attempted to initialize console multiple times", LOG_CATEGROY_CONSOLE);
@@ -96,6 +99,7 @@ bool MEngine::UnregisterCommand(std::string& commandName)
 void MEngine::UnregisterAllCommands()
 {
 	m_Commands->clear();
+	RegisterCommand("help", MEngineConsoleCallback(ExecuteHelpCommand), "Displays a list of all commands"); // TODODB: Remove this when internal commands are not being cleared when the host application clears all commands
 }
 
 bool MEngine::ExecuteCommand(const std::string& command, std::string* outResponse)
@@ -327,4 +331,34 @@ void DestroyComponents()
 		DestroyEntity(m_OutputTextboxID);
 	if (m_InputTextboxID != INVALID_MENGINE_ENTITY_ID)
 		DestroyEntity(m_InputTextboxID);
+}
+
+bool ExecuteHelpCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse)
+{
+	bool result = false;
+	if (parameterCount == 0)
+	{
+		if (outResponse != nullptr)
+		{
+			if (m_Commands->size() > 0)
+			{
+				*outResponse += "Available commands:\n";
+				for (auto&& nameAndCommandIterator : *m_Commands)
+				{
+					*outResponse += '*' + nameAndCommandIterator.first + '\n';
+				}
+				*outResponse += "\nFor command descriptions; use -h parameter on the desired command";
+			}
+			else
+				*outResponse = "No commands available";
+
+			result = true;
+		}
+		else
+			MLOG_WARNING("Executed \"help\" command using null response string", LOG_CATEGROY_CONSOLE);
+	}
+	else if(outResponse != nullptr)
+		*outResponse = "Wrong number of parameters supplied";
+
+	return result;
 }
