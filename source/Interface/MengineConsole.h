@@ -13,9 +13,20 @@ namespace MEngine
 		Output,
 		Both,
 	};
+
+	struct ConsoleCommand
+	{
+		ConsoleCommand(const std::string& commandName, const MEngineConsoleCallback& callback, const std::string& description)
+			: CommandName(commandName), Callback(callback), Description(description) {}
+
+		std::string CommandName;
+		MEngineConsoleCallback Callback;
+		std::string Description;
+	};
+
 	bool InitializeConsole(MEngineFontID inputFontID, MEngineFontID outputFontID);
 
-	bool RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback);
+	bool RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback, const std::string& description = "");
 	bool UnregisterCommand(std::string& commandName);
 	void UnregisterAllCommands();
 	bool ExecuteCommand(const std::string& command, std::string* outResponse);

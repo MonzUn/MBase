@@ -14,7 +14,7 @@
 
 #define LOG_CATEGROY_CONSOLE "MEngineConsole"
 
-typedef std::unordered_map<std::string, MEngineConsoleCallback> CommandMap;
+typedef std::unordered_map<std::string, MEngine::ConsoleCommand> CommandMap;
 
 constexpr char DELIMITER = ' ';
 constexpr int32_t INPUT_TEXTBOX_HEIGHT = 25;
@@ -57,7 +57,7 @@ bool MEngine::InitializeConsole(MEngineFontID inputFontID, MEngineFontID outputF
 	return result;
 }
 
-bool MEngine::RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback)
+bool MEngine::RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback, const std::string& description)
 {
 	std::string commandNameLower = commandName;
 	std::transform(commandNameLower.begin(), commandNameLower.end(), commandNameLower.begin(), std::tolower);
@@ -70,7 +70,7 @@ bool MEngine::RegisterCommand(const std::string& commandName, MEngineConsoleCall
 	}
 
 	if(result)
-		m_Commands->emplace(commandNameLower, callback);
+		m_Commands->emplace(commandNameLower, ConsoleCommand(commandName, callback, description));
 
 	return result;
 }
@@ -111,13 +111,13 @@ bool MEngine::ExecuteCommand(const std::string& command, std::string* outRespons
 	std::string commandName = ((firstSpacePosition == -1) ? commandLower : commandLower.substr(0, firstSpacePosition));
 
 	bool result = false;
-	auto iterator = m_Commands->find(commandName);
-	if (iterator != m_Commands->end())
+	auto commandIterator = m_Commands->find(commandName);
+	if (commandIterator != m_Commands->end())
 	{
 		// Create parameter list
 		std::string commandParameterString = commandLower.substr(firstSpacePosition + 1); // +1 so that the space doesn't get included in the string
 		int32_t parameterCount = static_cast<int32_t>(std::count(commandLower.begin(), commandLower.end(), DELIMITER));
-
+	
 		std::string* parameters = ((parameterCount > 0) ? new std::string[parameterCount] : nullptr);
 		int32_t offset = firstSpacePosition;
 		for (int i = 0; i < parameterCount; ++i)
@@ -126,8 +126,16 @@ bool MEngine::ExecuteCommand(const std::string& command, std::string* outRespons
 			offset = static_cast<int32_t>(commandParameterString.find_first_of(DELIMITER, offset));
 		}
 
-		// Execute
-		result = iterator->second(parameters, parameterCount, outResponse);
+		if (parameterCount == 1 && (parameters[0] == "h" || parameters[0] == "-h" || parameters[0] == "-help" || parameters[0] == "help")) // TODODB: Add support for - and -- for paramters
+		{
+			if(outResponse != nullptr)
+				*outResponse = commandIterator->second.Description;
+			else
+				MLOG_WARNING("Attempted to get description of command \"" << commandName << "\" but the response string was null", LOG_CATEGROY_CONSOLE);
+		}
+		else // Execute command
+			result = commandIterator->second.Callback(parameters, parameterCount, outResponse);
+
 		delete[] parameters;
 	}
 	else if(outResponse != nullptr)
