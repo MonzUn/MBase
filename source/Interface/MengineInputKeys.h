@@ -89,6 +89,8 @@ enum MENGINE_KEY // Names are based on US keyboard layout (101)
 	//MKEY_CONTROL,
 
 	// Special
+	MKEY_SPACE,
+	MKEY_BACKSPACE,
 	MKEY_TAB,
 	MKEY_GRAVE,
 	MKEY_CAPS_LOCK,
