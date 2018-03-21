@@ -59,7 +59,7 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 	if ((editFlags & TextBoxFlags::Editable) != 0)
 	{
 		ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), ID));
-		buttonComponent->Callback = new std::function<void()>(std::bind(&TextComponent::StartEditing, textComponent));
+		buttonComponent->Callback = new std::function<void()>(std::bind(&TextComponent::StartEditing, *textComponent));
 	}
 
 	return ID;
