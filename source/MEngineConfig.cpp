@@ -130,7 +130,7 @@ void Config::SetBool(const std::string& key, bool value)
 
 void Config::SetString(const std::string& key, const std::string& value)
 {
-	char* newString = static_cast<char*>(malloc(key.size() + 1)); // +1 for null terminator
+	char* newString = static_cast<char*>(malloc(value.size() + 1)); // +1 for null terminator
 	strcpy(newString, value.c_str());
 
 	std::string keyCopy = key;
