@@ -20,4 +20,10 @@ namespace MEngine
 	EntityID CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, MEngineFontID fontID, uint32_t posZ = MENGINE_DEFAULT_UI_TEXTBOX_DEPTH,
 		const std::string& text = "", TextAlignment alignment = TextAlignment::CenterLeft, TextBoxFlags editFlags = TextBoxFlags::None, const ColorData& backgroundColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT],
 		const ColorData& borderColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT]);
+
+	bool ShowButton(EntityID ID);
+	bool HideButton(EntityID ID);
+	
+	bool ShowTextBox(EntityID ID);
+	bool HideTextBox(EntityID ID);
 }
