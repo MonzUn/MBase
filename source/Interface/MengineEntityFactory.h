@@ -3,8 +3,8 @@
 #include "MEngineTypes.h"
 #include "MEngineInternalComponents.h"
 
-#define BUTTON_ENTITY_MASK PosSizeComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask()
-#define TEXT_BOX_ENTITY_MASK PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask()
+#define BUTTON_ENTITY_MASK (PosSizeComponent::GetComponentMask() | TextureRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask())
+#define TEXT_BOX_ENTITY_MASK (PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask() | ButtonComponent::GetComponentMask() | TextComponent::GetComponentMask())
 
 constexpr uint32_t MENGINE_DEFAULT_UI_BUTTON_DEPTH	= 50;
 constexpr uint32_t MENGINE_DEFAULT_UI_TEXTBOX_DEPTH = 25;
