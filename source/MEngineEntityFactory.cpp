@@ -68,6 +68,7 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 	return ID;
 }
 
+// TODODB: If a button is inactive -> gets hidden -> gets shown; the button will no longer be inactive. Needs a fix
 bool MEngine::ShowButton(EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
@@ -77,12 +78,15 @@ bool MEngine::ShowButton(EntityID ID)
 		return false;
 	}
 #endif
+	TextureRenderingComponent* textureComp = static_cast<TextureRenderingComponent*>(MEngine::GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID));
+	if (textureComp->RenderIgnore)
+	{
+		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
+		static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = false;
+		textureComp->RenderIgnore = false;
+	}
 
-	static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
-	static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = false;
-	static_cast<TextureRenderingComponent*>(MEngine::GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID))->RenderIgnore = false;
-
-	return true;
+	return !textureComp->RenderIgnore;
 }
 
 bool MEngine::HideButton(EntityID ID)
@@ -94,12 +98,14 @@ bool MEngine::HideButton(EntityID ID)
 		return false;
 	}
 #endif
-
-	static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
-	static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = true;
-	static_cast<TextureRenderingComponent*>(MEngine::GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID))->RenderIgnore = true;
-
-	return true;
+	TextureRenderingComponent* textureComp = static_cast<TextureRenderingComponent*>(MEngine::GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID));
+	if (!textureComp->RenderIgnore)
+	{
+		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
+		static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = true;
+		textureComp->RenderIgnore = true;
+	}
+	return textureComp->RenderIgnore;
 }
 
 bool MEngine::ShowTextBox(EntityID ID)
@@ -111,12 +117,14 @@ bool MEngine::ShowTextBox(EntityID ID)
 		return false;
 	}
 #endif
-
-	static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = false;
-	static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
-	static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = false;
-
-	return true;
+	TextComponent* textComp = static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID));
+	if (textComp->RenderIgnore)
+	{
+		textComp->RenderIgnore = false;
+		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
+		static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = false;
+	}
+	return !textComp->RenderIgnore;
 }
 
 bool MEngine::HideTextBox(EntityID ID)
@@ -129,9 +137,12 @@ bool MEngine::HideTextBox(EntityID ID)
 	}
 #endif
 
-	static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = true;
-	static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
-	static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = true;
-
-	return true;
+	TextComponent* textComp = static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID));
+	if (!textComp->RenderIgnore)
+	{
+		textComp->RenderIgnore = true;
+		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
+		static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = true;
+	}
+	return textComp->RenderIgnore;
 }
