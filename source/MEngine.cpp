@@ -23,12 +23,11 @@ bool MEngine::Initialize(const char* applicationName, int32_t windowWidth, int32
 {
 	assert(!IsInitialized() && "Calling Initialize after initialization has already been performed");
 
-	MUtilityLog::Initialize();
+	assert(MUtilityLog::IsInitialized() && "MutilityLog has not been initialized; call MUtilityLog::Initialize before MEngine::Initialize");
 
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 	{
 		MLOG_ERROR("Initialization failed; SDL_Init Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GENERAL);
-		MUtilityLog::Shutdown();
 		return false;
 	}
 
@@ -57,7 +56,6 @@ void MEngine::Shutdown()
 	SDL_Quit();
 
 	MLOG_INFO("MEngine terminated gracefully", LOG_CATEGORY_GENERAL);
-	MUtilityLog::Shutdown();
 }
 
 bool MEngine::IsInitialized()
