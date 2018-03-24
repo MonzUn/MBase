@@ -23,9 +23,12 @@ void CreateComponents();
 void DestroyComponents();
 bool ExecuteHelpCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse);
 
-namespace MEngineConsole
+namespace MEngine
 {
-	CommandMap* m_Commands = nullptr;
+	CommandMap*	 m_Commands				= nullptr;
+	std::string* m_StoredLogMessages	= nullptr;
+	std::string* m_CommandLog			= nullptr;
+	uint64_t m_CommandLogLastReadIndex	= 0;
 	MEngine::EntityID m_BackgroundID	= INVALID_MENGINE_ENTITY_ID;
 	MEngine::EntityID m_OutputTextboxID	= INVALID_MENGINE_ENTITY_ID;
 	MEngine::EntityID m_InputTextboxID	= INVALID_MENGINE_ENTITY_ID;
@@ -148,7 +151,22 @@ bool MEngine::ExecuteCommand(const std::string& command, std::string* outRespons
 	return result;
 }
 
-bool MEngine::SetFont(MEngineFontID ID, ConsoleFont fontToSet)
+void MEngine::MarkCommandLogRead()
+{
+	m_CommandLogLastReadIndex = m_CommandLog->empty() ? 0 : m_CommandLog->size() - 1; // -1 for conversion to index from size
+}
+
+std::string MEngine::GetFullCommandLog()
+{
+	return *m_CommandLog;
+}
+
+std::string MEngine::GetUnreadCommandLog()
+{
+	return m_CommandLog->substr(m_CommandLogLastReadIndex);
+}
+
+bool MEngine::SetConsoleFont(MEngineFontID ID, ConsoleFont fontToSet)
 {
 	if (!m_InitializedByHost)
 	{
@@ -232,11 +250,15 @@ bool MEngine::SetConsoleActive(bool active)
 void MEngineConsole::Initialize()
 {
 	m_Commands = new CommandMap();
+	m_StoredLogMessages = new std::string();
+	m_CommandLog = new std::string();
 }
 
 void MEngineConsole::shutdown()
 {
 	delete m_Commands;
+	delete m_StoredLogMessages;
+	delete m_CommandLog;
 	DestroyComponents();
 }
 
@@ -244,6 +266,9 @@ void MEngineConsole::Update()
 {
 	if (m_InitializedByHost)
 	{
+		// Sore new log messages for the next time the console is opened
+		MUtilityLog::GetUnreadMessages(*m_StoredLogMessages);
+			
 		if (isActive)
 		{
 			const TextComponent* inputText = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_InputTextboxID));
@@ -256,18 +281,20 @@ void MEngineConsole::Update()
 			{
 				std::string response;
 				ExecuteCommand(*inputText->Text, &response);
+				*m_StoredLogMessages += *inputText->Text;
+				*m_StoredLogMessages += response;
 
-				if(!outputText->Text->empty())
-					*outputText->Text += '\n';
-				*outputText->Text += "\n>" + *inputText->Text + '\n' + " - " + response;
+				std::string addition;
+				if (!outputText->Text->empty())
+					addition += '\n';
+				addition += "\n>" + *inputText->Text + '\n' + " - " + response;
+				*outputText->Text += addition;
+				*m_CommandLog += addition;
 
 				*inputText->Text = "";
 			}
 
-			// Write new log messages
-			std::string newMessages;
-			if (MUtilityLog::FetchUnreadMessages(newMessages))
-				*outputText->Text += newMessages;
+			*outputText->Text += *m_StoredLogMessages;
 
 			if (outputText->Text->length() > initialTextLength)
 			{
@@ -287,6 +314,7 @@ void MEngineConsole::Update()
 					}
 				}
 			}
+			*m_StoredLogMessages = "";
 		}
 
 		// TODODB: This comma gets placed in the input string if the textbox is taking input; fix that

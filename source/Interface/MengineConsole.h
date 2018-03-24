@@ -30,7 +30,11 @@ namespace MEngine
 	bool UnregisterCommand(std::string& commandName);
 	void UnregisterAllCommands();
 	bool ExecuteCommand(const std::string& command, std::string* outResponse);
+	void MarkCommandLogRead();
 
-	bool SetFont(MEngineFontID ID, ConsoleFont fontToSet = ConsoleFont::Both);
+	std::string GetFullCommandLog();
+	std::string GetUnreadCommandLog();
+
+	bool SetConsoleFont(MEngineFontID ID, ConsoleFont fontToSet = ConsoleFont::Both);
 	bool SetConsoleActive(bool active);
 }
