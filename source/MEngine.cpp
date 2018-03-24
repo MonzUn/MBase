@@ -83,7 +83,11 @@ void MEngine::Update()
 		MEngineInput::HandleEvent(event);
 	};
 	MEngineGlobalSystems::PostEventUpdate();
+
+	MEngineGlobalSystems::PreSystemsUpdate();
 	MEngineSystemManager::Update();
+	MEngineGlobalSystems::PostSystemsUpdate();
+
 	MUtilityLog::ClearUnreadMessages();
 }
 

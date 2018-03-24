@@ -48,6 +48,16 @@ namespace MEngineGlobalSystems
 
 	void PostEventUpdate()
 	{
+		
+	}
+
+	void PreSystemsUpdate()
+	{
+
+	}
+
+	void PostSystemsUpdate()
+	{
 		MEngineConsole::Update();
 	}
 }
