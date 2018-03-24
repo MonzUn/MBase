@@ -261,7 +261,7 @@ uint32_t MEngineEntityManager::CalcComponentIndiceListIndex(ComponentMask entity
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if(MUtility::PopCount(componentType) != 1)
-		MLOG_ERROR("A component meask containing more or less than i set bit was supplied; only the highest set bit will be considered", LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_ERROR("A component meask containing more or less than 1 set bit was supplied; only the highest set bit will be considered", LOG_CATEGORY_ENTITY_MANAGER);
 #endif
 	
 	uint32_t componentTypeBitIndex = MUtilityMath::FastLog2(componentType); // Find the index of the bit signifying the component type

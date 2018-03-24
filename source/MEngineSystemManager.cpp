@@ -312,7 +312,9 @@ void ChangeToRequestedGameMode()
 		{
 			for (int i = 0; i < currentSystems.size(); ++i)
 			{
-				(*m_Systems)[currentSystems[i].first]->Shutdown();
+				System* system = (*m_Systems)[currentSystems[i].first];
+				if((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(currentSystems[i].first, m_RequestedGameMode))
+					system->Shutdown();
 			}
 		}
 	}
@@ -321,7 +323,9 @@ void ChangeToRequestedGameMode()
 	const GameModeSystemList& newSystems = (*m_GameModes)[m_RequestedGameMode];
 	for (int i = 0; i < newSystems.size(); ++i)
 	{
-		(*m_Systems)[newSystems[i].first]->Initialize();
+		System* system = (*m_Systems)[newSystems[i].first];
+		if ((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(newSystems[i].first, m_RequestedGameMode))
+			system->Initialize();
 	}
 	m_ActiveGameMode = m_RequestedGameMode;
 	m_RequestedGameMode = INVALID_MENGINE_GAME_MODE_ID;
