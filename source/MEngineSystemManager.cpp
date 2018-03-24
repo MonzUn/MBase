@@ -206,6 +206,21 @@ bool MEngine::RequestGameModeChange(GameModeID newGameModeID)
 	return true;
 }
 
+bool MEngine::IsSystemInGameMode(SystemID systemID, GameModeID gameModeID)
+{
+	bool result = false;
+	for (int k = 0; k < m_GameModes[gameModeID].size(); ++k)
+	{
+		if ((*m_GameModes)[gameModeID][k].first == systemID)
+		{
+			result = true;
+			break;
+		}
+	}
+
+	return result;
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineSystemManager::Initialize()
