@@ -7,6 +7,7 @@
 #include "Interface/MEngineInput.h"
 #include "Interface/MEngineText.h"
 #include "Interface/MEngineTypes.h"
+#include "Interface/MengineUtility.h"
 #include <MUtilityLog.h>
 #include <algorithm>
 #include <cctype>
@@ -318,7 +319,7 @@ void MEngineConsole::Update()
 		}
 
 		// TODODB: This comma gets placed in the input string if the textbox is taking input; fix that
-		if (KeyReleased(MKEY_NUMPAD_COMMA)) // TODODB: Check against some action here when such a system has been built 
+		if (KeyReleased(MKEY_GRAVE) && WindowHasFocus()) // TODODB: Check against some action here when such a system has been built 
 			SetConsoleActive(!isActive);
 	}
 }
