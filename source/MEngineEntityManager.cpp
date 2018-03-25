@@ -157,7 +157,7 @@ void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<E
 		}
 
 		if (isMatch)
-			outEntities.push_back(i);	
+			outEntities.push_back((*m_Entities)[i]);	
 	}
 }
 
