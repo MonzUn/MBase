@@ -12,12 +12,11 @@ using namespace MEngine;
 void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 {
 	std::vector<EntityID> textBoxEntites;
-	GetEntitiesMatchingMask(TEXT_BOX_ENTITY_MASK, textBoxEntites, MaskMatchMode::Exact);
+	GetEntitiesMatchingMask(TEXT_BOX_ENTITY_MASK, textBoxEntites);
 	bool anyTextBoxPressed = false;
 	for (int i = 0; i < textBoxEntites.size(); ++i)
 	{
 		const PosSizeComponent*	posSizeComp	= static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), textBoxEntites[i]));
-		ButtonComponent*		buttonComp	= static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
 		TextComponent*			textComp	= static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), textBoxEntites[i]));
 		
 		if (posSizeComp->IsMouseOver())
@@ -35,10 +34,14 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 				}
 			}
 
-			if (buttonComp->IsTriggered)
+			if ((textComp->EditFlags & TextBoxFlags::Editable) != 0)
 			{
-				anyTextBoxPressed = true;
-				break;
+				const ButtonComponent* buttonComp = static_cast<const ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
+				if (buttonComp->IsTriggered)
+				{
+					anyTextBoxPressed = true;
+					break;
+				}
 			}
 		}
 	}

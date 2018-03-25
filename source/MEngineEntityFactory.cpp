@@ -39,7 +39,8 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, MEngineFontID fontID, uint32_t posZ, const std::string& text, TextAlignment alignment, TextBoxFlags editFlags, const ColorData& backgroundColor, const ColorData& borderColor)
 {
 	EntityID ID = CreateEntity();
-	AddComponentsToEntity(TEXT_BOX_ENTITY_MASK, ID);
+	ComponentMask entityMask = (editFlags & TextBoxFlags::Editable) != 0 ? TEXT_BOX_EDITABLE_ENTITY_MASK : TEXT_BOX_ENTITY_MASK;
+	AddComponentsToEntity(entityMask, ID);
 
 	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), ID));
 	posSizeComponent->PosX		= posX;
@@ -111,7 +112,7 @@ bool MEngine::HideButton(EntityID ID)
 bool MEngine::ShowTextBox(EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if ((GetComponentMask(ID) & TEXT_BOX_ENTITY_MASK) != TEXT_BOX_ENTITY_MASK)
+	if ((GetComponentMask(ID) & TEXT_BOX_EDITABLE_ENTITY_MASK) != TEXT_BOX_EDITABLE_ENTITY_MASK && (GetComponentMask(ID) & TEXT_BOX_ENTITY_MASK) != TEXT_BOX_ENTITY_MASK)
 	{
 		MLOG_WARNING("Attempted to hide text box using an EntityID not belonging to a text box entity", LOG_CATEGORY_ENTITY_FACTORY);
 		return false;
@@ -121,8 +122,9 @@ bool MEngine::ShowTextBox(EntityID ID)
 	if (textComp->RenderIgnore)
 	{
 		textComp->RenderIgnore = false;
-		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
 		static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = false;
+		if ((GetComponentMask(ID) & TEXT_BOX_EDITABLE_ENTITY_MASK) == TEXT_BOX_EDITABLE_ENTITY_MASK)
+			static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
 	}
 	return !textComp->RenderIgnore;
 }
@@ -130,7 +132,7 @@ bool MEngine::ShowTextBox(EntityID ID)
 bool MEngine::HideTextBox(EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if ((GetComponentMask(ID) & TEXT_BOX_ENTITY_MASK) != TEXT_BOX_ENTITY_MASK)
+	if ((GetComponentMask(ID) & TEXT_BOX_EDITABLE_ENTITY_MASK) != TEXT_BOX_EDITABLE_ENTITY_MASK && (GetComponentMask(ID) & TEXT_BOX_ENTITY_MASK) != TEXT_BOX_ENTITY_MASK)
 	{
 		MLOG_WARNING("Attempted to show text box using an EntityID not belonging to a text box entity", LOG_CATEGORY_ENTITY_FACTORY);
 		return false;
@@ -141,8 +143,9 @@ bool MEngine::HideTextBox(EntityID ID)
 	if (!textComp->RenderIgnore)
 	{
 		textComp->RenderIgnore = true;
-		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
 		static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = true;
+		if ((GetComponentMask(ID) & TEXT_BOX_EDITABLE_ENTITY_MASK) == TEXT_BOX_EDITABLE_ENTITY_MASK)
+			static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
 	}
 	return textComp->RenderIgnore;
 }
