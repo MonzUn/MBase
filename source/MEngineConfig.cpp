@@ -1,5 +1,6 @@
 #include "Interface/MEngineConfig.h"
 #include "MEngineConfigInternal.h"
+#include "Interface/MengineSettings.h"
 #include "Interface/MEngineUtility.h"
 #include <MUtilityFile.h>
 #include <MUtilityLog.h>
@@ -210,13 +211,15 @@ void Config::ReadConfigFile()
 {
 	if (!MUtility::DirectoryExists(m_ConfigDirectoryPath->c_str()))
 	{
-		MLOG_WARNING("Config file directory does not exist; Path = " << m_ConfigDirectoryPath, LOG_CATEGORY_CONFIG);
+		if(Settings::HighLogLevel)
+			MLOG_WARNING("Config file directory does not exist; Path = " << m_ConfigDirectoryPath->c_str(), LOG_CATEGORY_CONFIG);
 		return;
 	}
 
 	if (!MUtility::FileExists(m_ConfigFilePath->c_str()))
 	{
-		MLOG_WARNING("Config file does not exist; Path = " << m_ConfigFilePath, LOG_CATEGORY_CONFIG);
+		if (Settings::HighLogLevel)
+			MLOG_WARNING("Config file does not exist; Path = " << m_ConfigFilePath->c_str(), LOG_CATEGORY_CONFIG);
 		return;
 	}
 
