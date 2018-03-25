@@ -248,6 +248,13 @@ void MEngineSystemManager::Shutdown()
 	delete m_GameModes;
 	delete m_GameModeIDBank;
 
+	for (int i = 0; i < m_InternalSystemList->size(); ++i)
+	{
+		(*m_Systems)[(*m_InternalSystemList)[i]]->Shutdown();
+	}
+	delete m_InternalSystemList;
+	delete m_InternalSystemPriorities;
+
 	for (auto& system : *m_Systems)
 	{
 		delete system;
@@ -257,13 +264,6 @@ void MEngineSystemManager::Shutdown()
 	delete m_SystemIDBank;
 
 	delete m_SuspendResumeRequests;
-
-	for(int i = 0; i < m_InternalSystemList->size(); ++i)
-	{
-		UnregisterSystem((*m_InternalSystemList)[i]);
-	}
-	delete m_InternalSystemList;
-	delete m_InternalSystemPriorities;
 }
 
 void MEngineSystemManager::Update()
