@@ -164,7 +164,7 @@ std::string MEngine::GetFullCommandLog()
 
 std::string MEngine::GetUnreadCommandLog()
 {
-	return m_CommandLog->substr(m_CommandLogLastReadIndex);
+	return m_CommandLogLastReadIndex < (m_CommandLog->size() - 1) ? m_CommandLog->substr(m_CommandLogLastReadIndex) : "";
 }
 
 bool MEngine::SetConsoleFont(MEngineFontID ID, ConsoleFont fontToSet)
