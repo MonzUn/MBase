@@ -10,7 +10,7 @@
 
 namespace MEngine
 {
-	enum class TextBoxFlags : uint32_t
+	enum class TextBoxFlags : MUtility::BitSet
 	{
 		None = 0,
 
@@ -19,18 +19,7 @@ namespace MEngine
 		OverwriteOnDefaultTextMatch = 1 << 2,
 		ResetToDefaultWhenEmpty		= 1 << 3,
 	};
-
-	// TODODB: Can we hide this using a custom underlying type defined in MUtility?
-	TextBoxFlags operator|(const TextBoxFlags& lhs, const TextBoxFlags& rhs);
-	TextBoxFlags operator&(const TextBoxFlags& lhs, const TextBoxFlags& rhs);
-	TextBoxFlags& operator|=(TextBoxFlags& lhs, const TextBoxFlags& rhs);
-	TextBoxFlags& operator&=(TextBoxFlags& lhs, const TextBoxFlags& rhs);
-	bool operator==(const TextBoxFlags& lhs, const TextBoxFlags& rhs);
-	bool operator!=(const TextBoxFlags& lhs, const TextBoxFlags& rhs);
-	bool operator==(const TextBoxFlags& lhs, const uint32_t& rhs);
-	bool operator!=(const TextBoxFlags& lhs, const uint32_t& rhs);
-	bool operator==(const uint32_t& lhs, const TextBoxFlags& rhs);
-	bool operator!=(const uint32_t& lhs, const TextBoxFlags& rhs);
+	CREATE_BITFLAG_OPERATOR_SIGNATURES(TextBoxFlags);
 
 	class PosSizeComponent : public ComponentBase<PosSizeComponent>
 	{

@@ -2,6 +2,7 @@
 #include "Interface/MEngineSettings.h"
 #include "MEngineEntityManagerInternal.h"
 #include "MEngineComponentManagerInternal.h"
+#include <MUtilityBitset.h>
 #include <MUtilityIDBank.h>
 #include <MUtilityIntrinsics.h>
 #include <MUtilityLog.h>

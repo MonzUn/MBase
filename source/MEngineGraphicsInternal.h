@@ -2,6 +2,7 @@
 #include "Interface/MEngineGraphics.h"
 #include "Interface/MEngineColor.h"
 #include "Interface/MEngineTypes.h"
+#include <MUtilityBitset.h>
 #include <SDL.h>
 #include <SDL_FontCache.h>
 
@@ -9,16 +10,17 @@ struct SurfaceToTextureJob;
 
 namespace MEngineGraphics
 {
-	enum JobTypeMask : uint32_t
+	enum class JobTypeMask : MUtility::BitSet
 	{
-		INVALID		= 0,
+		INVALID	= 0,
 
 		RECTANGLE	= 1 << 0,
 		TEXTURE		= 1 << 1,
 		TEXT		= 1 << 2,
 		CARET		= 1 << 3,
 	};
-
+	CREATE_BITFLAG_OPERATOR_SIGNATURES(JobTypeMask);
+	
 	enum class TextRenderMode
 	{
 		PLAIN,
@@ -26,11 +28,6 @@ namespace MEngineGraphics
 
 		INVALID,
 	};
-
-	inline JobTypeMask& operator |=(JobTypeMask& a, JobTypeMask b)
-	{
-		return a = static_cast<JobTypeMask>(static_cast<uint32_t>(a) | static_cast<uint32_t>(b));
-	}
 
 	struct MEngineTexture
 	{

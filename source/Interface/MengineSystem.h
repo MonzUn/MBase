@@ -1,14 +1,16 @@
 #pragma once
 #include "MEngineTypes.h"
+#include <MUtilityBitset.h>
 #include <stdint.h>
 
 namespace MEngine
 {
-	enum SystemSettings : uint32_t // TODODB: Make enum class for type safety
+	enum class SystemSettings : MUtility::BitSet
 	{
 		NONE = 0,
 		NO_TRANSITION_RESET = 1 << 0,
 	};
+	CREATE_BITFLAG_OPERATOR_SIGNATURES(SystemSettings);
 
 	class System
 	{

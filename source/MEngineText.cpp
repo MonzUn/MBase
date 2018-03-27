@@ -39,7 +39,7 @@ MEngineFontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t f
 	if (font != nullptr)
 	{
 		ID = m_FontIDBank->GetID();
-		if (ID == m_FontIDBank->PeekNextID() - 1)
+		if (m_FontIDBank->IsIDLast(ID))
 			m_Fonts->push_back(font);
 		else
 			(*m_Fonts)[ID] = font;

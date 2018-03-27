@@ -136,7 +136,7 @@ void MEngine::RequestResumeSystem(SystemID ID)
 GameModeID MEngine::CreateGameMode()
 {
 	GameModeID gameModeID = m_GameModeIDBank->GetID();
-	if (gameModeID == m_GameModeIDBank->PeekNextID() - 1)
+	if (m_GameModeIDBank->IsIDLast(gameModeID))
 		m_GameModes->emplace_back(GameModeSystemList());
 	else
 		m_GameModes->emplace(m_GameModes->begin() + gameModeID, GameModeSystemList());
