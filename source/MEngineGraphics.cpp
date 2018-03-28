@@ -42,9 +42,9 @@ namespace MEngineGraphics
 	int32_t m_WindowWidth	= -1;
 	int32_t m_WindowHeight	= -1;
 
-	std::vector<RenderJob*>* m_RenderJobs; // TODODB: Use a frame allocator so that we don't lose performance on all the "new" calls
-	std::vector<MEngineTexture*>* m_Textures;
-	MUtility::MUtilityIDBank* m_IDBank; // TODODB: Rename to textureIDBank
+	std::vector<RenderJob*>*		m_RenderJobs; // TODODB: Use a frame allocator so that we don't lose performance on all the calls to "new"
+	std::vector<MEngineTexture*>*	m_Textures;
+	MUtility::MUtilityIDBank*		m_TextureIDBank;
 	std::unordered_map<std::string, MEngine::TextureID>* m_PathToIDMap;
 	std::mutex m_PathToIDLock;
 	MUtility::LocklessQueue<SurfaceToTextureJob*>* m_SurfaceToTextureQueue;
@@ -95,11 +95,11 @@ void MEngine::UnloadTexture(TextureID textureID)
 	{
 		delete texture;
 		texture = nullptr;
-		m_IDBank->ReturnID(textureID);
+		m_TextureIDBank->ReturnID(textureID);
 	}
 	else
 	{
-		if (m_IDBank->IsIDRecycled(textureID))
+		if (m_TextureIDBank->IsIDRecycled(textureID))
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", LOG_CATEGORY_GRAPHICS);
 		else
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", LOG_CATEGORY_GRAPHICS);
@@ -318,7 +318,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 
 	m_RenderJobs			= new std::vector<RenderJob*>();
 	m_Textures				= new std::vector<MEngineTexture*>();
-	m_IDBank				= new MUtility::MUtilityIDBank();
+	m_TextureIDBank				= new MUtility::MUtilityIDBank();
 	m_PathToIDMap			= new std::unordered_map<std::string, TextureID>();
 	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
 
@@ -335,7 +335,7 @@ void MEngineGraphics::Shutdown()
 	}
 	delete m_Textures;
 
-	delete m_IDBank;
+	delete m_TextureIDBank;
 	delete m_PathToIDMap;
 	delete m_SurfaceToTextureQueue;
 }
@@ -367,7 +367,7 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 
 TextureID MEngineGraphics::GetNextTextureID()
 {
-	return m_IDBank->GetID();
+	return m_TextureIDBank->GetID();
 }
 
 SDL_Renderer* MEngineGraphics::GetRenderer()
