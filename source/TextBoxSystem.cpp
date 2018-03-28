@@ -16,14 +16,14 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 	bool anyTextBoxPressed = false;
 	for (int i = 0; i < textBoxEntites.size(); ++i)
 	{
-		const PosSizeComponent*	posSizeComp	= static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), textBoxEntites[i]));
-		TextComponent*			textComp	= static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), textBoxEntites[i]));
+		const PosSizeComponent*	posSizeComp	= static_cast<const PosSizeComponent*>(GetComponent(textBoxEntites[i], PosSizeComponent::GetComponentMask()));
+		TextComponent*			textComp	= static_cast<TextComponent*>(GetComponent(textBoxEntites[i], TextComponent::GetComponentMask()));
 		
 		if (posSizeComp->IsMouseOver())
 		{	
 			if ((textComp->EditFlags & TextBoxFlags::Scrollable) != 0)
 			{
-				PosSizeComponent* posSizeComp = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), textBoxEntites[i]));
+				PosSizeComponent* posSizeComp = static_cast<PosSizeComponent*>(GetComponent(textBoxEntites[i], PosSizeComponent::GetComponentMask()));
 				int32_t textHeight = GetTextHeight(textComp->FontID, textComp->Text->c_str());
 				if (textHeight > posSizeComp->Height)
 				{
@@ -36,7 +36,7 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 
 			if ((textComp->EditFlags & TextBoxFlags::Editable) != 0)
 			{
-				const ButtonComponent* buttonComp = static_cast<const ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), textBoxEntites[i]));
+				const ButtonComponent* buttonComp = static_cast<const ButtonComponent*>(GetComponent(textBoxEntites[i], ButtonComponent::GetComponentMask()));
 				if (buttonComp->IsTriggered)
 				{
 					anyTextBoxPressed = true;
@@ -50,7 +50,7 @@ void TextBoxSystem::UpdatePresentationLayer(float deltaTime)
 	{
 		for (int i = 0; i < textBoxEntites.size(); ++i)
 		{
-			TextComponent* textComp = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), textBoxEntites[i]));
+			TextComponent* textComp = static_cast<TextComponent*>(GetComponent(textBoxEntites[i], TextComponent::GetComponentMask()));
 			if (IsInputString(textComp->Text))
 			{
 				textComp->StopEditing(); // TODODB: Fix issue that StopEditing isn't executed for the text box being inactivated when pressing anohter textbox

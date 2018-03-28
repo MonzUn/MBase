@@ -404,7 +404,7 @@ void MEngineGraphics::CreateRenderJobs()
 	{
 		RenderJob* job = new RenderJob();
 		ComponentMask entityComponentMask = GetComponentMask(entities[i]);
-		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponent(entities[i], PosSizeComponent::GetComponentMask()));
 		if ((entityComponentMask & PosSizeComponent::GetComponentMask()) != 0)
 		{
 			job->DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
@@ -420,7 +420,7 @@ void MEngineGraphics::CreateRenderJobs()
 
 		if ((entityComponentMask & RectangleRenderingComponent::GetComponentMask()) != 0)
 		{
-			const RectangleRenderingComponent* rectComp = static_cast<const RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), entities[i]));
+			const RectangleRenderingComponent* rectComp = static_cast<const RectangleRenderingComponent*>(GetComponent(entities[i], RectangleRenderingComponent::GetComponentMask()));
 			if (!rectComp->RenderIgnore && !rectComp->IsFullyTransparent())
 			{
 				if (!rectComp->BorderColor.IsFullyTransparent())
@@ -435,7 +435,7 @@ void MEngineGraphics::CreateRenderJobs()
 
 		if ((entityComponentMask & TextureRenderingComponent::GetComponentMask()) != 0)
 		{
-			const TextureRenderingComponent* textureComp = static_cast<const TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), entities[i]));
+			const TextureRenderingComponent* textureComp = static_cast<const TextureRenderingComponent*>(GetComponent(entities[i], TextureRenderingComponent::GetComponentMask()));
 			if (!textureComp->RenderIgnore && textureComp->TextureID != INVALID_MENGINE_TEXTURE_ID)
 			{
 				job->TextureID = textureComp->TextureID;
@@ -445,7 +445,7 @@ void MEngineGraphics::CreateRenderJobs()
 
 		if ((entityComponentMask & TextComponent::GetComponentMask()) != 0)
 		{
-			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), entities[i]));
+			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponent(entities[i], TextComponent::GetComponentMask()));
 			if (!textComp->RenderIgnore && textComp->FontID != INVALID_MENGINE_FONT_ID && textComp->Text != nullptr)
 			{
 				if (*textComp->Text != "")

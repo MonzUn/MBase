@@ -10,24 +10,24 @@ using namespace PredefinedColors;
 EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, MEngineFontID fontID, const std::string& text, TextAlignment textAlignment)
 {
 	EntityID ID = CreateEntity();
-	AddComponentsToEntity(BUTTON_ENTITY_MASK, ID);
+	AddComponentsToEntity(ID, BUTTON_ENTITY_MASK);
 
-	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), ID));
+	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponent(ID, PosSizeComponent::GetComponentMask()));
 	posSizeComponent->PosX = posX;
 	posSizeComponent->PosY = posY;
 	posSizeComponent->PosZ = posZ;
 	posSizeComponent->Width = width;
 	posSizeComponent->Height = height;
 
-	ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), ID));
+	ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponent(ID, ButtonComponent::GetComponentMask()));
 	buttonComponent->Callback	= new std::function<void()>(callback);
 
-	TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID));
+	TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponent(ID, TextureRenderingComponent::GetComponentMask()));
 	textureComponent->TextureID = texture;
 	if (texture == INVALID_MENGINE_TEXTURE_ID)
 		textureComponent->RenderIgnore = true;
 
-	TextComponent* textComponent = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), ID));
+	TextComponent* textComponent = static_cast<TextComponent*>(GetComponent(ID, TextComponent::GetComponentMask()));
 	textComponent->Text = new std::string(text);
 	textComponent->DefaultText = new std::string(text);
 	textComponent->FontID = fontID;
@@ -40,20 +40,20 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 {
 	EntityID ID = CreateEntity();
 	ComponentMask entityMask = (editFlags & TextBoxFlags::Editable) != 0 ? TEXT_BOX_EDITABLE_ENTITY_MASK : TEXT_BOX_ENTITY_MASK;
-	AddComponentsToEntity(entityMask, ID);
+	AddComponentsToEntity(ID, entityMask);
 
-	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), ID));
+	PosSizeComponent* posSizeComponent = static_cast<PosSizeComponent*>(GetComponent(ID, PosSizeComponent::GetComponentMask()));
 	posSizeComponent->PosX		= posX;
 	posSizeComponent->PosY		= posY;
 	posSizeComponent->PosZ		= posZ;
 	posSizeComponent->Width		= width;
 	posSizeComponent->Height	= height;
 
-	RectangleRenderingComponent* rectangleComponent = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID));
+	RectangleRenderingComponent* rectangleComponent = static_cast<RectangleRenderingComponent*>(GetComponent(ID, RectangleRenderingComponent::GetComponentMask()));
 	rectangleComponent->FillColor	= backgroundColor;
 	rectangleComponent->BorderColor = borderColor;
 
-	TextComponent* textComponent	= static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), ID));
+	TextComponent* textComponent	= static_cast<TextComponent*>(GetComponent(ID, TextComponent::GetComponentMask()));
 	textComponent->Text				= new std::string(text);
 	textComponent->DefaultText		= new std::string(text);
 	textComponent->FontID			= fontID;
@@ -62,7 +62,7 @@ EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32
 
 	if ((editFlags & TextBoxFlags::Editable) != 0)
 	{
-		ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), ID));
+		ButtonComponent* buttonComponent = static_cast<ButtonComponent*>(GetComponent(ID, ButtonComponent::GetComponentMask()));
 		buttonComponent->Callback = new std::function<void()>(std::bind(&TextComponent::StartEditing, *textComponent));
 	}
 
@@ -79,11 +79,11 @@ bool MEngine::ShowButton(EntityID ID)
 		return false;
 	}
 #endif
-	TextureRenderingComponent* textureComp = static_cast<TextureRenderingComponent*>(MEngine::GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID));
+	TextureRenderingComponent* textureComp = static_cast<TextureRenderingComponent*>(MEngine::GetComponent(ID, TextureRenderingComponent::GetComponentMask()));
 	if (textureComp->RenderIgnore)
 	{
-		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
-		static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = false;
+		static_cast<ButtonComponent*>(MEngine::GetComponent(ID, ButtonComponent::GetComponentMask()))->IsActive = true;
+		static_cast<TextComponent*>(MEngine::GetComponent(ID, TextComponent::GetComponentMask()))->RenderIgnore = false;
 		textureComp->RenderIgnore = false;
 	}
 
@@ -99,11 +99,11 @@ bool MEngine::HideButton(EntityID ID)
 		return false;
 	}
 #endif
-	TextureRenderingComponent* textureComp = static_cast<TextureRenderingComponent*>(MEngine::GetComponentForEntity(TextureRenderingComponent::GetComponentMask(), ID));
+	TextureRenderingComponent* textureComp = static_cast<TextureRenderingComponent*>(MEngine::GetComponent(ID, TextureRenderingComponent::GetComponentMask()));
 	if (!textureComp->RenderIgnore)
 	{
-		static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
-		static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID))->RenderIgnore = true;
+		static_cast<ButtonComponent*>(MEngine::GetComponent(ID, ButtonComponent::GetComponentMask()))->IsActive = false;
+		static_cast<TextComponent*>(MEngine::GetComponent(ID, TextComponent::GetComponentMask()))->RenderIgnore = true;
 		textureComp->RenderIgnore = true;
 	}
 	return textureComp->RenderIgnore;
@@ -118,13 +118,13 @@ bool MEngine::ShowTextBox(EntityID ID)
 		return false;
 	}
 #endif
-	TextComponent* textComp = static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID));
+	TextComponent* textComp = static_cast<TextComponent*>(MEngine::GetComponent(ID, TextComponent::GetComponentMask()));
 	if (textComp->RenderIgnore)
 	{
 		textComp->RenderIgnore = false;
-		static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = false;
+		static_cast<RectangleRenderingComponent*>(MEngine::GetComponent(ID, RectangleRenderingComponent::GetComponentMask()))->RenderIgnore = false;
 		if ((GetComponentMask(ID) & TEXT_BOX_EDITABLE_ENTITY_MASK) == TEXT_BOX_EDITABLE_ENTITY_MASK)
-			static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = true;
+			static_cast<ButtonComponent*>(MEngine::GetComponent(ID, ButtonComponent::GetComponentMask()))->IsActive = true;
 	}
 	return !textComp->RenderIgnore;
 }
@@ -139,13 +139,13 @@ bool MEngine::HideTextBox(EntityID ID)
 	}
 #endif
 
-	TextComponent* textComp = static_cast<TextComponent*>(MEngine::GetComponentForEntity(TextComponent::GetComponentMask(), ID));
+	TextComponent* textComp = static_cast<TextComponent*>(MEngine::GetComponent(ID, TextComponent::GetComponentMask()));
 	if (!textComp->RenderIgnore)
 	{
 		textComp->RenderIgnore = true;
-		static_cast<RectangleRenderingComponent*>(MEngine::GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), ID))->RenderIgnore = true;
+		static_cast<RectangleRenderingComponent*>(MEngine::GetComponent(ID, RectangleRenderingComponent::GetComponentMask()))->RenderIgnore = true;
 		if ((GetComponentMask(ID) & TEXT_BOX_EDITABLE_ENTITY_MASK) == TEXT_BOX_EDITABLE_ENTITY_MASK)
-			static_cast<ButtonComponent*>(MEngine::GetComponentForEntity(ButtonComponent::GetComponentMask(), ID))->IsActive = false;
+			static_cast<ButtonComponent*>(MEngine::GetComponent(ID, ButtonComponent::GetComponentMask()))->IsActive = false;
 	}
 	return textComp->RenderIgnore;
 }

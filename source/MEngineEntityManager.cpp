@@ -73,7 +73,7 @@ bool MEngine::DestroyEntity(EntityID ID)
 	return false;
 }
 
-ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, EntityID ID)
+ComponentMask MEngine::AddComponentsToEntity(EntityID ID, ComponentMask componentMask)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
@@ -103,7 +103,7 @@ ComponentMask MEngine::AddComponentsToEntity(ComponentMask componentMask, Entity
 	return MUtility::EMPTY_BITSET;
 }
 
-ComponentMask MEngine::RemoveComponentsFromEntity(ComponentMask componentMask, EntityID ID)
+ComponentMask MEngine::RemoveComponentsFromEntity(EntityID ID, ComponentMask componentMask)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
@@ -162,7 +162,7 @@ void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<E
 	}
 }
 
-MEngine::Component* MEngine::GetComponentForEntity(ComponentMask componentType, EntityID entityID) // TODODB: Rename last parameter to ID for consistency
+MEngine::Component* MEngine::GetComponent(EntityID ID, ComponentMask componentType)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
@@ -182,7 +182,7 @@ MEngine::Component* MEngine::GetComponentForEntity(ComponentMask componentType, 
 	}
 #endif
 
-	int32_t entityIndex = GetEntityIndex(entityID);
+	int32_t entityIndex = GetEntityIndex(ID);
 	if (entityIndex >= 0)
 	{
 #if COMPILE_MODE == COMPILE_MODE_DEBUG

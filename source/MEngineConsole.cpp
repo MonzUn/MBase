@@ -217,12 +217,12 @@ bool MEngine::SetConsoleActive(bool active)
 	if (isActive == active)
 		return false;
 
-	RectangleRenderingComponent* mainBackground = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_BackgroundID));
-	TextComponent* outputText = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_OutputTextboxID));
-	RectangleRenderingComponent* outputTextBackground = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_OutputTextboxID));
-	TextComponent* inputText = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_InputTextboxID));
-	RectangleRenderingComponent* inputTextbackground = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_InputTextboxID));
-	ButtonComponent* inputButton = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), m_InputTextboxID));
+	RectangleRenderingComponent* mainBackground = static_cast<RectangleRenderingComponent*>(GetComponent(m_BackgroundID, RectangleRenderingComponent::GetComponentMask()));
+	TextComponent* outputText = static_cast<TextComponent*>(GetComponent(m_OutputTextboxID, TextComponent::GetComponentMask()));
+	RectangleRenderingComponent* outputTextBackground = static_cast<RectangleRenderingComponent*>(GetComponent(m_OutputTextboxID, RectangleRenderingComponent::GetComponentMask()));
+	TextComponent* inputText = static_cast<TextComponent*>(GetComponent(m_InputTextboxID, TextComponent::GetComponentMask()));
+	RectangleRenderingComponent* inputTextbackground = static_cast<RectangleRenderingComponent*>(GetComponent(m_InputTextboxID, RectangleRenderingComponent::GetComponentMask()));
+	ButtonComponent* inputButton = static_cast<ButtonComponent*>(GetComponent(m_InputTextboxID, ButtonComponent::GetComponentMask()));
 	if (active)
 	{
 		mainBackground->RenderIgnore		= false;
@@ -273,8 +273,8 @@ void MEngineConsole::Update()
 			
 		if (isActive)
 		{
-			const TextComponent* inputText = static_cast<const TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_InputTextboxID));
-			TextComponent* outputText = static_cast<TextComponent*>(GetComponentForEntity(TextComponent::GetComponentMask(), m_OutputTextboxID));
+			const TextComponent* inputText = static_cast<const TextComponent*>(GetComponent(m_InputTextboxID, TextComponent::GetComponentMask()));
+			TextComponent* outputText = static_cast<TextComponent*>(GetComponent(m_OutputTextboxID, TextComponent::GetComponentMask()));
 			int32_t initialTextHeight = GetTextHeight(outputText->FontID, outputText->Text->c_str());
 			int32_t initialTextLength = static_cast<int32_t>(outputText->Text->length());
 
@@ -301,7 +301,7 @@ void MEngineConsole::Update()
 			if (outputText->Text->length() > initialTextLength)
 			{
 				// Move the console along with the output text
-				PosSizeComponent* outputTextPos = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_OutputTextboxID));
+				PosSizeComponent* outputTextPos = static_cast<PosSizeComponent*>(GetComponent(m_OutputTextboxID, PosSizeComponent::GetComponentMask()));
 				int32_t AddedTextHeight = GetTextHeight(outputText->FontID, outputText->Text->c_str()) - initialTextHeight;
 				int32_t lineHeight = GetLineHeight(outputText->FontID);
 
@@ -335,16 +335,16 @@ void CreateComponents()
 	int32_t fullWidth = GetWindowWidth();
 
 	m_BackgroundID = CreateEntity();
-	AddComponentsToEntity(PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask(), m_BackgroundID);
+	AddComponentsToEntity(m_BackgroundID, PosSizeComponent::GetComponentMask() | RectangleRenderingComponent::GetComponentMask());
 
-	PosSizeComponent* posSize = static_cast<PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), m_BackgroundID));
+	PosSizeComponent* posSize = static_cast<PosSizeComponent*>(GetComponent(m_BackgroundID, PosSizeComponent::GetComponentMask()));
 	posSize->PosX = 0;
 	posSize->PosY = 0;
 	posSize->PosZ = 1U;
 	posSize->Width = fullWidth;
 	posSize->Height = m_OutputTextBoxOriginalHeight;
 
-	RectangleRenderingComponent* background = static_cast<RectangleRenderingComponent*>(GetComponentForEntity(RectangleRenderingComponent::GetComponentMask(), m_BackgroundID));
+	RectangleRenderingComponent* background = static_cast<RectangleRenderingComponent*>(GetComponent(m_BackgroundID, RectangleRenderingComponent::GetComponentMask()));
 	background->FillColor = ColorData(0, 128, 0, 128);
 
 	m_OutputTextboxID = CreateTextBox(0, 0, fullWidth, m_OutputTextBoxOriginalHeight - INPUT_TEXTBOX_HEIGHT, m_OutputFont, 0U, "", TextAlignment::TopLeft, TextBoxFlags::Scrollable);

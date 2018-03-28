@@ -19,8 +19,8 @@ void ButtonSystem::UpdatePresentationLayer(float deltaTime)
 	{
 		bool wasClicked = false;
 
-		ButtonComponent* buttonComp = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), entities[i]));
-		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+		ButtonComponent* buttonComp = static_cast<ButtonComponent*>(GetComponent(entities[i], ButtonComponent::GetComponentMask()));
+		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponent(entities[i], PosSizeComponent::GetComponentMask()));
 
 		if (buttonComp->Callback != nullptr && buttonComp->IsActive)
 		{

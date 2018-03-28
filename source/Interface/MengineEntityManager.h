@@ -7,7 +7,6 @@
 
 namespace MEngine
 {
-	// TODODB: Remove "entity" from the getter names (Always need an entityID anyway)
 	// TODODB: Fix stack/heap corruption caused by entities being created but never removed
 	enum class MaskMatchMode
 	{
@@ -19,11 +18,11 @@ namespace MEngine
 	EntityID CreateEntity();
 	bool DestroyEntity(EntityID entityID);
 
-	ComponentMask AddComponentsToEntity(ComponentMask componentMask, EntityID entityID); // Returns a bitmask containing all component types that could not be added to the entity
-	ComponentMask RemoveComponentsFromEntity(ComponentMask componentMask, EntityID entityID); // Returns a bitmask containing all component types that could not be removed from the entity
+	ComponentMask AddComponentsToEntity(EntityID ID, ComponentMask componentMask); // Returns a bitmask containing all component types that could not be added to the entity
+	ComponentMask RemoveComponentsFromEntity(EntityID ID, ComponentMask componentMask); // Returns a bitmask containing all component types that could not be removed from the entity
 
 	void GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<EntityID>& outEntities, MaskMatchMode matchMode = MaskMatchMode::Partial);
 
-	MEngine::Component* GetComponentForEntity(ComponentMask componentMask, EntityID entityID);
+	MEngine::Component* GetComponent(EntityID ID, ComponentMask componentMask);
 	ComponentMask GetComponentMask(EntityID ID);
 }
