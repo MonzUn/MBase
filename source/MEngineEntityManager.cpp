@@ -170,9 +170,9 @@ MEngine::Component* MEngine::GetComponent(EntityID ID, ComponentMask componentTy
 		MLOG_WARNING("Attempted to get component for entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
-	else if (!m_IDBank->IsIDActive(entityID))
+	else if (!m_IDBank->IsIDActive(ID))
 	{
-		MLOG_WARNING("Attempted to get component for an entity that doesn't exist; ID = " << entityID, LOG_CATEGORY_ENTITY_MANAGER);
+		MLOG_WARNING("Attempted to get component for an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
 	else if (MUtility::PopCount(componentType) != 1)
@@ -188,7 +188,7 @@ MEngine::Component* MEngine::GetComponent(EntityID ID, ComponentMask componentTy
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 		if (((*m_ComponentMasks)[entityIndex] & componentType) == 0)
 		{
-			MLOG_WARNING("Attempted to get component of type " << MUtility::BitSetToString(componentType) << " for an entity that lacks that component type; entity component mask = " << MUtility::BitSetToString((*m_ComponentMasks)[entityID]), LOG_CATEGORY_ENTITY_MANAGER);
+			MLOG_WARNING("Attempted to get component of type " << MUtility::BitSetToString(componentType) << " for an entity that lacks that component type; entity component mask = " << MUtility::BitSetToString((*m_ComponentMasks)[ID]), LOG_CATEGORY_ENTITY_MANAGER);
 			return nullptr;
 		}
 #endif
