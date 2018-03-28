@@ -24,7 +24,7 @@ namespace MEngine
 		std::string Description;
 	};
 
-	bool InitializeConsole(MEngineFontID inputFontID, MEngineFontID outputFontID);
+	bool InitializeConsole(FontID inputFontID, FontID outputFontID);
 
 	bool RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback, const std::string& description = "");
 	bool UnregisterCommand(std::string& commandName);
@@ -35,6 +35,6 @@ namespace MEngine
 	std::string GetFullCommandLog();
 	std::string GetUnreadCommandLog();
 
-	bool SetConsoleFont(MEngineFontID ID, ConsoleFont fontToSet = ConsoleFont::Both);
+	bool SetConsoleFont(FontID ID, ConsoleFont fontToSet = ConsoleFont::Both);
 	bool SetConsoleActive(bool active);
 }

@@ -1,21 +1,21 @@
 #pragma once
 #include <MUtilityTypes.h>
 
-#define INVALID_MENGINE_COMPONENT_MASK MUTILITY_INVALID_BITMASK_ID
-#define INVALID_MENGINE_ENTITY_ID -1
-#define INVALID_MENGINE_TEXTURE_ID -1
-#define INVALID_MENGINE_SYSTEM_ID -1
-#define INVALID_MENGINE_GAME_MODE_ID -1
-#define INVALID_MENGINE_FONT_ID -1
+#define MENGINE_INVALID_COMPONENT_MASK MUTILITY_INVALID_BITMASK_ID
+#define MENGINE_INVALID_ENTITY_ID -1
+#define MENGINE_INVALID_TEXTURE_ID -1
+#define MENGINE_INVALID_SYSTEM_ID -1
+#define MENGINE_INVALID_GAME_MODE_ID -1
+#define MENGINE_INVALID_FONT_ID -1
 
-namespace MEngine // TODODB: Remove MEnginePrefix on typenames as the namespace already delcare the required context
+namespace MEngine
 {
-	typedef MUtilityBitmaskID ComponentMask;
-	typedef MUtilityID	EntityID;
-	typedef MUtilityID	TextureID;
-	typedef MUtilityID	SystemID;
-	typedef MUtilityID	GameModeID;
-	typedef MUtilityID	MEngineFontID;
+	typedef MUtilityBitmaskID	ComponentMask;
+	typedef MUtilityID			EntityID;
+	typedef MUtilityID			TextureID;
+	typedef MUtilityID			SystemID;
+	typedef MUtilityID			GameModeID;
+	typedef MUtilityID			FontID;
 
 	enum class TextAlignment
 	{

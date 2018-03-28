@@ -17,7 +17,7 @@ namespace MEngine
 	public:
 		System(SystemSettings settings = SystemSettings::NONE) : m_SystemSettings(settings) {}
 		virtual ~System() {};
-		virtual void Initialize() {}; // TODODB: Add checks in debug mode to check so that the system is not initialized or shutdown in the wrong state
+		virtual void Initialize() {};
 		virtual void Shutdown() { m_IsSuspended = false; };
 		virtual void Suspend() { m_IsSuspended = true; };
 		virtual void Resume() { m_IsSuspended = false; };
@@ -33,7 +33,7 @@ namespace MEngine
 		SystemSettings GetSystemSettings() const {return m_SystemSettings;}
 
 		private:
-			SystemID m_ID = INVALID_MENGINE_SYSTEM_ID;
+			SystemID m_ID = MENGINE_INVALID_SYSTEM_ID;
 			SystemSettings m_SystemSettings = SystemSettings::NONE;
 			bool m_IsSuspended = false;
 	};

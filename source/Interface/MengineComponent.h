@@ -28,7 +28,7 @@ namespace MEngine
 
 		static bool Unregister()
 		{
-			if (ComponentMask != INVALID_MENGINE_COMPONENT_MASK)
+			if (ComponentMask != MENGINE_INVALID_COMPONENT_MASK)
 				return MEngine::UnregisterComponentType(ComponentMask);
 
 			return false;

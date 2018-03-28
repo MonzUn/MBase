@@ -22,10 +22,10 @@ MEngine::ComponentMask MEngine::RegisterComponentType(const MEngine::Component& 
 {
 	ComponentMask componentMask = m_IDBank.GetID();
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
+	if (componentMask == MENGINE_INVALID_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Ran out of component mask IDs when attempting to add component \"" << componentName << '"', LOG_CATEGORY_COMPONENT_MANAGER);
-		return INVALID_MENGINE_COMPONENT_MASK;
+		return MENGINE_INVALID_COMPONENT_MASK;
 	}
 #endif
 	m_Buffers->push_back(new ComponentBuffer(templateComponent, templateComponentSize, maxCount, componentName, componentMask));
@@ -36,7 +36,7 @@ MEngine::ComponentMask MEngine::RegisterComponentType(const MEngine::Component& 
 bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: Destroy active components
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
+	if (componentType == MENGINE_INVALID_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Attempted to unregister an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return false;
@@ -72,7 +72,7 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t* outComponentCount) // TODODB: Maybe return Component* instead?
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
+	if (componentType == MENGINE_INVALID_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Attempted to get buffer using an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return nullptr;

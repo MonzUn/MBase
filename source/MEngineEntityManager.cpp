@@ -76,7 +76,7 @@ bool MEngine::DestroyEntity(EntityID ID)
 ComponentMask MEngine::AddComponentsToEntity(EntityID ID, ComponentMask componentMask)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
+	if (componentMask == MENGINE_INVALID_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Attempted to add component(s) to entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
@@ -106,7 +106,7 @@ ComponentMask MEngine::AddComponentsToEntity(EntityID ID, ComponentMask componen
 ComponentMask MEngine::RemoveComponentsFromEntity(EntityID ID, ComponentMask componentMask)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentMask == INVALID_MENGINE_COMPONENT_MASK)
+	if (componentMask == MENGINE_INVALID_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Attempted to removed component(s) from entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
@@ -165,7 +165,7 @@ void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<E
 MEngine::Component* MEngine::GetComponent(EntityID ID, ComponentMask componentType)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentType == INVALID_MENGINE_COMPONENT_MASK)
+	if (componentType == MENGINE_INVALID_COMPONENT_MASK)
 	{
 		MLOG_WARNING("Attempted to get component for entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
@@ -206,7 +206,7 @@ ComponentMask MEngine::GetComponentMask(EntityID ID)
 	if (!m_IDBank->IsIDActive(ID))
 	{
 		MLOG_WARNING("Attempted to get component mask from an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
-		return INVALID_MENGINE_COMPONENT_MASK;
+		return MENGINE_INVALID_COMPONENT_MASK;
 	}
 #endif
 

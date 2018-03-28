@@ -13,6 +13,8 @@
 
 #define LOG_CATEGORY_CONFIG "MEngineConfig"
 
+// TODODB: Change config value registration to be manual instead of ad-hoc
+
 namespace MEngineConfig
 {
 	struct CaseInsensitiveStringComparison

@@ -30,8 +30,8 @@ namespace MEngineSystemManager
 {
 	GameModeList*					m_GameModes;
 	MUtility::MUtilityIDBank*		m_GameModeIDBank;
-	MEngine::GameModeID				m_ActiveGameMode	= INVALID_MENGINE_GAME_MODE_ID;
-	MEngine::GameModeID				m_RequestedGameMode	= INVALID_MENGINE_GAME_MODE_ID;
+	MEngine::GameModeID				m_ActiveGameMode	= MENGINE_INVALID_GAME_MODE_ID;
+	MEngine::GameModeID				m_RequestedGameMode	= MENGINE_INVALID_GAME_MODE_ID;
 
 	std::vector<MEngine::System*>*	m_Systems;
 	MUtility::MUtilityIDBank*		m_SystemIDBank;
@@ -207,7 +207,7 @@ bool MEngine::RequestGameModeChange(GameModeID newGameModeID)
 		return false;
 	}
 
-	if (m_RequestedGameMode != INVALID_MENGINE_GAME_MODE_ID && Settings::HighLogLevel)
+	if (m_RequestedGameMode != MENGINE_INVALID_GAME_MODE_ID && Settings::HighLogLevel)
 		MLOG_WARNING("Requested game mode change before the last request could be fulfilled; game mode with ID " << m_RequestedGameMode << "will be skipped and game mode with ID " << newGameModeID << " will be used instead", LOG_CATEGORY_SYSTEM_MANAGER);
 
 	m_RequestedGameMode = newGameModeID;
@@ -293,7 +293,7 @@ void MEngineSystemManager::Update()
 	HandleSuspendResumeRequests();
 
 	// Change game mode if requested
-	if (m_RequestedGameMode != INVALID_MENGINE_GAME_MODE_ID)
+	if (m_RequestedGameMode != MENGINE_INVALID_GAME_MODE_ID)
 		ChangeToRequestedGameMode();
 
 	// Update systems
@@ -327,10 +327,10 @@ void MEngineSystemManager::Update()
 void ChangeToRequestedGameMode()
 {
 	// Stop all running systems
-	if (m_ActiveGameMode != INVALID_MENGINE_GAME_MODE_ID)
+	if (m_ActiveGameMode != MENGINE_INVALID_GAME_MODE_ID)
 	{
 		const GameModeSystemList& currentSystems = (*m_GameModes)[m_ActiveGameMode];
-		if (m_ActiveGameMode != INVALID_MENGINE_GAME_MODE_ID)
+		if (m_ActiveGameMode != MENGINE_INVALID_GAME_MODE_ID)
 		{
 			for (int i = 0; i < currentSystems.size(); ++i)
 			{
@@ -350,7 +350,7 @@ void ChangeToRequestedGameMode()
 			system->Initialize();
 	}
 	m_ActiveGameMode = m_RequestedGameMode;
-	m_RequestedGameMode = INVALID_MENGINE_GAME_MODE_ID;
+	m_RequestedGameMode = MENGINE_INVALID_GAME_MODE_ID;
 }
 
 void HandleSuspendResumeRequests()

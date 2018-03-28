@@ -50,7 +50,7 @@ namespace MEngine
 	{
 	public:
 		bool RenderIgnore	= false;
-		TextureID TextureID = INVALID_MENGINE_TEXTURE_ID;
+		TextureID TextureID = MENGINE_INVALID_TEXTURE_ID;
 	};
 
 	class ButtonComponent : public ComponentBase<ButtonComponent>
@@ -64,13 +64,12 @@ namespace MEngine
 		std::function<void()>* Callback = nullptr; // TODODB: Attempt to make it possible to use any parameters and return type
 	};
 
-	// TODODB: Add text rendering alignment
 	class TextComponent : public ComponentBase<TextComponent>
 	{
 	public:
 		void Destroy() override;
 
-		MEngineFontID FontID			= INVALID_MENGINE_FONT_ID;
+		FontID FontID			= MENGINE_INVALID_FONT_ID;
 		std::string* Text				= nullptr;
 		const std::string* DefaultText	= nullptr;
 		TextAlignment Alignment			= TextAlignment::BottomLeft;

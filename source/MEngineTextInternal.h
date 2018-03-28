@@ -7,5 +7,5 @@ namespace MEngineText
 	void Initialize();
 	void Shutdown();
 
-	FC_Font* GetFont(MEngine::MEngineFontID ID);
+	FC_Font* GetFont(MEngine::FontID ID);
 }

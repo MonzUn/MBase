@@ -66,7 +66,7 @@ namespace MEngineGraphics
 		uint32_t Depth					= 0;
 
 		// Texture
-		MEngine::TextureID TextureID	= INVALID_MENGINE_TEXTURE_ID;
+		MEngine::TextureID TextureID	= MENGINE_INVALID_TEXTURE_ID;
 
 		// Rectangle
 		MEngine::ColorData FillColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
@@ -74,7 +74,7 @@ namespace MEngineGraphics
 
 		// Text
 		TextRenderMode	TextRenderMode					= TextRenderMode::INVALID;
-		MEngine::MEngineFontID	FontID					= INVALID_MENGINE_FONT_ID;
+		MEngine::FontID	FontID					= MENGINE_INVALID_FONT_ID;
 		char*					Text					= nullptr;
 		FC_AlignEnum			HorizontalTextAlignment = FC_ALIGN_LEFT;
 		SDL_Rect				TextRect				= {0,0,0,0};
@@ -93,7 +93,7 @@ namespace MEngineGraphics
 	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
 	void Shutdown();
 
-	MEngine::TextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngine::TextureID reservedTextureID = INVALID_MENGINE_TEXTURE_ID);
+	MEngine::TextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngine::TextureID reservedTextureID = MENGINE_INVALID_TEXTURE_ID);
 	void HandleSurfaceToTextureConversions();
 	MEngine::TextureID GetNextTextureID();
 
@@ -109,6 +109,6 @@ struct SurfaceToTextureJob
 	Surface(surface), ReservedID(reservedID), StoreSurfaceInRAM(storeSurfaceInRAM) {}
 
 	SDL_Surface* Surface			= nullptr;
-	MEngine::TextureID ReservedID	= INVALID_MENGINE_TEXTURE_ID;
+	MEngine::TextureID ReservedID	= MENGINE_INVALID_TEXTURE_ID;
 	bool StoreSurfaceInRAM			= false;
 };

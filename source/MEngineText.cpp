@@ -29,9 +29,9 @@ using namespace MEngineText;
 
 // ---------- INTERFACE ----------
 
-MEngineFontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t fontSize, const ColorData& textColor)
+FontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t fontSize, const ColorData& textColor)
 {
-	MEngineFontID ID = INVALID_MENGINE_FONT_ID;
+	FontID ID = MENGINE_INVALID_FONT_ID;
 	FC_Font* font = FC_CreateFont();
 	const std::string absolutePath = MEngine::GetExecutablePath() + '/' + relativeFontPath;
 	if (!FC_LoadFont(font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), fontSize, FC_MakeColor(textColor.R, textColor.G, textColor.B, textColor.A), TTF_STYLE_NORMAL))
@@ -53,7 +53,7 @@ MEngineFontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t f
 	return ID;
 }
 
-bool MEngine::DestroyFont(MEngineFontID ID)
+bool MEngine::DestroyFont(FontID ID)
 {
 	if (m_FontIDBank->IsIDActive(ID))
 	{
@@ -70,7 +70,7 @@ bool MEngine::DestroyFont(MEngineFontID ID)
 	return result;
 }
 
-int32_t MEngine::GetTextWidth(MEngineFontID ID, const char* text)
+int32_t MEngine::GetTextWidth(FontID ID, const char* text)
 {
 	if (!m_FontIDBank->IsIDActive(ID))
 	{
@@ -81,7 +81,7 @@ int32_t MEngine::GetTextWidth(MEngineFontID ID, const char* text)
 	return FC_GetWidth((*m_Fonts)[ID], text);
 }
 
-int32_t MEngine::GetTextHeight(MEngineFontID ID, const char* text)
+int32_t MEngine::GetTextHeight(FontID ID, const char* text)
 {
 	if (!m_FontIDBank->IsIDActive(ID))
 	{
@@ -92,7 +92,7 @@ int32_t MEngine::GetTextHeight(MEngineFontID ID, const char* text)
 	return FC_GetHeight((*m_Fonts)[ID], text);
 }
 
-int32_t MEngine::GetLineHeight(MEngineFontID ID)
+int32_t MEngine::GetLineHeight(FontID ID)
 {
 	if (!m_FontIDBank->IsIDActive(ID))
 	{
@@ -103,7 +103,7 @@ int32_t MEngine::GetLineHeight(MEngineFontID ID)
 	return FC_GetLineHeight((*m_Fonts)[ID]);
 }
 
-bool MEngine::IsFontIDValid(MEngineFontID ID)
+bool MEngine::IsFontIDValid(FontID ID)
 {
 	return m_FontIDBank->IsIDActive(ID);
 }
@@ -148,7 +148,7 @@ void MEngineText::Shutdown()
 	delete m_FontIDBank;
 }
 
-FC_Font* MEngineText::GetFont(MEngineFontID ID)
+FC_Font* MEngineText::GetFont(FontID ID)
 {
 	if (!m_FontIDBank->IsIDActive(ID))
 	{

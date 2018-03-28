@@ -7,7 +7,7 @@ using namespace PredefinedColors;
 
 #define LOG_CATEGORY_ENTITY_FACTORY "MEngineEntityFactory"
 
-EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, MEngineFontID fontID, const std::string& text, TextAlignment textAlignment)
+EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, FontID fontID, const std::string& text, TextAlignment textAlignment)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(ID, BUTTON_ENTITY_MASK);
@@ -24,7 +24,7 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 
 	TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponent(ID, TextureRenderingComponent::GetComponentMask()));
 	textureComponent->TextureID = texture;
-	if (texture == INVALID_MENGINE_TEXTURE_ID)
+	if (texture == MENGINE_INVALID_TEXTURE_ID)
 		textureComponent->RenderIgnore = true;
 
 	TextComponent* textComponent = static_cast<TextComponent*>(GetComponent(ID, TextComponent::GetComponentMask()));
@@ -36,7 +36,7 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 	return ID;
 }
 
-EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, MEngineFontID fontID, uint32_t posZ, const std::string& text, TextAlignment alignment, TextBoxFlags editFlags, const ColorData& backgroundColor, const ColorData& borderColor)
+EntityID MEngine::CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, FontID fontID, uint32_t posZ, const std::string& text, TextAlignment alignment, TextBoxFlags editFlags, const ColorData& backgroundColor, const ColorData& borderColor)
 {
 	EntityID ID = CreateEntity();
 	ComponentMask entityMask = (editFlags & TextBoxFlags::Editable) != 0 ? TEXT_BOX_EDITABLE_ENTITY_MASK : TEXT_BOX_ENTITY_MASK;

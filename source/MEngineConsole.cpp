@@ -30,11 +30,11 @@ namespace MEngine
 	std::string* m_StoredLogMessages	= nullptr;
 	std::string* m_CommandLog			= nullptr;
 	uint64_t m_CommandLogLastReadIndex	= 0;
-	MEngine::EntityID m_BackgroundID	= INVALID_MENGINE_ENTITY_ID;
-	MEngine::EntityID m_OutputTextboxID	= INVALID_MENGINE_ENTITY_ID;
-	MEngine::EntityID m_InputTextboxID	= INVALID_MENGINE_ENTITY_ID;
-	MEngine::MEngineFontID m_InputFont	= INVALID_MENGINE_FONT_ID;
-	MEngine::MEngineFontID m_OutputFont = INVALID_MENGINE_FONT_ID;
+	MEngine::EntityID m_BackgroundID	= MENGINE_INVALID_ENTITY_ID;
+	MEngine::EntityID m_OutputTextboxID	= MENGINE_INVALID_ENTITY_ID;
+	MEngine::EntityID m_InputTextboxID	= MENGINE_INVALID_ENTITY_ID;
+	MEngine::FontID m_InputFont	= MENGINE_INVALID_FONT_ID;
+	MEngine::FontID m_OutputFont = MENGINE_INVALID_FONT_ID;
 	bool isActive = true;
 	bool m_InitializedByHost = false;
 	int32_t m_OutputTextBoxOriginalHeight = -1;
@@ -46,7 +46,7 @@ using namespace PredefinedColors;
 
 // ---------- INTERFACE ----------
 
-bool MEngine::InitializeConsole(MEngineFontID inputFontID, MEngineFontID outputFontID)
+bool MEngine::InitializeConsole(FontID inputFontID, FontID outputFontID)
 {
 	bool result = false;
 	if (!m_InitializedByHost)
@@ -167,7 +167,7 @@ std::string MEngine::GetUnreadCommandLog()
 	return m_CommandLogLastReadIndex < (m_CommandLog->size() - 1) ? m_CommandLog->substr(m_CommandLogLastReadIndex) : "";
 }
 
-bool MEngine::SetConsoleFont(MEngineFontID ID, ConsoleFont fontToSet)
+bool MEngine::SetConsoleFont(FontID ID, ConsoleFont fontToSet)
 {
 	if (!m_InitializedByHost)
 	{
@@ -355,11 +355,11 @@ void CreateComponents()
 
 void DestroyComponents()
 {
-	if(m_BackgroundID != INVALID_MENGINE_ENTITY_ID)
+	if(m_BackgroundID != MENGINE_INVALID_ENTITY_ID)
 		DestroyEntity(m_BackgroundID);
-	if (m_OutputTextboxID != INVALID_MENGINE_ENTITY_ID)
+	if (m_OutputTextboxID != MENGINE_INVALID_ENTITY_ID)
 		DestroyEntity(m_OutputTextboxID);
-	if (m_InputTextboxID != INVALID_MENGINE_ENTITY_ID)
+	if (m_InputTextboxID != MENGINE_INVALID_ENTITY_ID)
 		DestroyEntity(m_InputTextboxID);
 }
 

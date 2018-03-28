@@ -25,7 +25,7 @@ namespace MEngine
 
 		void Resize(uint32_t newCapacity = 0); // newCapacity = 0 will double the capacity
 
-		const ComponentMask			ComponentType		= INVALID_MENGINE_COMPONENT_MASK;
+		const ComponentMask			ComponentType		= MENGINE_INVALID_COMPONENT_MASK;
 		const char*					ComponentName		= nullptr;
 		Component*					TemplateComponent	= nullptr;
 
