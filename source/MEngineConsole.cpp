@@ -319,7 +319,6 @@ void MEngineConsole::Update()
 			*m_StoredLogMessages = "";
 		}
 
-		// TODODB: This comma gets placed in the input string if the textbox is taking input; fix that
 		if (KeyReleased(MKEY_GRAVE) && WindowHasFocus()) // TODODB: Check against some action here when such a system has been built 
 			SetConsoleActive(!isActive);
 	}

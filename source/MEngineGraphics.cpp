@@ -245,7 +245,7 @@ TextureID MEngine::CaptureScreenToTexture(bool storeCopyInRAM)
 
 		// Copy bits onto the surface
 		SdlApiLock.lock();
-		if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface); // TODODB: See if we really need these locks in out case
+		if (SDL_MUSTLOCK(surface)) SDL_LockSurface(surface); // TODODB: See if we really need these locks in our case
 		memcpy(surface->pixels, flippedPixels, header.biSizeImage);
 		if (SDL_MUSTLOCK(surface)) SDL_UnlockSurface(surface);
 
