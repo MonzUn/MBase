@@ -9,9 +9,14 @@
 #include <MUtilityIDBank.h>
 #include <MUtilityLog.h>
 #include <SDL_FontCache.h>
+#include <limits>
 #include <vector>
 
+// TODODB: Optimize so that only the substring that is displayed is handled (GetHeight() does not scale well)
+
 #define LOG_CATEGORY_TEXT "MEngineText"
+
+constexpr uint32_t FontCacheBufferSize = std::numeric_limits<uint32_t>::max();
 
 namespace MEngine
 {
@@ -109,6 +114,8 @@ void MEngineText::Initialize()
 {
 	m_Fonts			= new std::vector<FC_Font*>();
 	m_FontIDBank	= new MUtility::MUtilityIDBank();
+
+	FC_SetBufferSize(FontCacheBufferSize);
 }
 
 void MEngineText::Shutdown()
