@@ -27,13 +27,13 @@ namespace MEngine
 
 		bool IsSuspended() {return m_IsSuspended;}
 
-		SystemID GetID() const { return ID; };
-		void SetID(SystemID newID) { ID = newID; }; // TODODB: Find some way to only allow the engine to set IDs
+		SystemID GetID() const { return m_ID; };
+		void SetID(SystemID newID) { m_ID = newID; }; // TODODB: Find some way to only allow the engine to set IDs
 
 		SystemSettings GetSystemSettings() const {return m_SystemSettings;}
 
 		private:
-			SystemID ID = INVALID_MENGINE_SYSTEM_ID; // TODODB: Rename using m_
+			SystemID m_ID = INVALID_MENGINE_SYSTEM_ID;
 			SystemSettings m_SystemSettings = SystemSettings::NONE;
 			bool m_IsSuspended = false;
 	};
