@@ -180,21 +180,22 @@ bool MEngine::SetConsoleFont(MEngineFontID ID, ConsoleFont fontToSet)
 	{
 		switch (fontToSet)
 		{
-		case MEngine::ConsoleFont::Input:
-		{
-			m_InputFont = ID;
-		} break;
-		case MEngine::ConsoleFont::Output:
-		{
-			m_OutputFont = ID;
-		} break;
-		case MEngine::ConsoleFont::Both:
-		{
-			m_InputFont = ID;
-			m_OutputFont = ID;
-		} break;
-		default:
-			break;
+			case MEngine::ConsoleFont::Input:
+			{
+				m_InputFont = ID;
+			} break;
+			case MEngine::ConsoleFont::Output:
+			{
+				m_OutputFont = ID;
+			} break;
+			case MEngine::ConsoleFont::Both:
+			{
+				m_InputFont = ID;
+				m_OutputFont = ID;
+			} break;
+
+			default:
+				break;
 		}
 
 		CreateComponents();
