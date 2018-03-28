@@ -161,6 +161,7 @@ GameModeID MEngine::CreateGameMode()
 // TODODB: Make it possible for a system to start suspended or not suspended in different game modes
 bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint32_t priority) // TODODB: Add shutdown and startup priorities (could be implemented as a priorities struct that is used to sort systems before shutdown and startup)
 {
+	uint32_t shiftedPriority = priority + MENGINE_MIN_SYSTEM_PRIORITY;
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (!m_GameModeIDBank->IsIDActive(gameModeID))
 	{
@@ -174,7 +175,6 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 		return false;
 	}
 
-	uint32_t shiftedPriority = priority + MENGINE_MIN_SYSTEM_PRIORITY;
 	const GameModeSystemList& systems = (*m_GameModes)[gameModeID];
 	for (int i = 0; i < systems.size(); ++i)
 	{
