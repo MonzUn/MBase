@@ -6,6 +6,7 @@
 #include <MUtilityLog.h>
 #include <MUtilityString.h>
 #include <algorithm>
+#include <ctype.h>
 #include <fstream>
 #include <sstream>
 #include <unordered_map>
@@ -14,6 +15,22 @@
 
 namespace MEngineConfig
 {
+	struct CaseInsensitiveStringComparison
+	{
+		struct CaseInsensitiveCharComparison
+		{
+			bool operator() (const unsigned char& lhs, const unsigned char& rhs) const
+			{
+				return tolower(lhs) < tolower(rhs);
+			}
+		};
+
+		bool operator() (const std::string& lhs, const std::string& rhs) const
+		{
+			return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), CaseInsensitiveCharComparison());
+		}
+	};
+
 	const std::string* CONFIG_EXTENSION;
 	const std::string* DEFAULT_CONFIG_FILE_NAME;
 	const std::string* DEFAULT_CONFIG_FOLDER_NAME;
@@ -21,7 +38,7 @@ namespace MEngineConfig
 
 	std::string* m_ConfigFilePath;
 	std::string* m_ConfigDirectoryPath;
-	std::unordered_map<std::string, ConfigEntry*>* m_Entries;
+	std::unordered_map<std::string, ConfigEntry*, std::hash<std::string>, CaseInsensitiveStringComparison>* m_Entries;
 }
 
 using namespace MEngine;
@@ -33,7 +50,6 @@ using namespace MEngineConfig;
 int64_t Config::GetInt(const std::string& key, int64_t defaultValue)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator == m_Entries->end())
 	{
@@ -45,7 +61,6 @@ int64_t Config::GetInt(const std::string& key, int64_t defaultValue)
 double Config::GetDouble(const std::string& key, double defaultValue)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator == m_Entries->end())
 	{
@@ -57,7 +72,6 @@ double Config::GetDouble(const std::string& key, double defaultValue)
 bool Config::GetBool(const std::string& key, bool defaultValue)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator == m_Entries->end())
 	{
@@ -69,7 +83,6 @@ bool Config::GetBool(const std::string& key, bool defaultValue)
 std::string Config::GetString(const std::string& key, const std::string& defaultValue)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator == m_Entries->end())
 	{
@@ -83,7 +96,6 @@ std::string Config::GetString(const std::string& key, const std::string& default
 void Config::SetInt(const std::string& key, int64_t value)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator != m_Entries->end())
 	{
@@ -99,7 +111,6 @@ void Config::SetInt(const std::string& key, int64_t value)
 void Config::SetDecimal(const std::string& key, double value)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator != m_Entries->end())
 	{
@@ -116,7 +127,6 @@ void Config::SetDecimal(const std::string& key, double value)
 void Config::SetBool(const std::string& key, bool value)
 {
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator != m_Entries->end())
 	{
@@ -232,8 +242,7 @@ void Config::ReadConfigFile()
 		getline(stringStream, line);
 		if (line == "")
 			continue;
-
-		std::transform(line.begin(), line.end(), line.begin(), ::tolower);
+		
 		line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end()); // Strip whitespaces
 		
 		size_t dividerPos = line.find("=");
@@ -312,7 +321,7 @@ void MEngineConfig::Initialize()
 
 	m_ConfigFilePath = new std::string("NOT_SET");
 	m_ConfigDirectoryPath = new std::string("NOT_SET");
-	m_Entries = new std::unordered_map<std::string, ConfigEntry*>();
+	m_Entries = new std::unordered_map<std::string, ConfigEntry*, std::hash<std::string>, CaseInsensitiveStringComparison>();
 
 	SetConfigFilePath(*DEFAULT_CONFIG_FILE_RELATIVE_PATH);
 	ReadConfigFile();
