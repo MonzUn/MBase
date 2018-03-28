@@ -289,8 +289,8 @@ void MEngineConsole::Update()
 				std::string addition;
 				if (!outputText->Text->empty())
 					addition += '\n';
-				addition += "\n>" + *inputText->Text + '\n' + " - " + response;
-				*outputText->Text += addition;
+				addition += "\n> " + *inputText->Text + '\n' + " - " + response;
+				*m_StoredLogMessages += addition;
 				*m_CommandLog += addition;
 
 				*inputText->Text = "";
