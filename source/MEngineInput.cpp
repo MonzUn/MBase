@@ -1,5 +1,6 @@
 #include "MEngineInputInternal.h"
 #include "Interface/MEngineUtility.h"
+#include "Interface/MengineText.h" // TODODB: Remove this when text input handling has been moved
 #include "Scancodes.h"
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
@@ -264,10 +265,13 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 		}
 		else if (sdlEvent.type == SDL_TEXTINPUT)
 		{
-			if (m_TextInputStringReference->capacity() <= m_TextInputCaretIndex)
-				m_TextInputStringReference->reserve(m_TextInputStringReference->capacity() * 2);
+			if (IsStringASCII(sdlEvent.text.text))
+			{
+				if (m_TextInputStringReference->capacity() <= m_TextInputCaretIndex)
+					m_TextInputStringReference->reserve(m_TextInputStringReference->capacity() * 2);
 
-			m_TextInputStringReference->insert(m_TextInputCaretIndex++, sdlEvent.text.text);
+				m_TextInputStringReference->insert(m_TextInputCaretIndex++, sdlEvent.text.text);
+			}
 			consumedEvent = true;
 		}
 	}
