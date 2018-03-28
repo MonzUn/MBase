@@ -16,5 +16,7 @@ namespace MEngine // TODODB: Create a way to draw text without using the compone
 	int32_t GetTextHeight(MEngineFontID ID, const char* text);
 	int32_t GetLineHeight(MEngineFontID ID);
 
-	bool IsFontIDValid(MEngineFontID ID); // Create a collecttion of these functions in MEngineTypes.h so that host applications can easiliy check the validity of their IDs
+	bool IsFontIDValid(MEngineFontID ID); // TODODB: Create a collecttion of these functions in MEngineTypes.h so that host applications can easiliy check the validity of their IDs
+	bool IsCharASCII(char character);
+	bool IsStringASCII(const char* string);
 }

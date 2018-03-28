@@ -108,6 +108,26 @@ bool MEngine::IsFontIDValid(MEngineFontID ID)
 	return m_FontIDBank->IsIDActive(ID);
 }
 
+bool MEngine::IsCharASCII(char character)
+{
+	return character >= 32 && character <= 126;
+}
+
+bool MEngine::IsStringASCII(const char* string)
+{
+	bool isASCIIOnly = true;
+	int32_t stringLength = static_cast<int32_t>(strlen(string));
+	for (int i = 0; i < stringLength; ++i)
+	{
+		if (string[i] < 32 || string[i] > 126)
+		{
+			isASCIIOnly = false;
+			break;
+		}
+	}
+	return isASCIIOnly;
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineText::Initialize()
