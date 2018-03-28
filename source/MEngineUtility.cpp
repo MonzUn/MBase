@@ -5,52 +5,51 @@
 #include <SDL.h>
 #include <atomic>
 
-// TODODB: Use namespace and m_ prefix
-const std::string*	ApplicationName = nullptr;
-const std::string*	ExecutablePath	= nullptr;
-std::atomic<bool>	HasFocus		= false;
-std::atomic<bool>	IsHovered		= false;
+const std::string*	m_ApplicationName = nullptr;
+const std::string*	m_ExecutablePath	= nullptr;
+std::atomic<bool>	m_HasFocus		= false;
+std::atomic<bool>	m_IsHovered		= false;
 
 // ---------- INTERFACE ----------
 
 const std::string& MEngine::GetApplicationName()
 {
-	return *ApplicationName;
+	return *m_ApplicationName;
 }
 
 const std::string& MEngine::GetExecutablePath()
 {
-	return *ExecutablePath;
+	return *m_ExecutablePath;
 }
 
 bool MEngine::WindowHasFocus()
 {
-	return HasFocus;
+	return m_HasFocus;
 }
 
 bool MEngine::WindowIsHovered()
 {
-	return IsHovered;
+	return m_IsHovered;
 }
 
 // ---------- INTERNAL ----------
 
 void MEngineUtility::Initialize(const char* applicationName)
 {
-	ApplicationName = new std::string(applicationName);
-	ExecutablePath = new std::string(MUtility::GetExecutableDirectoryPath());
-	HasFocus = SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_INPUT_FOCUS;
-	IsHovered = SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_MOUSE_FOCUS;
+	m_ApplicationName = new std::string(applicationName);
+	m_ExecutablePath = new std::string(MUtility::GetExecutableDirectoryPath());
+	m_HasFocus = SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_INPUT_FOCUS;
+	m_IsHovered = SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_MOUSE_FOCUS;
 }
 
 void MEngineUtility::Shutdown()
 {
-	delete ApplicationName;
-	delete ExecutablePath;
+	delete m_ApplicationName;
+	delete m_ExecutablePath;
 }
 
 void MEngineUtility::Update()
 {
-	HasFocus	= SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_INPUT_FOCUS;
-	IsHovered	= SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_MOUSE_FOCUS;
+	m_HasFocus	= SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_INPUT_FOCUS;
+	m_IsHovered	= SDL_GetWindowFlags(MEngineGraphics::GetWindow()) & SDL_WINDOW_MOUSE_FOCUS;
 }
