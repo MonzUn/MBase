@@ -19,22 +19,22 @@ void ButtonSystem::UpdatePresentationLayer(float deltaTime)
 	{
 		bool wasClicked = false;
 
-		ButtonComponent* button = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), entities[i])); // TODODB: Rename buttonComp
-		const PosSizeComponent* posSizeComponent = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
+		ButtonComponent* buttonComp = static_cast<ButtonComponent*>(GetComponentForEntity(ButtonComponent::GetComponentMask(), entities[i]));
+		const PosSizeComponent* posSizeComp = static_cast<const PosSizeComponent*>(GetComponentForEntity(PosSizeComponent::GetComponentMask(), entities[i]));
 
-		if (button->Callback != nullptr && button->IsActive)
+		if (buttonComp->Callback != nullptr && buttonComp->IsActive)
 		{
-			button->IsMouseOver = posSizeComponent->IsMouseOver();
-			if (button->IsMouseOver)
+			buttonComp->IsMouseOver = posSizeComp->IsMouseOver();
+			if (buttonComp->IsMouseOver)
 			{
 				// TODODB: Tint the button when it is hovered
 				if (KeyReleased(MKEY_MOUSE_LEFT))
 				{
-					button->Callback->operator()();
+					buttonComp->Callback->operator()();
 					wasClicked = true;
 				}
 			}
-			button->IsTriggered = wasClicked;
+			buttonComp->IsTriggered = wasClicked;
 		}
 	}
 }
