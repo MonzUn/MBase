@@ -77,6 +77,14 @@ SystemID MEngine::RegisterSystem(System* system)
 
 bool MEngine::UnregisterSystem(SystemID ID)
 {
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (!m_SystemIDBank->IsIDActive(ID))
+	{
+		MLOG_WARNING("Attempted to unregister system using an invalid system ID; ID = " << ID, LOG_CATEGORY_SYSTEM_MANAGER);
+		return false;
+	}
+#endif
+
 	bool result = false;
 	for (int i = 0; i < m_Systems->size(); ++i)
 	{
@@ -153,7 +161,6 @@ GameModeID MEngine::CreateGameMode()
 // TODODB: Make it possible for a system to start suspended or not suspended in different game modes
 bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint32_t priority) // TODODB: Add shutdown and startup priorities (could be implemented as a priorities struct that is used to sort systems before shutdown and startup)
 {
-	uint32_t shiftedPriority = priority + MENGINE_MIN_SYSTEM_PRIORITY;
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (!m_GameModeIDBank->IsIDActive(gameModeID))
 	{
@@ -167,6 +174,7 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 		return false;
 	}
 
+	uint32_t shiftedPriority = priority + MENGINE_MIN_SYSTEM_PRIORITY;
 	const GameModeSystemList& systems = (*m_GameModes)[gameModeID];
 	for (int i = 0; i < systems.size(); ++i)
 	{
@@ -208,6 +216,20 @@ bool MEngine::RequestGameModeChange(GameModeID newGameModeID)
 
 bool MEngine::IsSystemInGameMode(SystemID systemID, GameModeID gameModeID)
 {
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (!m_SystemIDBank->IsIDActive(systemID))
+	{
+		MLOG_WARNING("Attempted to check if system is in gamemode using an invalid system ID; ID = " << systemID, LOG_CATEGORY_SYSTEM_MANAGER);
+		return false;
+	}
+
+	if (!m_GameModeIDBank->IsIDActive(gameModeID))
+	{
+		MLOG_WARNING("Attempted to check if system is in gamemode using an invalid gamemode ID; ID = " << gameModeID, LOG_CATEGORY_SYSTEM_MANAGER);
+		return false;
+	}
+#endif
+
 	bool result = false;
 	for (int k = 0; k < m_GameModes[gameModeID].size(); ++k)
 	{
