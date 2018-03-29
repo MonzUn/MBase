@@ -19,17 +19,17 @@ namespace MEngineConfig
 {
 	struct CaseInsensitiveStringComparison
 	{
-		struct CaseInsensitiveCharComparison
-		{
-			bool operator() (const unsigned char& lhs, const unsigned char& rhs) const
-			{
-				return tolower(lhs) < tolower(rhs);
-			}
-		};
-
 		bool operator() (const std::string& lhs, const std::string& rhs) const
 		{
-			return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end(), CaseInsensitiveCharComparison());
+			if(lhs.length() != rhs.length())
+				return false;
+
+			for (int i = 0; i < lhs.length(); ++i)
+			{
+				if(tolower(lhs[i]) != tolower(rhs[i]))
+					return false;
+			}
+			return true;
 		}
 	};
 
@@ -147,7 +147,6 @@ void Config::SetString(const std::string& key, const std::string& value)
 	strcpy(newString, value.c_str());
 
 	std::string keyCopy = key;
-	std::transform(keyCopy.begin(), keyCopy.end(), keyCopy.begin(), ::tolower);
 	auto iterator = m_Entries->find(keyCopy);
 	if (iterator != m_Entries->end())
 	{
