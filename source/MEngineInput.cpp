@@ -1,6 +1,7 @@
 #include "MEngineInputInternal.h"
 #include "Interface/MEngineUtility.h"
 #include "Interface/MengineText.h" // TODODB: Remove this when text input handling has been moved
+#include "MEngineBackgroundInput.h"
 #include "Scancodes.h"
 #include <MUtilityLog.h>
 #include <MUtilityPlatformDefinitions.h>
@@ -19,8 +20,6 @@ namespace MEngineInput // TODODB: See if it isn't actually better to use the MEn
 	// Key input
 	bool m_PressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
 	bool m_PreviouslyPressedKeys[MENGINE_KEY::MKEY_COUNT] = { false };
-	bool m_PressedKeysBuffer[MENGINE_KEY::MKEY_COUNT] = { false }; // Used when focus is not required
-	std::unordered_map<uint32_t, MENGINE_KEY>* m_ScanCodeToMKeyConversionTable;
 	std::unordered_map<SDL_Scancode, MENGINE_KEY>* m_SDLScanCodeToMKeyConversionTable;
 
 	// Text input
@@ -38,11 +37,6 @@ namespace MEngineInput // TODODB: See if it isn't actually better to use the MEn
 
 using namespace MEngine;
 using namespace MEngineInput;
-
-#if PLATFORM == PLATFORM_WINDOWS
-HHOOK hook = nullptr;
-LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam);
-#endif
 
 void PopulateConversionTables();
 
@@ -85,15 +79,12 @@ void MEngine::SetFocusRequired(bool required)
 
 	if (!required)
 	{
-		if (hook = SetWindowsHookEx(WH_KEYBOARD_LL, HookCallback, NULL, 0))
-			m_WindowFocusRequired = false;
-		else
-			MLOG_ERROR("Failed to initialize non focus key input mode", LOG_CATEGORY_INPUT);
+		BackgroundInput::Initialize();
+		m_WindowFocusRequired = false;
 	}
 	else
 	{
-		UnhookWindowsHookEx(hook);
-		memset(&m_PressedKeysBuffer, false, sizeof(m_PressedKeysBuffer));
+		BackgroundInput::Shutdown();
 		m_WindowFocusRequired = true;
 	}
 #endif
@@ -173,7 +164,6 @@ bool MEngine::IsInputString(const std::string* toCompare)
 
 void MEngineInput::Initialize()
 {
-	m_ScanCodeToMKeyConversionTable = new std::unordered_map<uint32_t, MENGINE_KEY>();
 	m_SDLScanCodeToMKeyConversionTable = new std::unordered_map<SDL_Scancode, MENGINE_KEY>();
 
 	PopulateConversionTables();
@@ -181,15 +171,14 @@ void MEngineInput::Initialize()
 
 void MEngineInput::Shutdown()
 {
-	delete m_ScanCodeToMKeyConversionTable;
 	delete m_SDLScanCodeToMKeyConversionTable;
+	if(!m_WindowFocusRequired)
+		BackgroundInput::Shutdown();
 }
 
 void MEngineInput::Update()
 {
 	memcpy(&m_PreviouslyPressedKeys, &m_PressedKeys, sizeof(m_PressedKeys));
-	if (!m_WindowFocusRequired)
-		memcpy(&m_PressedKeys, &m_PressedKeysBuffer, sizeof(m_PressedKeys));
 
 	m_CursorDeltaX	= 0;
 	m_CursorDeltaY	= 0;
@@ -307,7 +296,7 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 			if (scancodeAndMKey != m_SDLScanCodeToMKeyConversionTable->end())
 				m_PressedKeys[scancodeAndMKey->second] = (sdlEvent.key.state == SDL_PRESSED);
 			else
-				MLOG_WARNING("A key was pressed that could not be converted into an MKEY; Scancode = " << sdlEvent.key.keysym.scancode, LOG_CATEGORY_INPUT);
+				MLOG_WARNING("A key was pressed that could not be converted into an MKEY; SDL_Scancode = " << sdlEvent.key.keysym.scancode, LOG_CATEGORY_INPUT);
 
 			consumedEvent = true;
 		}
@@ -316,65 +305,11 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 	return consumedEvent;
 }
 
-#if PLATFORM == PLATFORM_WINDOWS
-LRESULT HookCallback(int keyCode, WPARAM wParam, LPARAM lParam)
-{
-	if (!MEngine::WindowHasFocus())
-	{
-		KBDLLHOOKSTRUCT keyStruct;
-		if (keyCode >= HC_ACTION)
-		{
-			if (wParam == WM_KEYDOWN || wParam == WM_KEYUP)
-			{
-				keyStruct = *reinterpret_cast<KBDLLHOOKSTRUCT*>(lParam);
-				uint32_t scanCode = keyStruct.scanCode;
-				if (((keyStruct.flags & LLKHF_EXTENDED) != 0))
-					scanCode |= 0xE000; // Prefix the scancode with the extension
-				
-				auto iterator = m_ScanCodeToMKeyConversionTable->find(scanCode);
-				if (iterator != m_ScanCodeToMKeyConversionTable->end())
-					m_PressedKeysBuffer[iterator->second] = (wParam == WM_KEYDOWN); // Set key pressed to true if wparam is WM_KEYDOWN
-			}
-		}
-	}
-
-	// Call the next hook in the hook chain.
-	return CallNextHookEx(hook, keyCode, wParam, lParam);
-}
-#endif
-
 // ---------- LOCAL ----------
 
 void PopulateConversionTables() // TODODB: Implement a more efficient way to map scancodes to MKEYs (can make an array with all MKEYs mapped to a scancode if we can calculate an offset for the scancodes to use as index)
 {
 	// Letters
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_A, MKEY_A));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_B, MKEY_B));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_C, MKEY_C));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_D, MKEY_D));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_E, MKEY_E));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F, MKEY_F));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_G, MKEY_G));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_H, MKEY_H));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_I, MKEY_I));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_J, MKEY_J));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_K, MKEY_K));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_L, MKEY_L));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_M, MKEY_M));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_N, MKEY_N));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_O, MKEY_O));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_P, MKEY_P));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_Q, MKEY_Q));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_R, MKEY_R));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_S, MKEY_S));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_T, MKEY_T));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_U, MKEY_U));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_V, MKEY_V));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_W, MKEY_W));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_X, MKEY_X));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_Y, MKEY_Y));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_Z, MKEY_Z));
-
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_A, MKEY_A));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_B, MKEY_B));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_C, MKEY_C));
@@ -403,27 +338,6 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_Z, MKEY_Z));
 
 	// Numeric
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_1, MKEY_NUMROW_1));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_2, MKEY_NUMROW_2));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_3, MKEY_NUMROW_3));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_4, MKEY_NUMROW_4));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_5, MKEY_NUMROW_5));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_6, MKEY_NUMROW_6));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_7, MKEY_NUMROW_7));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_8, MKEY_NUMROW_8));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_9, MKEY_NUMROW_9));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_0, MKEY_NUMROW_0));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_0, MKEY_NUMPAD_1));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_1, MKEY_NUMPAD_2));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_2, MKEY_NUMPAD_3));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_3, MKEY_NUMPAD_4));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_4, MKEY_NUMPAD_5));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_5, MKEY_NUMPAD_6));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_6, MKEY_NUMPAD_7));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_7, MKEY_NUMPAD_8));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_8, MKEY_NUMPAD_9));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_9, MKEY_NUMPAD_0));
-
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_1, MKEY_NUMROW_1));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_2, MKEY_NUMROW_2));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_3, MKEY_NUMROW_3));
@@ -446,19 +360,6 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_KP_9, MKEY_NUMPAD_0));
 
 	// Function keys
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F1, MKEY_F1));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F2, MKEY_F2));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F3, MKEY_F3));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F4, MKEY_F4));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F5, MKEY_F5));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F6, MKEY_F6));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F7, MKEY_F7));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F8, MKEY_F8));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F9, MKEY_F9));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F10, MKEY_F10));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F11, MKEY_F11));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_F12, MKEY_F12));
-
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_F1, MKEY_F1));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_F2, MKEY_F2));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_F3, MKEY_F3));
@@ -473,13 +374,6 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_F12, MKEY_F12));
 
 	// Modifiers
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_LEFT_SHIFT, MKEY_LEFT_SHIFT));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_RIGHT_SHIFT, MKEY_RIGHT_SHIFT));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_LEFT_ALT, MKEY_LEFT_ALT));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_RIGHT_ALT, MKEY_RIGHT_ALT));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_LEFT_CONTROL, MKEY_LEFT_CONTROL));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_RIGHT_CONTROL, MKEY_RIGHT_CONTROL));
-
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_LSHIFT, MKEY_LEFT_SHIFT));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RSHIFT, MKEY_RIGHT_SHIFT));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_LALT, MKEY_LEFT_ALT));
@@ -488,37 +382,6 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RCTRL, MKEY_RIGHT_CONTROL));
 
 	// Special
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_SPACE, MKEY_SPACE));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_BACKSPACE, MKEY_BACKSPACE));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_TAB, MKEY_TAB));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_GRAVE, MKEY_GRAVE));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_CAPSLOCK, MKEY_CAPS_LOCK));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_ANGLED_BRACKET, MKEY_ANGLED_BRACKET));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_ENTER, MKEY_NUMPAD_ENTER));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_ENTER, MKEY_MAIN_ENTER));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_EQUALS, MKEY_EQUALS));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_MINUS, MKEY_MINUS));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_PLUS, MKEY_NUMPAD_PLUS));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_MINUS, MKEY_NUMPAD_MINUS));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_ASTERISK, MKEY_NUMPAD_ASTERISK));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_SLASH, MKEY_NUMPAD_SLASH));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_INSERT, MKEY_INSERT));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_DELETE, MKEY_DELETE));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_HOME, MKEY_HOME));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_END, MKEY_END));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PAGE_UP, MKEY_PAGE_UP));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PAGE_DOWN, MKEY_PAGE_DOWN));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PRINTSCREEN, MKEY_PRINTSCREEN));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_SCROLL_LOCK, MKEY_SCROLL_LOCK));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PAUSE, MKEY_PAUSE_BREAK));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUM_LOCK, MKEY_NUM_LOCK));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_COMMA, MKEY_COMMA));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_COMMA, MKEY_NUMPAD_COMMA));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_PERIOD, MKEY_PERIOD));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_SLASH, MKEY_SLASH));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_APOSTROPHE, MKEY_APSTROPHE));
-	m_ScanCodeToMKeyConversionTable->insert(std::make_pair(SCANCODE_SEMICOLON, MKEY_SEMICOLON));
-
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_SPACE, MKEY_SPACE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_BACKSPACE, MKEY_BACKSPACE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_TAB, MKEY_TAB));
