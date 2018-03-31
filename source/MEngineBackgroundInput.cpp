@@ -43,7 +43,7 @@ bool BackgroundInput::Initialize()
 	if (RegisterRawInputDevices(&Rid, 1, sizeof(Rid)) != FALSE)
 	{
 		// Override the original(SDL) event loop with our own and store a handle to the original one so events can be forwarded and handled as originally intended
-		m_OriginalWndProc = (WNDPROC)SetWindowLongPtr(systemInfo.info.win.window, GWLP_WNDPROC, (LONG_PTR)&WndProc);
+		m_OriginalWndProc = reinterpret_cast<WNDPROC>(SetWindowLongPtr(systemInfo.info.win.window, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&WndProc)));
 		result = true;
 	}
 	else
@@ -128,7 +128,6 @@ LRESULT BackgroundInput::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 				}
 				delete[] bytePtr;
 			}
-			DefWindowProc(hwnd, msg, wParam, lParam); // Perform cleanup
 		} break;
 
 		default:
