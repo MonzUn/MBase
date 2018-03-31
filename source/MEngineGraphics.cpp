@@ -297,6 +297,50 @@ int32_t MEngine::GetWindowHeight()
 	return m_WindowHeight;
 }
 
+int32_t MEngine::GetDisplayWidth(int32_t displayIndex)
+{
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (displayIndex >= m_DisplayCount)
+	{
+		MLOG_WARNING("Attempted to get width of display with index " << displayIndex << " but no display with that index exists", LOG_CATEGORY_GRAPHICS);
+		return -1;
+	}
+#endif
+
+	int32_t result = -1;
+	SDL_DisplayMode displayMode;
+	if (SDL_GetDesktopDisplayMode(displayIndex, &displayMode) == 0)
+	{
+		result = displayMode.w;
+	}
+	else
+		MLOG_WARNING("Failed to get width of display with index " << displayIndex, LOG_CATEGORY_GRAPHICS);
+
+	return result;
+}
+
+int32_t MEngine::GetDisplayHeight(int32_t displayIndex)
+{
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (displayIndex >= m_DisplayCount)
+	{
+		MLOG_WARNING("Attempted to get hegiht of display with index " << displayIndex << " but no display with that index exists", LOG_CATEGORY_GRAPHICS);
+		return -1;
+	}
+#endif
+
+	int32_t result = -1;
+	SDL_DisplayMode displayMode;
+	if (SDL_GetDesktopDisplayMode(displayIndex, &displayMode) == 0)
+	{
+		result = displayMode.h;
+	}
+	else
+		MLOG_WARNING("Failed to get height of display with index " << displayIndex, LOG_CATEGORY_GRAPHICS);
+
+	return result;
+}
+
 int32_t MEngine::GetWindowPosX()
 {
 	int32_t windowPosX;

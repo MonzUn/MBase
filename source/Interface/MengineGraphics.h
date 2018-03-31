@@ -26,6 +26,8 @@ namespace MEngine
 
 	const TextureData GetTextureData(TextureID textureID);
 
+	int32_t		GetDisplayWidth(int32_t displayIndex);
+	int32_t		GetDisplayHeight(int32_t displayIndex);
 	int32_t		GetWindowWidth();
 	int32_t		GetWindowHeight();
 	int32_t		GetWindowPosX();
