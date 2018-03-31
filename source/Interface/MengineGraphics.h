@@ -28,4 +28,6 @@ namespace MEngine
 
 	int32_t		GetWindowWidth();
 	int32_t		GetWindowHeight();
+	int32_t		GetWindowPosX();
+	int32_t		GetWindowPosY();
 }

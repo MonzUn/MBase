@@ -297,6 +297,20 @@ int32_t MEngine::GetWindowHeight()
 	return m_WindowHeight;
 }
 
+int32_t MEngine::GetWindowPosX()
+{
+	int32_t windowPosX;
+	SDL_GetWindowPosition(GetWindow(), &windowPosX, nullptr);
+	return windowPosX;
+}
+
+int32_t MEngine::GetWindowPosY()
+{
+	int32_t windowPosY;
+	SDL_GetWindowPosition(GetWindow(), nullptr, &windowPosY);
+	return windowPosY;
+}
+
 // ---------- INTERNAL ----------
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
