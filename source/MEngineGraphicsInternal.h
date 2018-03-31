@@ -90,7 +90,7 @@ namespace MEngineGraphics
 		}
 	};
 
-	bool Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight);
+	bool Initialize(const char* appName, int32_t windowPosX, int32_t windowPosY, int32_t windowWidth, int32_t windowHeight);
 	void Shutdown();
 
 	MEngine::TextureID AddTexture(SDL_Texture* texture, SDL_Surface* optionalSurfaceCopy = nullptr, MEngine::TextureID reservedTextureID = MENGINE_INVALID_TEXTURE_ID);

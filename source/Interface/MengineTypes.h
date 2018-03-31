@@ -1,4 +1,5 @@
 #pragma once
+#include <MUtilityBitset.h>
 #include <MUtilityTypes.h>
 
 #define MENGINE_INVALID_COMPONENT_MASK MUTILITY_INVALID_BITMASK_ID
@@ -16,6 +17,15 @@ namespace MEngine
 	typedef MUtilityID			SystemID;
 	typedef MUtilityID			GameModeID;
 	typedef MUtilityID			FontID;
+
+	enum class InitFlags : MUtility::BitSet
+	{
+		StartWindowCentered = 1 << 0, // Will override WindowPosX and WindowPosY parameters
+		RememberWindowPosition = 1 << 1, // Will override WindowPosX, WindowPosY and StartWindowCentered if there are no config values set for window position
+
+		None,
+	};
+	CREATE_BITFLAG_OPERATOR_SIGNATURES(InitFlags);
 
 	enum class TextAlignment
 	{

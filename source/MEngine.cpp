@@ -11,15 +11,15 @@
 
 #define LOG_CATEGORY_GENERAL "MEngine"
 
+// TODODB: Fix MEngine being spelled with small e in interface file names
 // TOODDB: Add scrollbar to scrollable textboxes
-
 namespace MEngine
 {
 	bool m_Initialized		= false;
 	bool m_QuitRequested	= false;
 }
 
-bool MEngine::Initialize(const char* applicationName, int32_t windowWidth, int32_t windowHeight)
+bool MEngine::Initialize(const char* applicationName, InitFlags initFlags)
 {
 	assert(!IsInitialized() && "Calling Initialize after initialization has already been performed");
 
@@ -31,19 +31,20 @@ bool MEngine::Initialize(const char* applicationName, int32_t windowWidth, int32
 		return false;
 	}
 
-	if (!MEngineGraphics::Initialize(applicationName, windowWidth, windowHeight)) // TODODB: Make this initialize as all the other internal global systems
-	{
-		MLOG_ERROR("Failed to initialize MEngineGraphics", LOG_CATEGORY_GENERAL);
-		MUtilityLog::Shutdown();
-		return false;
-	}
-
-	MEngineGlobalSystems::Start(applicationName);
+	MEngineGlobalSystems::Start(applicationName, initFlags);
 
 	MLOG_INFO("MEngine initialized successfully", LOG_CATEGORY_GENERAL);
 
 	m_Initialized = true;
 	return true;
+}
+
+bool MEngine::CreateWindow(const char* windowTitle, int32_t windowPosX , int32_t windowPosY, int32_t windowWidth, int32_t windowHeight)
+{
+	bool result = MEngineGraphics::Initialize(windowTitle, windowPosX, windowPosY, windowWidth, windowHeight); // TODODB: Make this initialize as all the other internal global systems
+	if (!result)
+		MLOG_ERROR("Failed to initialize MEngineGraphics", LOG_CATEGORY_GENERAL);
+	return result;
 }
 
 void MEngine::Shutdown()

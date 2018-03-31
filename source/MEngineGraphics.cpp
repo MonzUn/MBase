@@ -1,4 +1,5 @@
 #include "MEngineGraphicsInternal.h"
+#include "Interface/MengineConfig.h"
 #include "Interface/MEngineComponentManager.h"
 #include "Interface/MEngineEntityManager.h"
 #include "Interface/MEngineInternalComponents.h"
@@ -9,6 +10,7 @@
 #include <MUtilityIDBank.h>
 #include <MUtilityLocklessQueue.h>
 #include <MUtilityLog.h>
+#include <MUtilityMacros.h>
 #include <MUtilityPlatformDefinitions.h>
 #include <MUtilityWindowsInclude.h>
 #include <SDL.h>
@@ -38,6 +40,9 @@ namespace MEngineGraphics
 
 	SDL_Renderer*	m_Renderer	= nullptr;
 	SDL_Window*		m_Window	= nullptr;
+
+	int32_t m_DisplayCount					= 0;
+	std::vector<SDL_Rect>* m_DispayBounds	= nullptr;
 
 	int32_t m_WindowWidth	= -1;
 	int32_t m_WindowHeight	= -1;
@@ -357,9 +362,37 @@ int32_t MEngine::GetWindowPosY()
 
 // ---------- INTERNAL ----------
 
-bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32_t windowHeight)
+bool MEngineGraphics::Initialize(const char* appName, int32_t windowPosX, int32_t windowPosY, int32_t windowWidth, int32_t windowHeight)
 {
-	m_Window = SDL_CreateWindow(appName, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
+	m_RenderJobs			= new std::vector<RenderJob*>();
+	m_Textures				= new std::vector<MEngineTexture*>();
+	m_TextureIDBank			= new MUtility::MUtilityIDBank();
+	m_PathToIDMap			= new std::unordered_map<std::string, TextureID>();
+	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
+	m_DispayBounds			= new std::vector<SDL_Rect>();
+
+	m_DisplayCount = SDL_GetNumVideoDisplays();
+	for (int i = 0; i < m_DisplayCount; ++i)
+	{
+		m_DispayBounds->push_back(SDL_Rect());
+		SDL_GetDisplayBounds(i, &m_DispayBounds->back());
+	}
+
+	const MEngine::InitFlags initFlags = GetInitFlags();
+	int32_t initialWindowPosX, initialWindowPosY;
+	if ((initFlags & InitFlags::StartWindowCentered) != 0)
+	{
+		initialWindowPosX = GetDisplayWidth(0) / 2 - windowWidth / 2;
+		initialWindowPosY = GetDisplayHeight(0) / 2 - windowHeight / 2;
+	}
+	
+	if ((initFlags & InitFlags::RememberWindowPosition) != 0)
+	{
+		initialWindowPosX = static_cast<int32_t>(Config::GetInt("WindowPosX", initialWindowPosX));
+		initialWindowPosY = static_cast<int32_t>(Config::GetInt("WindowPosY", initialWindowPosY));
+	}
+
+	m_Window = SDL_CreateWindow(appName, initialWindowPosX, initialWindowPosY, windowWidth, windowHeight, SDL_WINDOW_SHOWN);
 	if (m_Window == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateWindow Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GRAPHICS);
@@ -374,17 +407,17 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowWidth, int32
 		return false;
 	}
 
-	m_RenderJobs			= new std::vector<RenderJob*>();
-	m_Textures				= new std::vector<MEngineTexture*>();
-	m_TextureIDBank				= new MUtility::MUtilityIDBank();
-	m_PathToIDMap			= new std::unordered_map<std::string, TextureID>();
-	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
-
 	return true;
 }
 
 void MEngineGraphics::Shutdown()
 {
+	if ((GetInitFlags() & InitFlags::RememberWindowPosition) != 0)
+	{
+		Config::SetInt("WindowPosX", GetWindowPosX());
+		Config::SetInt("WindowPosY", GetWindowPosY());
+	}
+
 	delete m_RenderJobs;
 
 	for (int i = 0; i < m_Textures->size(); ++i)
@@ -396,6 +429,7 @@ void MEngineGraphics::Shutdown()
 	delete m_TextureIDBank;
 	delete m_PathToIDMap;
 	delete m_SurfaceToTextureQueue;
+	delete m_DispayBounds;
 }
 
 TextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* optionalSurfaceCopy, TextureID reservedTextureID)
