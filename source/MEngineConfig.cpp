@@ -162,6 +162,17 @@ void Config::SetString(const std::string& key, const std::string& value)
 		iterator = m_Entries->emplace(keyCopy, new ConfigEntry(ValueType::STRING, newString)).first;
 }
 
+void Config::SetConfigFilePath(const std::string& relativeFilePathAndName)
+{
+	*m_ConfigFilePath		= MEngine::GetExecutablePath() + '/' + relativeFilePathAndName + *CONFIG_EXTENSION;
+	*m_ConfigDirectoryPath	= MUtility::GetDirectoryPathFromFilePath(*m_ConfigFilePath);
+}
+
+bool Config::DoesKeyExist(const std::string& key)
+{
+	return m_Entries->find(key) != m_Entries->end();
+}
+
 void Config::WriteConfigFile()
 {
 	std::stringstream stringStream;
@@ -172,33 +183,33 @@ void Config::WriteConfigFile()
 		const ConfigEntry::ValueContainer& value = keyAndEntry.second->Value;
 		switch (keyAndEntry.second->Type)
 		{
-			case ValueType::INTEGER:
-			{
-				stringStream << value.IntegerValue;
-			} break;
+		case ValueType::INTEGER:
+		{
+			stringStream << value.IntegerValue;
+		} break;
 
-			case ValueType::DECIMAL:
-			{
-				stringStream << value.DecimalValue;
-				if (value.DecimalValue == std::floor(value.DecimalValue)) // If the value is without decimal part; write a decimal so that the parser handles it as a decimal value and not an integer value
-					stringStream << ".0";
-			} break;
+		case ValueType::DECIMAL:
+		{
+			stringStream << value.DecimalValue;
+			if (value.DecimalValue == std::floor(value.DecimalValue)) // If the value is without decimal part; write a decimal so that the parser handles it as a decimal value and not an integer value
+				stringStream << ".0";
+		} break;
 
-			case ValueType::BOOLEAN:
-			{
-				stringStream << value.BooleanValue ? "true" : "false";
-			} break;
+		case ValueType::BOOLEAN:
+		{
+			stringStream << value.BooleanValue ? "true" : "false";
+		} break;
 
-			case ValueType::STRING:
-			{
-				stringStream << "\"" << value.StringValue << "\"";
-			} break;
+		case ValueType::STRING:
+		{
+			stringStream << "\"" << value.StringValue << "\"";
+		} break;
 
-			case ValueType::INVALID:
-			{
-				MLOG_WARNING("Config entries contained entry with invalid type", LOG_CATEGORY_CONFIG);
-			} break;
-			
+		case ValueType::INVALID:
+		{
+			MLOG_WARNING("Config entries contained entry with invalid type", LOG_CATEGORY_CONFIG);
+		} break;
+
 		default:
 			MLOG_WARNING("Config entries contained entry with unknown type", LOG_CATEGORY_CONFIG);
 			break;
@@ -222,7 +233,7 @@ void Config::ReadConfigFile()
 {
 	if (!MUtility::DirectoryExists(m_ConfigDirectoryPath->c_str()))
 	{
-		if(Settings::HighLogLevel)
+		if (Settings::HighLogLevel)
 			MLOG_WARNING("Config file directory does not exist; Path = " << m_ConfigDirectoryPath->c_str(), LOG_CATEGORY_CONFIG);
 		return;
 	}
@@ -303,12 +314,6 @@ void Config::ReadConfigFile()
 		else
 			MLOG_WARNING("Unable to determine value type of config line; line = " << line, LOG_CATEGORY_CONFIG);
 	}
-}
-
-void Config::SetConfigFilePath(const std::string& relativeFilePathAndName)
-{
-	*m_ConfigFilePath		= MEngine::GetExecutablePath() + '/' + relativeFilePathAndName + *CONFIG_EXTENSION;
-	*m_ConfigDirectoryPath	= MUtility::GetDirectoryPathFromFilePath(*m_ConfigFilePath);
 }
 
 // ---------- INTERNAL ----------

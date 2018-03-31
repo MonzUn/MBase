@@ -15,9 +15,13 @@ namespace MEngine
 		void		SetBool(const std::string& key, bool value);
 		void		SetString(const std::string& key, const std::string& value);
 
+		void		SetConfigFilePath(const std::string& relativeFilePathAndName);
+
+		bool		DoesKeyExist(const std::string& key);
+
 		void		WriteConfigFile();
 		void		ReadConfigFile();
 
-		void		SetConfigFilePath(const std::string& relativeFilePathAndName);
+		
 	}
 }
