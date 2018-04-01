@@ -20,35 +20,35 @@ if(MSVC)
 endif(MSVC)
 
 # Include directory
-file(RELATIVE_PATH IncludeDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/include)
+file(RELATIVE_PATH IncludeDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/include")
 get_filename_component(IncludeDirectoryAbsolute ${IncludeDirectoryRelative} ABSOLUTE)
 
 # Externals directory
 set(SharedExternalsPathAbsolute "${ProjectRootAbsolute}/external/windows/shared")
 
 # Debug Library directory
-file(RELATIVE_PATH DebugLibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/lib/debug/x64)
+file(RELATIVE_PATH DebugLibraryDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/lib/debug/x64")
 get_filename_component(DebugLibraryDirectoryAbsolute ${DebugLibraryDirectoryRelative} ABSOLUTE)
 
 # Release Library directory
-file(RELATIVE_PATH ReleaseLibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/lib/release/x64)
+file(RELATIVE_PATH ReleaseLibraryDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/lib/release/x64")
 get_filename_component(ReleaseLibraryDirectoryAbsolute ${ReleaseLibraryDirectoryRelative} ABSOLUTE)
 
 # Shared Library directory
-file(RELATIVE_PATH SharedLibraryDirectoryRelative ${MEngine_SOURCE_DIR} ${ProjectRootAbsolute}/lib/shared/x64)
+file(RELATIVE_PATH SharedLibraryDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/lib/shared/x64")
 get_filename_component(SharedLibraryDirectoryAbsolute ${SharedLibraryDirectoryRelative} ABSOLUTE)
 
 # Find SDL2
-set(SDL2Includes ${IncludeDirectoryAbsolute}/SDL2)
+set(SDL2Includes "${IncludeDirectoryAbsolute}/SDL2")
 
 # Find SDL2_ttf
-set(SDL2_ttfIncludes ${IncludeDirectoryAbsolute}/SDL2_ttf)
+set(SDL2_ttfIncludes "${IncludeDirectoryAbsolute}/SDL2_ttf")
 
 # Find SDL_FontCache
-set(SDL_FontCacheIncludes ${IncludeDirectoryAbsolute}/SDL_FontCache)
+set(SDL_FontCacheIncludes "${IncludeDirectoryAbsolute}/SDL_FontCache")
 
 # Find MUtility
-set(MUtilityLocalIncludePath ${IncludeDirectoryAbsolute}/MUtility)
+set(MUtilityLocalIncludePath "${IncludeDirectoryAbsolute}/MUtility")
 set(MUtilityLocalDebugLibPath "${DebugLibraryDirectoryAbsolute}/MUtility")
 set(MUtilityLocalReleaseLibPath "${ReleaseLibraryDirectoryAbsolute}/MUtility")
 
@@ -93,7 +93,7 @@ ADD_LIBRARY( ${PROJECT_NAME} STATIC ${SOURCE_DIRECTORIES})
 set_property(TARGET ${PROJECT_NAME} PROPERTY INCLUDE_DIRECTORIES ${IncludeDirectoryList})
 	
 # Set output directory
-set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${ProjectRootAbsolute}/output/)
+set_target_properties(${PROJECT_NAME} PROPERTIES ARCHIVE_OUTPUT_DIRECTORY "${ProjectRootAbsolute}/output/")
 
 if(MUtilityRootPath)
 	add_custom_command(TARGET ${PROJECT_NAME} PRE_BUILD COMMAND ${CMAKE_COMMAND} -E copy_directory ${MUtilityIncludePath} ${MUtilityLocalIncludePath})
