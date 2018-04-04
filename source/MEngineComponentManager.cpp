@@ -10,7 +10,7 @@
 namespace MEngineComponentManager
 {
 	std::vector<MEngine::ComponentBuffer*>* m_Buffers;
-	MUtility::MUtilityBitMaskIDBank m_IDBank;
+	MUtility::MUtilityBitMaskIDBank m_BitMaskIDBank;
 }
 
 using namespace MEngine;
@@ -20,7 +20,7 @@ using namespace MEngineComponentManager;
 
 MEngine::ComponentMask MEngine::RegisterComponentType(const MEngine::Component& templateComponent, uint32_t templateComponentSize, uint32_t maxCount, const char* componentName)
 {
-	ComponentMask componentMask = m_IDBank.GetID();
+	ComponentMask componentMask = m_BitMaskIDBank.GetID();
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentMask == MENGINE_INVALID_COMPONENT_MASK)
 	{
@@ -41,7 +41,7 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 		MLOG_WARNING("Attempted to unregister an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return false;
 	}
-	else if (!m_IDBank.IsIDActive(componentType))
+	else if (!m_BitMaskIDBank.IsIDActive(componentType))
 	{
 		MLOG_WARNING("Attempted to unregister an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return false;
@@ -52,7 +52,7 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 	{
 		if ((*m_Buffers)[i]->ComponentType == componentType)
 		{
-			if (m_IDBank.ReturnID(componentType))
+			if (m_BitMaskIDBank.ReturnID(componentType))
 			{
 				m_Buffers->erase(m_Buffers->begin() + i);
 				return true;
@@ -77,7 +77,7 @@ MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t
 		MLOG_WARNING("Attempted to get buffer using an invalid component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return nullptr;
 	}
-	else if (!m_IDBank.IsIDActive(componentType))
+	else if (!m_BitMaskIDBank.IsIDActive(componentType))
 	{
 		MLOG_WARNING("Attempted to get buffer using an inactive component mask; componentMask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_COMPONENT_MANAGER);
 		return nullptr;

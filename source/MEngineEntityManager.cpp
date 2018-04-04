@@ -29,14 +29,14 @@ namespace
 	std::vector<EntityID>*		m_Entities;
 	std::vector<ComponentMask>*	m_ComponentMasks;
 	std::vector<std::vector<uint32_t>>* m_ComponentIndices;
-	MUtilityIDBank* m_IDBank;
+	MUtilityIDBank* m_EntityIDBank;
 }
 
 // ---------- INTERFACE ----------
 
 EntityID MEngine::CreateEntity() // TODODB: Take component mask and add the components described by the mask
 {
-	EntityID ID = m_IDBank->GetID();
+	EntityID ID = m_EntityIDBank->GetID();
 	m_Entities->push_back(ID);
 	m_ComponentMasks->push_back(MUtility::EMPTY_BITSET);
 	m_ComponentIndices->push_back(std::vector<uint32_t>());
@@ -47,7 +47,7 @@ EntityID MEngine::CreateEntity() // TODODB: Take component mask and add the comp
 bool MEngine::DestroyEntity(EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (!m_IDBank->IsIDActive(ID))
+	if (!m_EntityIDBank->IsIDActive(ID))
 	{
 		if(Settings::HighLogLevel)
 			MLOG_WARNING("Attempted to destroy entity using an inactive entity ID; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
@@ -66,7 +66,7 @@ bool MEngine::DestroyEntity(EntityID ID)
 			m_Entities->erase(m_Entities->begin() + entityIndex);
 			m_ComponentMasks->erase(m_ComponentMasks->begin() + entityIndex);
 			m_ComponentIndices->erase(m_ComponentIndices->begin() + entityIndex);
-			m_IDBank->ReturnID(ID);
+			m_EntityIDBank->ReturnID(ID);
 			return true;
 		}
 	}
@@ -81,7 +81,7 @@ ComponentMask MEngine::AddComponentsToEntity(EntityID ID, ComponentMask componen
 		MLOG_WARNING("Attempted to add component(s) to entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
-	else if (!m_IDBank->IsIDActive(ID))
+	else if (!m_EntityIDBank->IsIDActive(ID))
 	{
 		MLOG_WARNING("Attempted to add components to an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
@@ -111,7 +111,7 @@ ComponentMask MEngine::RemoveComponentsFromEntity(EntityID ID, ComponentMask com
 		MLOG_WARNING("Attempted to removed component(s) from entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentMask), LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
 	}
-	else if (!m_IDBank->IsIDActive(ID))
+	else if (!m_EntityIDBank->IsIDActive(ID))
 	{
 		MLOG_WARNING("Attempted to remove component(s) from an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return componentMask;
@@ -177,7 +177,7 @@ MEngine::Component* MEngine::GetComponent(EntityID ID, ComponentMask componentTy
 		MLOG_WARNING("Attempted to get component for entity using an invalid component mask; mask = " << MUtility::BitSetToString(componentType), LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
 	}
-	else if (!m_IDBank->IsIDActive(ID))
+	else if (!m_EntityIDBank->IsIDActive(ID))
 	{
 		MLOG_WARNING("Attempted to get component for an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return nullptr;
@@ -210,7 +210,7 @@ MEngine::Component* MEngine::GetComponent(EntityID ID, ComponentMask componentTy
 ComponentMask MEngine::GetComponentMask(EntityID ID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (!m_IDBank->IsIDActive(ID))
+	if (!m_EntityIDBank->IsIDActive(ID))
 	{
 		MLOG_WARNING("Attempted to get component mask from an entity that doesn't exist; ID = " << ID, LOG_CATEGORY_ENTITY_MANAGER);
 		return MENGINE_INVALID_COMPONENT_MASK;
@@ -227,7 +227,7 @@ void MEngineEntityManager::Initialize()
 	m_Entities			= new std::vector<EntityID>();
 	m_ComponentMasks	= new std::vector<ComponentMask>();
 	m_ComponentIndices	= new std::vector<std::vector<uint32_t>>();
-	m_IDBank			= new MUtilityIDBank();
+	m_EntityIDBank			= new MUtilityIDBank();
 }
 
 void MEngineEntityManager::Shutdown()
@@ -235,7 +235,7 @@ void MEngineEntityManager::Shutdown()
 	delete m_Entities;
 	delete m_ComponentMasks;
 	delete m_ComponentIndices;
-	delete m_IDBank;
+	delete m_EntityIDBank;
 }
 
 void MEngineEntityManager::UpdateComponentIndex(EntityID ID, ComponentMask componentType, uint32_t newComponentIndex)
