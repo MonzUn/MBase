@@ -33,9 +33,9 @@ namespace MEngine
 	MEngine::EntityID m_BackgroundID	= MENGINE_INVALID_ENTITY_ID;
 	MEngine::EntityID m_OutputTextboxID	= MENGINE_INVALID_ENTITY_ID;
 	MEngine::EntityID m_InputTextboxID	= MENGINE_INVALID_ENTITY_ID;
-	MEngine::FontID m_InputFont	= MENGINE_INVALID_FONT_ID;
-	MEngine::FontID m_OutputFont = MENGINE_INVALID_FONT_ID;
-	bool isActive = true;
+	MEngine::FontID m_InputFont			= MENGINE_INVALID_FONT_ID;
+	MEngine::FontID m_OutputFont		= MENGINE_INVALID_FONT_ID;
+	bool m_IsActive = true;
 	bool m_InitializedByHost = false;
 	int32_t m_OutputTextBoxOriginalHeight = -1;
 }
@@ -214,7 +214,7 @@ bool MEngine::SetConsoleActive(bool active)
 		return false;
 	}
 
-	if (isActive == active)
+	if (m_IsActive == active)
 		return false;
 
 	RectangleRenderingComponent* mainBackground = static_cast<RectangleRenderingComponent*>(GetComponent(m_BackgroundID, RectangleRenderingComponent::GetComponentMask()));
@@ -243,7 +243,7 @@ bool MEngine::SetConsoleActive(bool active)
 		inputButton->IsActive				= false;
 		inputText->StopEditing();
 	}
-	isActive = active;
+	m_IsActive = active;
 	return true;
 }
 
@@ -271,7 +271,7 @@ void MEngineConsole::Update()
 		// Sore new log messages for the next time the console is opened
 		MUtilityLog::GetUnreadMessages(*m_StoredLogMessages);
 			
-		if (isActive)
+		if (m_IsActive)
 		{
 			const TextComponent* inputText = static_cast<const TextComponent*>(GetComponent(m_InputTextboxID, TextComponent::GetComponentMask()));
 			TextComponent* outputText = static_cast<TextComponent*>(GetComponent(m_OutputTextboxID, TextComponent::GetComponentMask()));
@@ -320,7 +320,7 @@ void MEngineConsole::Update()
 		}
 
 		if (KeyReleased(MKEY_GRAVE) && WindowHasFocus()) // TODODB: Check against some action here when such a system has been built 
-			SetConsoleActive(!isActive);
+			SetConsoleActive(!m_IsActive);
 	}
 }
 
