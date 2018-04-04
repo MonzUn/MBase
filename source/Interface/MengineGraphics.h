@@ -32,4 +32,6 @@ namespace MEngine
 	int32_t		GetWindowHeight();
 	int32_t		GetWindowPosX();
 	int32_t		GetWindowPosY();
+
+	bool IsTextureIDValid(TextureID ID);
 }

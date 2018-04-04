@@ -25,4 +25,6 @@ namespace MEngine
 
 	MEngine::Component* GetComponent(EntityID ID, ComponentMask componentMask);
 	ComponentMask GetComponentMask(EntityID ID);
+
+	bool IsEntityIDValid(EntityID ID);
 }

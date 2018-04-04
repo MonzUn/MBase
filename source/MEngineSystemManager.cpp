@@ -214,6 +214,16 @@ bool MEngine::RequestGameModeChange(GameModeID newGameModeID)
 	return true;
 }
 
+bool MEngine::IsSystemIDValid(SystemID ID)
+{
+	return m_SystemIDBank->IsIDActive(ID);
+}
+
+bool MEngine::IsGameModeIDValid(GameModeID ID)
+{
+	return m_GameModeIDBank->IsIDActive(ID);
+}
+
 bool MEngine::IsSystemInGameMode(SystemID systemID, GameModeID gameModeID)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG

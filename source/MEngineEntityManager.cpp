@@ -220,6 +220,11 @@ ComponentMask MEngine::GetComponentMask(EntityID ID)
 	return (*m_ComponentMasks)[GetEntityIndex(ID)];
 }
 
+bool MEngine::IsEntityIDValid(EntityID ID)
+{
+	return m_EntityIDBank->IsIDActive(ID);
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineEntityManager::Initialize()

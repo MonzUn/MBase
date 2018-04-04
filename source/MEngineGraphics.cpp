@@ -360,6 +360,11 @@ int32_t MEngine::GetWindowPosY()
 	return windowPosY;
 }
 
+bool MEngine::IsTextureIDValid(TextureID ID)
+{
+	return m_TextureIDBank->IsIDActive(ID);
+}
+
 // ---------- INTERNAL ----------
 
 bool MEngineGraphics::Initialize(const char* appName, int32_t windowPosX, int32_t windowPosY, int32_t windowWidth, int32_t windowHeight)

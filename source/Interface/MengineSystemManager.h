@@ -22,5 +22,7 @@ namespace MEngine
 	bool AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint32_t priority); // TODODB Make a function for removing a system from a game mode
 	bool RequestGameModeChange(GameModeID newGameModeID); // The requested game mode will be activated at the start of next frame
 
+	bool IsSystemIDValid(SystemID ID);
+	bool IsGameModeIDValid(GameModeID ID);
 	bool IsSystemInGameMode(SystemID ID, GameModeID gameModeID);
 }
