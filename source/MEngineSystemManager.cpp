@@ -1,4 +1,5 @@
 #include "Interface/MEngineSystem.h"
+#include "Interface/MengineConsole.h"
 #include "Interface/MEngineSettings.h"
 #include "MEngineSystemManagerInternal.h"
 #include "ButtonSystem.h"
@@ -90,6 +91,7 @@ bool MEngine::UnregisterSystem(SystemID ID)
 	{
 		if ((*m_Systems)[i]->GetID() == ID)
 		{
+			UnregisterSystemCommands(ID);
 			m_SystemIDBank->ReturnID(ID);
 			m_Systems->erase(m_Systems->begin() + i);
 			result = true;
@@ -118,7 +120,6 @@ void MEngine::RequestSuspendSystem(SystemID ID)
 		return;
 	}
 #endif
-
 	m_SuspendResumeRequests->emplace_back(std::make_pair(ID, true));
 }
 
@@ -345,11 +346,16 @@ void ChangeToRequestedGameMode()
 			for (int i = 0; i < currentSystems.size(); ++i)
 			{
 				System* system = (*m_Systems)[currentSystems[i].first];
-				if((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(currentSystems[i].first, m_RequestedGameMode))
+				if ((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(currentSystems[i].first, m_RequestedGameMode))
+				{
+					UnregisterSystemCommands(system->GetID());
 					system->Shutdown();
+				}
 			}
 		}
 	}
+
+	UnregisterGameModeCommands(m_ActiveGameMode);
 
 	// Start systems for the new game mode
 	const GameModeSystemList& newSystems = (*m_GameModes)[m_RequestedGameMode];
@@ -363,7 +369,7 @@ void ChangeToRequestedGameMode()
 	m_RequestedGameMode = MENGINE_INVALID_GAME_MODE_ID;
 }
 
-void HandleSuspendResumeRequests()
+void HandleSuspendResumeRequests() // TODODB: Handle removal and readding of commands on suspend/resume
 {
 	for (int i = 0; i < m_SuspendResumeRequests->size(); ++i)
 	{

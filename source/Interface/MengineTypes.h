@@ -8,15 +8,18 @@
 #define MENGINE_INVALID_SYSTEM_ID -1
 #define MENGINE_INVALID_GAME_MODE_ID -1
 #define MENGINE_INVALID_FONT_ID -1
+#define MENGINE_INVALID_COMMAND_ID -1
 
 namespace MEngine
 {
+	// TODODB: Make these strongly typed
 	typedef MUtilityBitmaskID	ComponentMask;
 	typedef MUtilityID			EntityID;
 	typedef MUtilityID			TextureID;
 	typedef MUtilityID			SystemID;
 	typedef MUtilityID			GameModeID;
 	typedef MUtilityID			FontID;
+	typedef MUtilityID			CommandID;
 
 	enum class InitFlags : MUtility::BitSet
 	{

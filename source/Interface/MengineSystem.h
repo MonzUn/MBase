@@ -25,7 +25,7 @@ namespace MEngine
 		virtual void UpdatePresentationLayer(float deltaTime) {};
 		virtual void UpdateSimulationLayer(float timeStep) {};
 
-		bool IsSuspended() {return m_IsSuspended;}
+		bool IsSuspended() { return m_IsSuspended; }
 
 		SystemID GetID() const { return m_ID; };
 		void SetID(SystemID newID) { m_ID = newID; }; // TODODB: Find some way to only allow the engine to set IDs

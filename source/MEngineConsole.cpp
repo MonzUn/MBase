@@ -5,9 +5,11 @@
 #include "Interface/MEngineEntityFactory.h"
 #include "Interface/MEngineGraphics.h"
 #include "Interface/MEngineInput.h"
+#include "Interface/MengineSystemManager.h"
 #include "Interface/MEngineText.h"
 #include "Interface/MEngineTypes.h"
 #include "Interface/MengineUtility.h"
+#include <MUtilityIDBank.h>
 #include <MUtilityLog.h>
 #include <algorithm>
 #include <cctype>
@@ -15,7 +17,12 @@
 
 #define LOG_CATEGROY_CONSOLE "MEngineConsole"
 
+using namespace MEngine;
+using MUtility::MUtilityIDBank;
+
 typedef std::unordered_map<std::string, MEngine::ConsoleCommand> CommandMap;
+typedef std::unordered_map<SystemID, std::vector<CommandID>> SystemCommandMap;
+typedef std::unordered_map<GameModeID, std::vector<CommandID>> GameModeCommandMap;
 
 constexpr char DELIMITER = ' ';
 constexpr int32_t INPUT_TEXTBOX_HEIGHT = 25;
@@ -23,10 +30,14 @@ constexpr int32_t INPUT_TEXTBOX_HEIGHT = 25;
 void CreateComponents();
 void DestroyComponents();
 bool ExecuteHelpCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse);
+bool IsCommandGlobal(CommandID id);
+bool IsCommandSystemCoupled(CommandID id);
+bool IsCommandGameModeCoupled(CommandID id);
 
 namespace MEngine
 {
-	CommandMap*	 m_Commands				= nullptr;
+	CommandMap*	m_Commands				= nullptr;
+	MUtilityIDBank*	m_CommandIDBank		= nullptr;	
 	std::string* m_StoredLogMessages	= nullptr;
 	std::string* m_CommandLog			= nullptr;
 	uint64_t m_CommandLogLastReadIndex	= 0;
@@ -56,7 +67,7 @@ bool MEngine::InitializeConsole(FontID inputFontID, FontID outputFontID)
 		m_OutputFont		= outputFontID;
 		CreateComponents();
 
-		RegisterCommand("help", MEngineConsoleCallback(ExecuteHelpCommand), "Displays a list of all commands"); // TODODB: Add short and long descriptions and use the short one here
+		RegisterGlobalCommand("help", MEngineConsoleCallback(ExecuteHelpCommand), "Displays a list of all commands"); // TODODB: Add short and long descriptions and use the short one here
 	}
 	else
 		MLOG_WARNING("Attempted to initialize console multiple times", LOG_CATEGROY_CONSOLE);
@@ -64,46 +75,125 @@ bool MEngine::InitializeConsole(FontID inputFontID, FontID outputFontID)
 	return result;
 }
 
-bool MEngine::RegisterCommand(const std::string& commandName, MEngineConsoleCallback callback, const std::string& description)
+CommandID MEngine::RegisterGlobalCommand(const std::string& commandName, MEngineConsoleCallback callback, const std::string& description)
 {
 	std::string commandNameLower = commandName;
 	std::transform(commandNameLower.begin(), commandNameLower.end(), commandNameLower.begin(), std::tolower);
-
-	bool result = true;
-	if (m_Commands->find(commandNameLower) != m_Commands->end())
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (m_Commands->find(commandName) != m_Commands->end())
 	{
 		MLOG_WARNING("Attempted to register multiple commands using the same name; name = " << commandNameLower, LOG_CATEGROY_CONSOLE);
-		result = false;
+		return MENGINE_INVALID_COMMAND_ID;
 	}
+#endif
 
-	if(result)
-		m_Commands->emplace(commandNameLower, ConsoleCommand(commandName, callback, description));
-
-	return result;
+	CommandID commandID = m_CommandIDBank->GetID();
+	m_Commands->emplace(commandNameLower, ConsoleCommand(commandID, commandName, callback, description));
+	return commandID;
 }
 
-bool MEngine::UnregisterCommand(std::string& commandName)
+MEngine::CommandID MEngine::RegisterSystemCommand(SystemID ID, const std::string& commandName, MEngineConsoleCallback callback, const std::string& description)
 {
 	std::string commandNameLower = commandName;
 	std::transform(commandNameLower.begin(), commandNameLower.end(), commandNameLower.begin(), std::tolower);
-
-	bool result = false;
-	auto iterator = m_Commands->find(commandNameLower);
-	if (iterator != m_Commands->end())
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (m_Commands->find(commandName) != m_Commands->end())
 	{
-		m_Commands->erase(iterator);
-		result = true;
+		MLOG_WARNING("Attempted to register multiple commands using the same name; name = " << commandNameLower, LOG_CATEGROY_CONSOLE);
+		return MENGINE_INVALID_COMMAND_ID;
 	}
-	else
-		MLOG_WARNING("Attempted to unregister command \"" << commandNameLower << "\" but no such command is registered", LOG_CATEGROY_CONSOLE);
+#endif
 
-	return result;
+	CommandID commandID = m_CommandIDBank->GetID();
+	auto& iterator = m_Commands->emplace(commandNameLower, ConsoleCommand(commandID, commandName, callback, description));
+	iterator.first->second.CoupledSystem = ID;
+	return commandID;
 }
 
-void MEngine::UnregisterAllCommands()
+MEngine::CommandID MEngine::RegisterGameModeCommand(GameModeID ID, const std::string& commandName, MEngineConsoleCallback callback, const std::string& description)
 {
-	m_Commands->clear();
-	RegisterCommand("help", MEngineConsoleCallback(ExecuteHelpCommand), "Displays a list of all commands"); // TODODB: Remove this when internal commands are not being cleared when the host application clears all commands
+	std::string commandNameLower = commandName;
+	std::transform(commandNameLower.begin(), commandNameLower.end(), commandNameLower.begin(), std::tolower);
+#if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (m_Commands->find(commandName) != m_Commands->end())
+	{
+		MLOG_WARNING("Attempted to register multiple commands using the same name; name = " << commandNameLower, LOG_CATEGROY_CONSOLE);
+		return MENGINE_INVALID_COMMAND_ID;
+	}
+#endif
+
+	CommandID commandID = m_CommandIDBank->GetID();
+	auto& iterator = m_Commands->emplace(commandNameLower, ConsoleCommand(commandID, commandName, callback, description));
+	iterator.first->second.CoupledGameMode = ID;
+	return commandID;
+}
+
+bool MEngine::UnregisterCommand(CommandID ID)
+{
+	if (!IsCommandIDValid(ID))
+	{
+		MLOG_WARNING("Attempted to unregister command using an invalid ID; id = " << ID, LOG_CATEGROY_CONSOLE);
+		return false;
+	}
+
+	for (auto nameAndCommandIt = m_Commands->begin(); nameAndCommandIt != m_Commands->end();)
+	{
+		if (nameAndCommandIt->second.ID == ID)
+		{
+			m_CommandIDBank->ReturnID(nameAndCommandIt->second.ID);
+			m_Commands->erase(nameAndCommandIt);
+			return true;
+		}
+	}
+
+	MLOG_ERROR("Failed to unregister command using a valid ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+	return false;
+}
+
+bool MEngine::UnregisterSystemCommands(SystemID ID)
+{
+	if (!IsSystemIDValid(ID))
+	{
+		MLOG_WARNING("Attempted to unregister system coupled command using an invalid system ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+		return false;
+	}
+
+	auto nameAndCommandIt = m_Commands->begin();
+	while (nameAndCommandIt != m_Commands->end())
+	{
+		if (nameAndCommandIt->second.CoupledSystem == ID)
+		{
+			m_CommandIDBank->ReturnID(nameAndCommandIt->second.ID);
+			nameAndCommandIt = m_Commands->erase(nameAndCommandIt);
+		}
+		else
+			++nameAndCommandIt;
+	}
+
+	return true;
+}
+
+bool MEngine::UnregisterGameModeCommands(GameModeID ID)
+{
+	if (!IsGameModeIDValid(ID))
+	{
+		MLOG_WARNING("Attempted to unregister game mode coupled command using an invalid game mode ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+		return false;
+	}
+
+	auto nameAndCommandIt = m_Commands->begin();
+	while (nameAndCommandIt != m_Commands->end())
+	{
+		if (nameAndCommandIt->second.CoupledGameMode == ID)
+		{
+			m_CommandIDBank->ReturnID(nameAndCommandIt->second.ID);
+			nameAndCommandIt = m_Commands->erase(nameAndCommandIt);
+		}
+		else
+			++nameAndCommandIt;
+	}
+
+	return true;
 }
 
 bool MEngine::ExecuteCommand(const std::string& command, std::string* outResponse)
@@ -247,11 +337,22 @@ bool MEngine::SetConsoleActive(bool active)
 	return true;
 }
 
+bool MEngine::IsCommandIDValid(CommandID ID)
+{
+	return m_CommandIDBank->IsIDActive(ID);
+}
+
+bool MEngine::CommandExists(const std::string& commandName)
+{
+	return m_Commands->find(commandName) != m_Commands->end();
+}
+
 // ---------- INTERNAL ----------
 
 void MEngineConsole::Initialize()
 {
 	m_Commands = new CommandMap();
+	m_CommandIDBank = new MUtilityIDBank();
 	m_StoredLogMessages = new std::string();
 	m_CommandLog = new std::string();
 }
@@ -259,6 +360,7 @@ void MEngineConsole::Initialize()
 void MEngineConsole::shutdown()
 {
 	delete m_Commands;
+	delete m_CommandIDBank;
 	delete m_StoredLogMessages;
 	delete m_CommandLog;
 	DestroyComponents();
@@ -390,4 +492,64 @@ bool ExecuteHelpCommand(const std::string* parameters, int32_t parameterCount, s
 		*outResponse = "Wrong number of parameters supplied";
 
 	return result;
+}
+
+bool IsCommandGlobal(CommandID ID)
+{
+	if (!IsCommandIDValid(ID))
+	{
+		MLOG_WARNING("Attempted to check if command was global using an invalid command ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+		return false;
+	}
+
+	for (auto& nameAndCommand : *m_Commands)
+	{
+		if (nameAndCommand.second.ID == ID)
+		{
+			return nameAndCommand.second.CoupledSystem == MENGINE_INVALID_SYSTEM_ID && nameAndCommand.second.CoupledGameMode == MENGINE_INVALID_GAME_MODE_ID;
+		}
+	}
+
+	MLOG_ERROR("Failed to find command using a valid command ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+	return false;
+}
+
+bool IsCommandSystemCoupled(CommandID ID)
+{
+	if (!IsCommandIDValid(ID))
+	{
+		MLOG_WARNING("Attempted to check if command was system coupled using an invalid command ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+		return false;
+	}
+
+	for (auto& nameAndCommand : *m_Commands)
+	{
+		if (nameAndCommand.second.ID == ID)
+		{
+			return nameAndCommand.second.CoupledSystem != MENGINE_INVALID_SYSTEM_ID;
+		}
+	}
+
+	MLOG_ERROR("Failed to find command using a valid command ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+	return false;
+}
+
+bool IsCommandGameModeCoupled(CommandID ID)
+{
+	if (!IsCommandIDValid(ID))
+	{
+		MLOG_WARNING("Attempted to check if command was game mode coupled using an invalid command ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+		return false;
+	}
+
+	for (auto& nameAndCommand : *m_Commands)
+	{
+		if (nameAndCommand.second.ID == ID)
+		{
+			return nameAndCommand.second.CoupledGameMode != MENGINE_INVALID_GAME_MODE_ID;
+		}
+	}
+
+	MLOG_ERROR("Failed to find command using a valid command ID; ID = " << ID, LOG_CATEGROY_CONSOLE);
+	return false;
 }
