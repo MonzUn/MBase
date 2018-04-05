@@ -29,7 +29,7 @@ namespace
 	std::vector<EntityID>*		m_Entities;
 	std::vector<ComponentMask>*	m_ComponentMasks;
 	std::vector<std::vector<uint32_t>>* m_ComponentIndices;
-	MUtilityIDBank* m_EntityIDBank;
+	MUtilityIDBank<EntityID>* m_EntityIDBank;
 }
 
 // ---------- INTERFACE ----------
@@ -232,7 +232,7 @@ void MEngineEntityManager::Initialize()
 	m_Entities			= new std::vector<EntityID>();
 	m_ComponentMasks	= new std::vector<ComponentMask>();
 	m_ComponentIndices	= new std::vector<std::vector<uint32_t>>();
-	m_EntityIDBank			= new MUtilityIDBank();
+	m_EntityIDBank		= new MUtilityIDBank<EntityID>();
 }
 
 void MEngineEntityManager::Shutdown()

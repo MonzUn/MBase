@@ -7,7 +7,7 @@ using namespace PredefinedColors;
 
 #define LOG_CATEGORY_ENTITY_FACTORY "MEngineEntityFactory"
 
-EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID texture, FontID fontID, const std::string& text, TextAlignment textAlignment)
+EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback, uint32_t posZ, TextureID textureID, FontID fontID, const std::string& text, TextAlignment textAlignment)
 {
 	EntityID ID = CreateEntity();
 	AddComponentsToEntity(ID, BUTTON_ENTITY_MASK);
@@ -23,8 +23,8 @@ EntityID MEngine::CreateButton(int32_t posX, int32_t posY, int32_t width, int32_
 	buttonComponent->Callback	= new std::function<void()>(callback);
 
 	TextureRenderingComponent* textureComponent = static_cast<TextureRenderingComponent*>(GetComponent(ID, TextureRenderingComponent::GetComponentMask()));
-	textureComponent->TextureID = texture;
-	if (texture == MENGINE_INVALID_TEXTURE_ID)
+	textureComponent->TextureID = textureID;
+	if (!textureID.IsValid())
 		textureComponent->RenderIgnore = true;
 
 	TextComponent* textComponent = static_cast<TextComponent*>(GetComponent(ID, TextComponent::GetComponentMask()));

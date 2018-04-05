@@ -20,8 +20,8 @@ constexpr uint32_t FontCacheBufferSize = std::numeric_limits<uint32_t>::max();
 
 namespace MEngine
 {
-	std::vector<FC_Font*>*		m_Fonts;
-	MUtility::MUtilityIDBank*	m_FontIDBank;
+	std::vector<FC_Font*>*				m_Fonts;
+	MUtility::MUtilityIDBank<FontID>*	m_FontIDBank;
 }
 
 using namespace MEngine;
@@ -31,7 +31,7 @@ using namespace MEngineText;
 
 FontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t fontSize, const ColorData& textColor)
 {
-	FontID ID = MENGINE_INVALID_FONT_ID;
+	FontID ID;
 	FC_Font* font = FC_CreateFont();
 	const std::string absolutePath = MEngine::GetExecutablePath() + '/' + relativeFontPath;
 	if (!FC_LoadFont(font, MEngineGraphics::GetRenderer(), absolutePath.c_str(), fontSize, FC_MakeColor(textColor.R, textColor.G, textColor.B, textColor.A), TTF_STYLE_NORMAL))
@@ -133,7 +133,7 @@ bool MEngine::IsStringASCII(const char* string)
 void MEngineText::Initialize()
 {
 	m_Fonts			= new std::vector<FC_Font*>();
-	m_FontIDBank	= new MUtility::MUtilityIDBank();
+	m_FontIDBank	= new MUtility::MUtilityIDBank<FontID>();
 
 	FC_SetBufferSize(FontCacheBufferSize);
 }

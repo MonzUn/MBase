@@ -50,7 +50,7 @@ namespace MEngine
 	{
 	public:
 		bool RenderIgnore	= false;
-		TextureID TextureID = MENGINE_INVALID_TEXTURE_ID;
+		TextureID TextureID;
 	};
 
 	class ButtonComponent : public ComponentBase<ButtonComponent>
@@ -69,7 +69,7 @@ namespace MEngine
 	public:
 		void Destroy() override;
 
-		FontID FontID			= MENGINE_INVALID_FONT_ID;
+		FontID FontID;
 		std::string* Text				= nullptr;
 		const std::string* DefaultText	= nullptr;
 		TextAlignment Alignment			= TextAlignment::BottomLeft;

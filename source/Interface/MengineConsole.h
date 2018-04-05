@@ -23,8 +23,8 @@ namespace MEngine
 		std::string CommandName;
 		MEngineConsoleCallback Callback;
 		std::string Description;
-		SystemID CoupledSystem		= MENGINE_INVALID_SYSTEM_ID;
-		GameModeID CoupledGameMode	= MENGINE_INVALID_GAME_MODE_ID;
+		SystemID CoupledSystem;
+		GameModeID CoupledGameMode;
 	};
 
 	bool InitializeConsole(FontID inputFontID, FontID outputFontID);

@@ -27,30 +27,30 @@ bool CompareSystemPriorities(const std::pair<MEngine::SystemID, uint32_t>& lhs, 
 
 // TODODB: Make sure that the external application can not manipulate(Add, remove, suspend, resume etc) internal systems
 
-namespace MEngineSystemManager
-{
-	GameModeList*					m_GameModes;
-	MUtility::MUtilityIDBank*		m_GameModeIDBank;
-	MEngine::GameModeID				m_ActiveGameMode	= MENGINE_INVALID_GAME_MODE_ID;
-	MEngine::GameModeID				m_RequestedGameMode	= MENGINE_INVALID_GAME_MODE_ID;
-
-	std::vector<MEngine::System*>*	m_Systems;
-	MUtility::MUtilityIDBank*		m_SystemIDBank;
-
-	std::vector<std::pair<MEngine::SystemID, bool>>* m_SuspendResumeRequests;
-
-	std::vector<MEngine::SystemID>*		m_InternalSystemList;
-	std::vector<uint32_t>*				m_InternalSystemPriorities;
-
-	MEngine::FrameCounter			m_PresentationFrameCounter;
-	MEngine::FrameCounter			m_SimulationFrameCounter;
-	float							m_AccumulatedSimulationTime	= 0.0f;
-	float							m_SimulationSpeed			= DEFAULT_SIMULATION_SPEED;
-	float							m_SimulationTimeStep		= DEFAULT_TIME_STEP;
-}
-
 using namespace MEngine;
 using namespace MEngineSystemManager;
+
+namespace MEngineSystemManager
+{
+	GameModeList*							m_GameModes;
+	MUtility::MUtilityIDBank<GameModeID>*	m_GameModeIDBank;
+	MEngine::GameModeID						m_ActiveGameModeID;
+	MEngine::GameModeID						m_RequestedGameModeID;
+
+	std::vector<MEngine::System*>*		m_Systems;
+	MUtility::MUtilityIDBank<SystemID>*	m_SystemIDBank;
+
+	std::vector<std::pair<SystemID, bool>>* m_SuspendResumeRequests;
+
+	std::vector<SystemID>* m_InternalSystemList;
+	std::vector<uint32_t>* m_InternalSystemPriorities;
+
+	MEngine::FrameCounter	m_PresentationFrameCounter;
+	MEngine::FrameCounter	m_SimulationFrameCounter;
+	float					m_AccumulatedSimulationTime	= 0.0f;
+	float					m_SimulationSpeed			= DEFAULT_SIMULATION_SPEED;
+	float					m_SimulationTimeStep		= DEFAULT_TIME_STEP;
+}
 
 // ---------- INTERFACE ----------
 
@@ -202,16 +202,16 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 
 bool MEngine::RequestGameModeChange(GameModeID newGameModeID)
 {
-	if (m_ActiveGameMode == newGameModeID)
+	if (m_ActiveGameModeID == newGameModeID)
 	{
 		MLOG_WARNING("Attempted to change to the already active game mode; game mode ID = " << newGameModeID, LOG_CATEGORY_SYSTEM_MANAGER);
 		return false;
 	}
 
-	if (m_RequestedGameMode != MENGINE_INVALID_GAME_MODE_ID && Settings::HighLogLevel)
-		MLOG_WARNING("Requested game mode change before the last request could be fulfilled; game mode with ID " << m_RequestedGameMode << "will be skipped and game mode with ID " << newGameModeID << " will be used instead", LOG_CATEGORY_SYSTEM_MANAGER);
+	if (m_RequestedGameModeID.IsValid() && Settings::HighLogLevel)
+		MLOG_WARNING("Requested game mode change before the last request could be fulfilled; game mode with ID " << m_RequestedGameModeID << "will be skipped and game mode with ID " << newGameModeID << " will be used instead", LOG_CATEGORY_SYSTEM_MANAGER);
 
-	m_RequestedGameMode = newGameModeID;
+	m_RequestedGameModeID = newGameModeID;
 	return true;
 }
 
@@ -259,9 +259,9 @@ bool MEngine::IsSystemInGameMode(SystemID systemID, GameModeID gameModeID)
 void MEngineSystemManager::Initialize()
 {
 	m_GameModes					= new GameModeList();
-	m_GameModeIDBank			= new MUtility::MUtilityIDBank;
+	m_GameModeIDBank			= new MUtility::MUtilityIDBank<GameModeID>;
 	m_Systems					= new std::vector<System*>();
-	m_SystemIDBank				= new MUtility::MUtilityIDBank;
+	m_SystemIDBank				= new MUtility::MUtilityIDBank<SystemID>;
 	m_SuspendResumeRequests		= new std::vector<std::pair<SystemID, bool>>();
 	m_InternalSystemList		= new std::vector<SystemID>();
 	m_InternalSystemPriorities	= new std::vector<uint32_t>();
@@ -272,7 +272,7 @@ void MEngineSystemManager::Initialize()
 void MEngineSystemManager::Shutdown()
 {
 	// Shut down the currently active systems
-	const GameModeSystemList& gameModeSystems = (*m_GameModes)[m_ActiveGameMode];
+	const GameModeSystemList& gameModeSystems = (*m_GameModes)[m_ActiveGameModeID];
 	for (int i = 0; i < gameModeSystems.size(); ++i)
 	{
 		(*m_Systems)[gameModeSystems[i].first]->Shutdown();
@@ -304,13 +304,13 @@ void MEngineSystemManager::Update()
 	HandleSuspendResumeRequests();
 
 	// Change game mode if requested
-	if (m_RequestedGameMode != MENGINE_INVALID_GAME_MODE_ID)
+	if (m_RequestedGameModeID.IsValid()) // A valid ID indicates that a request has been made
 		ChangeToRequestedGameMode();
 
 	// Update systems
 	m_PresentationFrameCounter.Tick();
 	float deltaTime = m_PresentationFrameCounter.GetDeltaTime();
-	const GameModeSystemList& activeSystems = (*m_GameModes)[m_ActiveGameMode];
+	const GameModeSystemList& activeSystems = (*m_GameModes)[m_ActiveGameModeID];
 	for(int i = 0; i < activeSystems.size(); ++i)
 	{
 		System* system = (*m_Systems)[activeSystems[i].first];
@@ -338,15 +338,15 @@ void MEngineSystemManager::Update()
 void ChangeToRequestedGameMode()
 {
 	// Stop all running systems
-	if (m_ActiveGameMode != MENGINE_INVALID_GAME_MODE_ID)
+	if (m_ActiveGameModeID.IsValid())
 	{
-		const GameModeSystemList& currentSystems = (*m_GameModes)[m_ActiveGameMode];
-		if (m_ActiveGameMode != MENGINE_INVALID_GAME_MODE_ID)
+		const GameModeSystemList& currentSystems = (*m_GameModes)[m_ActiveGameModeID];
+		if (m_ActiveGameModeID.IsValid())
 		{
 			for (int i = 0; i < currentSystems.size(); ++i)
 			{
 				System* system = (*m_Systems)[currentSystems[i].first];
-				if ((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(currentSystems[i].first, m_RequestedGameMode))
+				if ((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(currentSystems[i].first, m_RequestedGameModeID))
 				{
 					UnregisterSystemCommands(system->GetID());
 					system->Shutdown();
@@ -355,18 +355,18 @@ void ChangeToRequestedGameMode()
 		}
 	}
 
-	UnregisterGameModeCommands(m_ActiveGameMode);
+	UnregisterGameModeCommands(m_ActiveGameModeID);
 
 	// Start systems for the new game mode
-	const GameModeSystemList& newSystems = (*m_GameModes)[m_RequestedGameMode];
+	const GameModeSystemList& newSystems = (*m_GameModes)[m_RequestedGameModeID];
 	for (int i = 0; i < newSystems.size(); ++i)
 	{
 		System* system = (*m_Systems)[newSystems[i].first];
-		if ((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(newSystems[i].first, m_RequestedGameMode))
+		if ((system->GetSystemSettings() & SystemSettings::NO_TRANSITION_RESET) == 0 || !IsSystemInGameMode(newSystems[i].first, m_RequestedGameModeID))
 			system->Initialize();
 	}
-	m_ActiveGameMode = m_RequestedGameMode;
-	m_RequestedGameMode = MENGINE_INVALID_GAME_MODE_ID;
+	m_ActiveGameModeID = m_RequestedGameModeID;
+	m_RequestedGameModeID.Invalidate();
 }
 
 void HandleSuspendResumeRequests() // TODODB: Handle removal and readding of commands on suspend/resume

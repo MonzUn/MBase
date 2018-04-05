@@ -33,7 +33,7 @@ namespace MEngine
 		SystemSettings GetSystemSettings() const {return m_SystemSettings;}
 
 		private:
-			SystemID m_ID = MENGINE_INVALID_SYSTEM_ID;
+			SystemID m_ID;
 			SystemSettings m_SystemSettings = SystemSettings::NONE;
 			bool m_IsSuspended = false;
 	};

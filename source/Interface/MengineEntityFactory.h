@@ -15,8 +15,8 @@ const MEngine::TextBoxFlags TEXT_BOX_EDIT_OVERWRITE_RESET_FLAG = (MEngine::TextB
 namespace MEngine
 {
 	EntityID CreateButton(int32_t posX, int32_t posY, int32_t width, int32_t height, std::function<void()> callback,
-		uint32_t posZ = MENGINE_DEFAULT_UI_BUTTON_DEPTH, TextureID texture = MENGINE_INVALID_TEXTURE_ID,
-		FontID fontID = MENGINE_INVALID_FONT_ID, const std::string& Text = "", TextAlignment textAlignment = TextAlignment::CenterCentered);
+		uint32_t posZ = MENGINE_DEFAULT_UI_BUTTON_DEPTH, TextureID texture = TextureID::Invalid(),
+		FontID fontID = FontID::Invalid(), const std::string& Text = "", TextAlignment textAlignment = TextAlignment::CenterCentered);
 
 	EntityID CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, FontID fontID, uint32_t posZ = MENGINE_DEFAULT_UI_TEXTBOX_DEPTH,
 		const std::string& text = "", TextAlignment alignment = TextAlignment::CenterLeft, TextBoxFlags editFlags = TextBoxFlags::None, const ColorData& backgroundColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT],

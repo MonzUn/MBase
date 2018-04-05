@@ -28,6 +28,11 @@ constexpr int32_t CARET_HEIGHT_OFFSET_TOP		= 3;
 constexpr int32_t CARET_HEIGHT_OFFSET_BOTTOM	= 5 + CARET_HEIGHT_OFFSET_TOP;
 constexpr int32_t CARET_END_OF_STRING_OFFSET	= 2;
 
+using namespace MEngine;
+using namespace MEngineGraphics;
+using namespace MEngineText;
+using namespace PredefinedColors;
+
 namespace MEngineGraphics
 {
 	bool IsDeeper(const RenderJob* lhs, const RenderJob* rhs)
@@ -49,22 +54,17 @@ namespace MEngineGraphics
 
 	std::vector<RenderJob*>*		m_RenderJobs; // TODODB: Use a frame allocator so that we don't lose performance on all the calls to "new"
 	std::vector<MEngineTexture*>*	m_Textures;
-	MUtility::MUtilityIDBank*		m_TextureIDBank;
-	std::unordered_map<std::string, MEngine::TextureID>* m_PathToIDMap;
+	MUtility::MUtilityIDBank<TextureID>*		m_TextureIDBank;
+	std::unordered_map<std::string, TextureID>* m_PathToIDMap;
 	std::mutex m_PathToIDLock;
 	MUtility::LocklessQueue<SurfaceToTextureJob*>* m_SurfaceToTextureQueue;
 }
-
-using namespace MEngine;
-using namespace MEngineGraphics;
-using namespace MEngineText;
-using namespace PredefinedColors;
 
 // ---------- INTERFACE ----------
 
 TextureID MEngine::GetTextureFromPath(const std::string& pathWithExtension)
 {
-	TextureID returnID = MENGINE_INVALID_TEXTURE_ID;
+	TextureID returnID;
 	if (pathWithExtension != "")
 	{
 		m_PathToIDLock.lock();
@@ -119,7 +119,7 @@ TextureID MEngine::CreateSubTextureFromTextureData(const TextureData& originalTe
 	if (posX < 0 || posY < 0 || offsetLimitX >= originalTexture.Width || offsetLimitY >= originalTexture.Height)
 	{
 		MLOG_WARNING("Invalid clip information supplied [" << originalTexture.Width << ',' << originalTexture.Height << ']' << ' (' << posX << ',' << posY << ") (" << (posX + width) << ',' << (posY + height) << ')', LOG_CATEGORY_GRAPHICS);
-		return MENGINE_INVALID_TEXTURE_ID;
+		return TextureID::Invalid();
 	}
 
 	SdlApiLock.lock();
@@ -281,7 +281,7 @@ const TextureData MEngine::GetTextureData(TextureID textureID)
 
 	TextureData toReturn;
 	MEngineTexture* texture = nullptr;
-	if (textureID != MENGINE_INVALID_TEXTURE_ID && textureID <static_cast<int64_t>(m_Textures->size()))
+	if (textureID.IsValid() && textureID <static_cast<int64_t>(m_Textures->size()))
 	{
 		const MEngineTexture& texture = *(*m_Textures)[textureID];
 		toReturn = TextureData(texture.Surface->w, texture.Surface->h, texture.Surface->pixels);
@@ -371,7 +371,7 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowPosX, int32_
 {
 	m_RenderJobs			= new std::vector<RenderJob*>();
 	m_Textures				= new std::vector<MEngineTexture*>();
-	m_TextureIDBank			= new MUtility::MUtilityIDBank();
+	m_TextureIDBank			= new MUtility::MUtilityIDBank<TextureID>();
 	m_PathToIDMap			= new std::unordered_map<std::string, TextureID>();
 	m_SurfaceToTextureQueue = new MUtility::LocklessQueue<SurfaceToTextureJob*>();
 	m_DispayBounds			= new std::vector<SDL_Rect>();
@@ -441,7 +441,7 @@ TextureID MEngineGraphics::AddTexture(SDL_Texture* sdlTexture, SDL_Surface* opti
 {
 	MEngineTexture* texture = new MEngineTexture(sdlTexture, optionalSurfaceCopy);
 
-	TextureID ID = reservedTextureID == MENGINE_INVALID_TEXTURE_ID ? GetNextTextureID() : reservedTextureID;
+	TextureID ID = reservedTextureID.IsValid() ? reservedTextureID : GetNextTextureID();
 	ID >= static_cast<int64_t>(m_Textures->size()) ? m_Textures->push_back(texture) : (*m_Textures)[ID] = texture;
 	return ID;
 }
@@ -462,7 +462,7 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 	}
 }
 
-TextureID MEngineGraphics::GetNextTextureID()
+TextureID MEngineGraphics::GetNextTextureID() // TODODB: Why is this a function?
 {
 	return m_TextureIDBank->GetID();
 }
@@ -533,7 +533,7 @@ void MEngineGraphics::CreateRenderJobs()
 		if ((entityComponentMask & TextureRenderingComponent::GetComponentMask()) != 0)
 		{
 			const TextureRenderingComponent* textureComp = static_cast<const TextureRenderingComponent*>(GetComponent(entities[i], TextureRenderingComponent::GetComponentMask()));
-			if (!textureComp->RenderIgnore && textureComp->TextureID != MENGINE_INVALID_TEXTURE_ID)
+			if (!textureComp->RenderIgnore && textureComp->TextureID.IsValid())
 			{
 				job->TextureID = textureComp->TextureID;
 				job->JobMask |= JobTypeMask::TEXTURE;
@@ -543,7 +543,7 @@ void MEngineGraphics::CreateRenderJobs()
 		if ((entityComponentMask & TextComponent::GetComponentMask()) != 0)
 		{
 			const TextComponent* textComp = static_cast<const TextComponent*>(GetComponent(entities[i], TextComponent::GetComponentMask()));
-			if (!textComp->RenderIgnore && textComp->FontID != MENGINE_INVALID_FONT_ID && textComp->Text != nullptr)
+			if (!textComp->RenderIgnore && textComp->FontID.IsValid() && textComp->Text != nullptr)
 			{
 				if (*textComp->Text != "")
 				{

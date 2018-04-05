@@ -30,22 +30,22 @@ constexpr int32_t INPUT_TEXTBOX_HEIGHT = 25;
 void CreateComponents();
 void DestroyComponents();
 bool ExecuteHelpCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse);
-bool IsCommandGlobal(CommandID id);
-bool IsCommandSystemCoupled(CommandID id);
-bool IsCommandGameModeCoupled(CommandID id);
+bool IsCommandGlobal(CommandID ID);
+bool IsCommandSystemCoupled(CommandID ID);
+bool IsCommandGameModeCoupled(CommandID ID);
 
 namespace MEngine
 {
-	CommandMap*	m_Commands				= nullptr;
-	MUtilityIDBank*	m_CommandIDBank		= nullptr;	
-	std::string* m_StoredLogMessages	= nullptr;
-	std::string* m_CommandLog			= nullptr;
-	uint64_t m_CommandLogLastReadIndex	= 0;
-	MEngine::EntityID m_BackgroundID	= MENGINE_INVALID_ENTITY_ID;
-	MEngine::EntityID m_OutputTextboxID	= MENGINE_INVALID_ENTITY_ID;
-	MEngine::EntityID m_InputTextboxID	= MENGINE_INVALID_ENTITY_ID;
-	MEngine::FontID m_InputFont			= MENGINE_INVALID_FONT_ID;
-	MEngine::FontID m_OutputFont		= MENGINE_INVALID_FONT_ID;
+	CommandMap*	m_Commands							= nullptr;
+	MUtilityIDBank<CommandID>*	m_CommandIDBank		= nullptr;	
+	std::string* m_StoredLogMessages				= nullptr;
+	std::string* m_CommandLog						= nullptr;
+	uint64_t m_CommandLogLastReadIndex				= 0;
+	MEngine::EntityID m_BackgroundID;
+	MEngine::EntityID m_OutputTextboxID;
+	MEngine::EntityID m_InputTextboxID;
+	MEngine::FontID m_InputFont;
+	MEngine::FontID m_OutputFont;
 	bool m_IsActive = true;
 	bool m_InitializedByHost = false;
 	int32_t m_OutputTextBoxOriginalHeight = -1;
@@ -83,7 +83,7 @@ CommandID MEngine::RegisterGlobalCommand(const std::string& commandName, MEngine
 	if (m_Commands->find(commandName) != m_Commands->end())
 	{
 		MLOG_WARNING("Attempted to register multiple commands using the same name; name = " << commandNameLower, LOG_CATEGROY_CONSOLE);
-		return MENGINE_INVALID_COMMAND_ID;
+		return CommandID::Invalid();
 	}
 #endif
 
@@ -100,7 +100,7 @@ MEngine::CommandID MEngine::RegisterSystemCommand(SystemID ID, const std::string
 	if (m_Commands->find(commandName) != m_Commands->end())
 	{
 		MLOG_WARNING("Attempted to register multiple commands using the same name; name = " << commandNameLower, LOG_CATEGROY_CONSOLE);
-		return MENGINE_INVALID_COMMAND_ID;
+		return CommandID::Invalid();
 	}
 #endif
 
@@ -118,7 +118,7 @@ MEngine::CommandID MEngine::RegisterGameModeCommand(GameModeID ID, const std::st
 	if (m_Commands->find(commandName) != m_Commands->end())
 	{
 		MLOG_WARNING("Attempted to register multiple commands using the same name; name = " << commandNameLower, LOG_CATEGROY_CONSOLE);
-		return MENGINE_INVALID_COMMAND_ID;
+		return CommandID::Invalid();
 	}
 #endif
 
@@ -352,7 +352,7 @@ bool MEngine::CommandExists(const std::string& commandName)
 void MEngineConsole::Initialize()
 {
 	m_Commands = new CommandMap();
-	m_CommandIDBank = new MUtilityIDBank();
+	m_CommandIDBank = new MUtilityIDBank<CommandID>();
 	m_StoredLogMessages = new std::string();
 	m_CommandLog = new std::string();
 }
@@ -370,7 +370,7 @@ void MEngineConsole::Update()
 {
 	if (m_InitializedByHost)
 	{
-		// Sore new log messages for the next time the console is opened
+		// Store new log messages for the next time the console is opened
 		MUtilityLog::GetUnreadMessages(*m_StoredLogMessages);
 			
 		if (m_IsActive)
@@ -456,11 +456,11 @@ void CreateComponents()
 
 void DestroyComponents()
 {
-	if(m_BackgroundID != MENGINE_INVALID_ENTITY_ID)
+	if(m_BackgroundID.IsValid())
 		DestroyEntity(m_BackgroundID);
-	if (m_OutputTextboxID != MENGINE_INVALID_ENTITY_ID)
+	if (m_OutputTextboxID.IsValid())
 		DestroyEntity(m_OutputTextboxID);
-	if (m_InputTextboxID != MENGINE_INVALID_ENTITY_ID)
+	if (m_InputTextboxID.IsValid())
 		DestroyEntity(m_InputTextboxID);
 }
 
@@ -506,7 +506,7 @@ bool IsCommandGlobal(CommandID ID)
 	{
 		if (nameAndCommand.second.ID == ID)
 		{
-			return nameAndCommand.second.CoupledSystem == MENGINE_INVALID_SYSTEM_ID && nameAndCommand.second.CoupledGameMode == MENGINE_INVALID_GAME_MODE_ID;
+			return !nameAndCommand.second.CoupledSystem.IsValid() && !nameAndCommand.second.CoupledGameMode.IsValid();
 		}
 	}
 
@@ -526,7 +526,7 @@ bool IsCommandSystemCoupled(CommandID ID)
 	{
 		if (nameAndCommand.second.ID == ID)
 		{
-			return nameAndCommand.second.CoupledSystem != MENGINE_INVALID_SYSTEM_ID;
+			return nameAndCommand.second.CoupledSystem.IsValid();
 		}
 	}
 
@@ -546,7 +546,7 @@ bool IsCommandGameModeCoupled(CommandID ID)
 	{
 		if (nameAndCommand.second.ID == ID)
 		{
-			return nameAndCommand.second.CoupledGameMode != MENGINE_INVALID_GAME_MODE_ID;
+			return nameAndCommand.second.CoupledGameMode.IsValid();
 		}
 	}
 

@@ -1,25 +1,31 @@
 #pragma once
 #include <MUtilityBitset.h>
+#include <MUtilityStrongID.h>
 #include <MUtilityTypes.h>
 
 #define MENGINE_INVALID_COMPONENT_MASK MUTILITY_INVALID_BITMASK_ID
-#define MENGINE_INVALID_ENTITY_ID -1
-#define MENGINE_INVALID_TEXTURE_ID -1
-#define MENGINE_INVALID_SYSTEM_ID -1
-#define MENGINE_INVALID_GAME_MODE_ID -1
-#define MENGINE_INVALID_FONT_ID -1
-#define MENGINE_INVALID_COMMAND_ID -1
 
 namespace MEngine
 {
-	// TODODB: Make these strongly typed
-	typedef MUtilityBitmaskID	ComponentMask;
-	typedef MUtilityID			EntityID;
-	typedef MUtilityID			TextureID;
-	typedef MUtilityID			SystemID;
-	typedef MUtilityID			GameModeID;
-	typedef MUtilityID			FontID;
-	typedef MUtilityID			CommandID;
+	typedef MUtilityBitmaskID ComponentMask;
+
+	struct EntityIDTag {};
+	typedef MUtility::StrongID<EntityIDTag, int32_t, -1>	EntityID;
+
+	struct TextureIDTag {};
+	typedef MUtility::StrongID<TextureIDTag, int32_t, -1>	TextureID;
+
+	struct SystemIDTag {};
+	typedef MUtility::StrongID<SystemIDTag, int32_t, -1>	SystemID;
+
+	struct GameModeIDTag {};
+	typedef MUtility::StrongID<GameModeIDTag, int32_t, -1>	GameModeID;
+
+	struct FontIDTag {};
+	typedef MUtility::StrongID<FontIDTag, int32_t, -1>		FontID;
+
+	struct CommandIDTag {};
+	typedef MUtility::StrongID<CommandIDTag, int32_t, -1>	CommandID;
 
 	enum class InitFlags : MUtility::BitSet
 	{
