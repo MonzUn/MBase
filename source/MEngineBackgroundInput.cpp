@@ -103,7 +103,7 @@ LRESULT BackgroundInput::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 							if((rawKeboard.Flags & RI_KEY_E0) != 0)
 								scanCode |= 0xE000; // Prefix the scancode with the E0 extension
 							else if((rawKeboard.Flags & RI_KEY_E1) != 0)
-								MLOG_WARNING("Reiceived input using E1 extension; these scancodes are not yet supported", LOG_CATEGORY_BACKGROUND_INPUT);
+								MLOG_WARNING("Reiceived input using E1 extension; these scancodes are not yet supported", LOG_CATEGORY_BACKGROUND_INPUT); // TODODB: Add support for E1 scancodes
 
 							auto iterator = m_ScanCodeToSDLScanCodeConversionTable->find(scanCode);
 							if (iterator != m_ScanCodeToSDLScanCodeConversionTable->end())

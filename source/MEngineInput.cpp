@@ -1,6 +1,8 @@
 #include "MEngineInputInternal.h"
-#include "Interface/MEngineUtility.h"
+#include "Interface/MengineConsole.h"
+#include "Interface/MengineSettings.h"
 #include "Interface/MengineText.h" // TODODB: Remove this when text input handling has been moved
+#include "Interface/MEngineUtility.h"
 #include "MEngineBackgroundInput.h"
 #include "Scancodes.h"
 #include <MUtilityLog.h>
@@ -37,8 +39,10 @@ namespace MEngineInput // TODODB: See if it isn't actually better to use the MEn
 
 using namespace MEngine;
 using namespace MEngineInput;
+using namespace std::placeholders;
 
 void PopulateConversionTables();
+bool ExecutePrintKeyCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse);
 
 // ---------- INTERFACE ----------
 
@@ -167,6 +171,7 @@ void MEngineInput::Initialize()
 	m_SDLScanCodeToMKeyConversionTable = new std::unordered_map<SDL_Scancode, MENGINE_KEY>();
 
 	PopulateConversionTables();
+	RegisterGlobalCommand("PrintKeys", std::bind(&ExecutePrintKeyCommand, _1, _2, _3), "Toggles log printing of pressed keys on or off");
 }
 
 void MEngineInput::Shutdown()
@@ -294,7 +299,12 @@ bool MEngineInput::HandleEvent(const SDL_Event& sdlEvent)
 		{
 			auto scancodeAndMKey = m_SDLScanCodeToMKeyConversionTable->find(sdlEvent.key.keysym.scancode);
 			if (scancodeAndMKey != m_SDLScanCodeToMKeyConversionTable->end())
+			{
 				m_PressedKeys[scancodeAndMKey->second] = (sdlEvent.key.state == SDL_PRESSED);
+
+				if(Settings::PrintKeys)
+					MLOG_INFO(SDL_GetScancodeName(scancodeAndMKey->first) << " (" << scancodeAndMKey->first << ')', LOG_CATEGORY_INPUT); // TODODB: Implement and use headless logging
+			}
 			else
 				MLOG_WARNING("A key was pressed that could not be converted into an MKEY; SDL_Scancode = " << sdlEvent.key.keysym.scancode, LOG_CATEGORY_INPUT);
 
@@ -429,4 +439,18 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_SLASH, MKEY_SLASH));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_APOSTROPHE, MKEY_APSTROPHE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_SEMICOLON, MKEY_SEMICOLON));
+}
+
+bool ExecutePrintKeyCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse)
+{
+	bool result = false;
+	if (parameterCount == 0)
+	{
+		Settings::PrintKeys = !Settings::PrintKeys;
+		*outResponse = Settings::PrintKeys ? "Key printing is on; type command again to toggle off" : "Key printing is off";
+	}
+	else if (outResponse != nullptr)
+		*outResponse = "Wrong number of parameters supplied";
+
+	return result;
 }
