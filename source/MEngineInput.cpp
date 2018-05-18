@@ -382,12 +382,29 @@ void PopulateConversionTables() // TODODB: Implement a more efficient way to map
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RCTRL, MKEY_RIGHT_CONTROL));
 
 	// Special
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_UP, MKEY_ARROW_UP));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_DOWN, MKEY_ARROW_DOWN));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_LEFT, MKEY_ARROW_LEFT));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RIGHT, MKEY_ARROW_RIGHT));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_SPACE, MKEY_SPACE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_BACKSPACE, MKEY_BACKSPACE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_TAB, MKEY_TAB));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_GRAVE, MKEY_GRAVE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_CAPSLOCK, MKEY_CAPS_LOCK));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_LEFTBRACKET, MKEY_LEFTBRACKET));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RIGHTBRACKET, MKEY_RIGHTBRACKET));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_BACKSLASH, MKEY_BACKSLASH));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_NONUSBACKSLASH, MKEY_ANGLED_BRACKET));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_APPLICATION, MKEY_APPLICATION));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_LGUI, MKEY_LEFT_COMMAND));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RGUI, MKEY_RIGHT_COMMAND));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(static_cast<SDL_Scancode>(57435), MKEY_LEFT_COMMAND_ALTERNATIVE)); // There exists no matching SDL_SCANCODE for these MKEYs
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(static_cast<SDL_Scancode>(57436), MKEY_RIGHT_COMMAND_ALTERNATIVE));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_AUDIONEXT, MKEY_AUDIONEXT));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_AUDIOPREV, MKEY_AUDIOPREV));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_AUDIOSTOP, MKEY_AUDIOSTOP));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_AUDIOPLAY, MKEY_AUDIOPLAY));
+	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_AUDIOMUTE, MKEY_AUDIOMUTE));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_KP_ENTER, MKEY_NUMPAD_ENTER));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_RETURN, MKEY_MAIN_ENTER));
 	m_SDLScanCodeToMKeyConversionTable->insert(std::make_pair(SDL_SCANCODE_EQUALS, MKEY_EQUALS));

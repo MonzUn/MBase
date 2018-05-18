@@ -140,6 +140,7 @@ LRESULT BackgroundInput::WndProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPar
 
 void BackgroundInput::PopulateConversionTables() // TODODB: Implement a more efficient way to map scancodes to SDL_Scancodes
 {
+	// Letters
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_A, SDL_SCANCODE_A));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_B, SDL_SCANCODE_B));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_C, SDL_SCANCODE_C));
@@ -167,6 +168,7 @@ void BackgroundInput::PopulateConversionTables() // TODODB: Implement a more eff
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_Y, SDL_SCANCODE_Y));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_Z, SDL_SCANCODE_Z));
 
+	// Numeric
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_1, SDL_SCANCODE_1));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_2, SDL_SCANCODE_2));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_3, SDL_SCANCODE_3));
@@ -188,6 +190,7 @@ void BackgroundInput::PopulateConversionTables() // TODODB: Implement a more eff
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_8, SDL_SCANCODE_KP_9));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_9, SDL_SCANCODE_KP_0));
 
+	// Function keys
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_F1, SDL_SCANCODE_F1));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_F2, SDL_SCANCODE_F2));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_F3, SDL_SCANCODE_F3));
@@ -201,6 +204,7 @@ void BackgroundInput::PopulateConversionTables() // TODODB: Implement a more eff
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_F11, SDL_SCANCODE_F11));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_F12, SDL_SCANCODE_F12));
 
+	// Modifiers
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_LEFT_SHIFT, SDL_SCANCODE_LSHIFT));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_RIGHT_SHIFT, SDL_SCANCODE_RSHIFT));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_LEFT_ALT, SDL_SCANCODE_LALT));
@@ -208,12 +212,30 @@ void BackgroundInput::PopulateConversionTables() // TODODB: Implement a more eff
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_LEFT_CONTROL, SDL_SCANCODE_LCTRL));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_RIGHT_CONTROL, SDL_SCANCODE_RCTRL));
 
+	// Special
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_ARROW_UP, SDL_SCANCODE_UP));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_ARROW_DOWN, SDL_SCANCODE_DOWN));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_ARROW_LEFT, SDL_SCANCODE_LEFT));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_ARROW_RIGHT, SDL_SCANCODE_RIGHT));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_SPACE, SDL_SCANCODE_SPACE));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_APPLICATION, SDL_SCANCODE_APPLICATION));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_BACKSPACE, SDL_SCANCODE_BACKSPACE));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_TAB, SDL_SCANCODE_TAB));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_GRAVE, SDL_SCANCODE_GRAVE));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_CAPSLOCK, SDL_SCANCODE_CAPSLOCK));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_LEFT_BRACKET, SDL_SCANCODE_LEFTBRACKET));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_RIGHT_BRACKET, SDL_SCANCODE_RIGHTBRACKET));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_BACKSLASH, SDL_SCANCODE_BACKSLASH));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_ANGLED_BRACKET, SDL_SCANCODE_NONUSBACKSLASH));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_LEFT_META, SDL_SCANCODE_LGUI));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_RIGHT_META, SDL_SCANCODE_RGUI));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(57435, static_cast<SDL_Scancode>(57435))); // There exists no matching SDL_SCANCODE for these scancodes (triggered when closing the windows start menu using the windows key)
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(57436, static_cast<SDL_Scancode>(57436)));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_MEDIA_NEXT, SDL_SCANCODE_AUDIONEXT));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_MEDIA_PREVIOUS, SDL_SCANCODE_AUDIOPREV));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_MEDIA_STOP, SDL_SCANCODE_AUDIOSTOP));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_MEDIA_PLAY, SDL_SCANCODE_AUDIOPLAY));
+	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_VOLUME_MUTE, SDL_SCANCODE_AUDIOMUTE));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_NUMPAD_ENTER, SDL_SCANCODE_KP_ENTER));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_ENTER, SDL_SCANCODE_RETURN));
 	m_ScanCodeToSDLScanCodeConversionTable->insert(std::make_pair(SCANCODE_EQUALS, SDL_SCANCODE_EQUALS));

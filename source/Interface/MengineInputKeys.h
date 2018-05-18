@@ -89,16 +89,31 @@ enum MENGINE_KEY // Names are based on US keyboard layout (101)
 	//MKEY_CONTROL,
 
 	// Special
+	MKEY_ARROW_UP,
+	MKEY_ARROW_DOWN,
+	MKEY_ARROW_LEFT,
+	MKEY_ARROW_RIGHT,
 	MKEY_SPACE,
 	MKEY_BACKSPACE,
+	MKEY_APPLICATION, // Left of right ctrl
 	MKEY_TAB,
 	MKEY_GRAVE,
 	MKEY_CAPS_LOCK,
+	MKEY_LEFTBRACKET, // Left of MKEY_RIGHTBRACKET
+	MKEY_RIGHTBRACKET, // Upper left of the return key
+	MKEY_BACKSLASH, // Lower left of the return key
 	MKEY_ANGLED_BRACKET, // Between left shift and Z
-	MKEY_LEFT_COMMAND, // TODODB: Find out the scancode for this key (left windows key)
-	MKEY_RIGHT_COMMAND, // TODODB: Find out the scancode for this key (right windows key)
-	//MKEY_COMMAND, // Windows key
+	MKEY_LEFT_COMMAND, // Windows, command(apple) or meta key
+	MKEY_RIGHT_COMMAND,
+	MKEY_LEFT_COMMAND_ALTERNATIVE, // Triggered when closing the windows start menu using the windows key
+	MKEY_RIGHT_COMMAND_ALTERNATIVE,
+	//MKEY_COMMAND,
 	//MKEY_ENTER,
+	MKEY_AUDIONEXT,
+	MKEY_AUDIOPREV,
+	MKEY_AUDIOSTOP,
+	MKEY_AUDIOPLAY,
+	MKEY_AUDIOMUTE,
 	MKEY_NUMPAD_ENTER,
 	MKEY_MAIN_ENTER, // Enter button above right shift
 	MKEY_EQUALS, // Left of backspace
