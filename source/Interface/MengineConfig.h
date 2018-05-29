@@ -21,7 +21,5 @@ namespace MEngine
 
 		void		WriteConfigFile();
 		void		ReadConfigFile();
-
-		
 	}
 }

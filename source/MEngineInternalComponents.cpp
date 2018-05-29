@@ -14,7 +14,7 @@ namespace MEngineInternalComponents
 
 using namespace MEngine;
 
-CREATE_BITFLAG_OPERATOR_DEFINITIONS(MEngine, TextBoxFlags);
+CREATE_NAMESPACED_BITFLAG_OPERATOR_DEFINITIONS(MEngine, TextBoxFlags);
 
 // ---------- COMPONENTS ----------
 

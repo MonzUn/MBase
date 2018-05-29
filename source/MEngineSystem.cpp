@@ -1,3 +1,3 @@
 #include "Interface/MengineSystem.h"
 
-CREATE_BITFLAG_OPERATOR_DEFINITIONS(MEngine, SystemSettings);
+CREATE_NAMESPACED_BITFLAG_OPERATOR_DEFINITIONS(MEngine, SystemSettings);
