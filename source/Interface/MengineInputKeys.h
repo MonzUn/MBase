@@ -146,5 +146,6 @@ enum MENGINE_KEY // Names are based on US keyboard layout (101)
 	MKEY_MOUSE_THUMB_BACK,
 	MKEY_MOUSE_THUMB_FORWARD,
 
-	MKEY_COUNT // Not a key but the amount of entries in the enum
+	MKEY_COUNT, // Not a key but the amount of entries in the enum
+	MKEY_INVALID
 };
