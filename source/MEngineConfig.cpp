@@ -252,10 +252,11 @@ void Config::ReadConfigFile()
 	{
 		std::string line, key, value = "";
 		getline(stringStream, line);
-		if (line == "")
+		if (line.empty())
 			continue;
 		
 		line.erase(std::remove_if(line.begin(), line.end(), ::isspace), line.end()); // Strip whitespaces
+		std::transform(line.begin(), line.end(), line.begin(), ::tolower);
 		
 		size_t dividerPos = line.find("=");
 		if (dividerPos == 0)
@@ -296,7 +297,7 @@ void Config::ReadConfigFile()
 			strcpy(stringValue, value.c_str());
 			m_Entries->emplace(key, new ConfigEntry(ValueType::STRING, stringValue));
 		}
-		else if (MUtilityString::IsStringNumber(value))
+		else if (MUtility::IsStringNumber(value))
 		{
 			int64_t intValue = strtoll(value.c_str(), nullptr, 0);
 			m_Entries->emplace(key, new ConfigEntry(ValueType::INTEGER, intValue));
@@ -306,7 +307,7 @@ void Config::ReadConfigFile()
 			bool boolValue = (value == "true");
 			m_Entries->emplace(key, new ConfigEntry(ValueType::BOOLEAN, boolValue));
 		}
-		else if (MUtilityString::IsStringNumberExcept(value, '.', 1) || MUtilityString::IsStringNumberExcept(value, ',', 1))
+		else if (MUtility::IsStringNumberExcept(value, '.', 1) || MUtility::IsStringNumberExcept(value, ',', 1))
 		{
 			double doubleValue = std::stod(value);
 			m_Entries->emplace(key, new ConfigEntry(ValueType::DECIMAL, doubleValue));
