@@ -10,7 +10,7 @@ namespace MEngine
 	constexpr int32_t DEFAULT_WINDOW_HEIGHT = 768;
 
 	bool Initialize(const char* applicationName = "MEngineApp", InitFlags initFlags = InitFlags::None);
-	bool CreateWindow(const char* windowTitle = "", int32_t windowPosX = DEFAULT_WINDOW_POS_X, int32_t windowPosY = DEFAULT_WINDOW_POS_Y, int32_t windowWidth = DEFAULT_WINDOW_WIDTH, int32_t windowHeight = DEFAULT_WINDOW_HEIGHT);
+	bool CreateWindow_(const char* windowTitle = "", int32_t windowPosX = DEFAULT_WINDOW_POS_X, int32_t windowPosY = DEFAULT_WINDOW_POS_Y, int32_t windowWidth = DEFAULT_WINDOW_WIDTH, int32_t windowHeight = DEFAULT_WINDOW_HEIGHT); // Underscore postfix avoids conflict with Windows.h macro CreateWindow
 	void Shutdown();
 		 
 	bool IsInitialized();

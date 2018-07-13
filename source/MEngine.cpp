@@ -39,7 +39,7 @@ bool MEngine::Initialize(const char* applicationName, InitFlags initFlags)
 	return true;
 }
 
-bool MEngine::CreateWindow(const char* windowTitle, int32_t windowPosX , int32_t windowPosY, int32_t windowWidth, int32_t windowHeight)
+bool MEngine::CreateWindow_(const char* windowTitle, int32_t windowPosX , int32_t windowPosY, int32_t windowWidth, int32_t windowHeight)
 {
 	bool result = MEngineGraphics::Initialize(windowTitle, windowPosX, windowPosY, windowWidth, windowHeight); // TODODB: Make this initialize as all the other internal global systems
 	if (!result)

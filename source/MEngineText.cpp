@@ -29,7 +29,7 @@ using namespace MEngineText;
 
 // ---------- INTERFACE ----------
 
-FontID MEngine::CreateFont(const std::string& relativeFontPath, int32_t fontSize, const ColorData& textColor)
+FontID MEngine::CreateFont_(const std::string& relativeFontPath, int32_t fontSize, const ColorData& textColor)
 {
 	FontID ID;
 	FC_Font* font = FC_CreateFont();
