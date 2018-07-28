@@ -1,9 +1,11 @@
 #include "Interface/MEngine.h"
+#include "interface/MengineConsole.h"
 #include "MEngineGraphicsInternal.h"
 #include "MEngineInputInternal.h"
 #include "MEngineGlobalSystems.h"
 #include "MEngineSystemManagerInternal.h"
 #include <MUtilityLog.h>
+#include <MUtilityString.h>
 #include <MUtilitySystem.h>
 #include <SDL.h>
 #include <cassert>
@@ -13,8 +15,12 @@
 
 // TODODB: Fix MEngine being spelled with small e in interface file names
 // TOODDB: Add scrollbar to scrollable textboxes
+
 namespace MEngine
 {
+	void RegisterMEngineCommands();
+	bool ExecuteSetLogOutputModeCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse);
+
 	bool m_Initialized		= false;
 	bool m_QuitRequested	= false;
 }
@@ -32,6 +38,7 @@ bool MEngine::Initialize(const char* applicationName, InitFlags initFlags)
 	}
 
 	MEngineGlobalSystems::Start(applicationName, initFlags);
+	RegisterMEngineCommands();
 
 	MLOG_INFO("MEngine initialized successfully", LOG_CATEGORY_GENERAL);
 
@@ -95,4 +102,37 @@ void MEngine::Update()
 void MEngine::Render()
 {
 	MEngineGraphics::Render();
+}
+
+// ---------- INTERNAL ----------
+
+void MEngine::RegisterMEngineCommands()
+{
+	RegisterGlobalCommand("SetLogOutputMode", &ExecuteSetLogOutputModeCommand, "Sets when logs are written to file; 0 = On shutdown, 1 = Immediately after each log entry");
+}
+
+bool MEngine::ExecuteSetLogOutputModeCommand(const std::string* parameters, int32_t parameterCount, std::string* outResponse)
+{
+	bool result = false;
+	if (parameterCount == 1)
+	{
+		if (MUtility::IsStringNumber(*parameters))
+		{
+			int32_t parameter = std::stoi(parameters->c_str());
+			if (parameter >= 0 && parameter <= 1)
+			{
+				MUtilityLog::SetOutputTrigger(MUtilityLogOutputTrigger(parameter));
+				if(outResponse != nullptr)
+					*outResponse = "Log output trigger has been set";
+			}
+			else if(outResponse != nullptr)
+				*outResponse = "The parameter must be in the range 0 - 1";
+		}
+		else if(outResponse != nullptr)
+			*outResponse = "The parameter must be a number";
+	}
+	else if(outResponse != nullptr)
+		*outResponse = "Wrong number of parameters supplied";
+
+	return result;
 }
