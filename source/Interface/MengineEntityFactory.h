@@ -19,8 +19,8 @@ namespace MEngine
 		FontID fontID = FontID::Invalid(), const std::string& Text = "", TextAlignment textAlignment = TextAlignment::CenterCentered);
 
 	EntityID CreateTextBox(int32_t posX, int32_t posY, int32_t width, int32_t height, FontID fontID, uint32_t posZ = MENGINE_DEFAULT_UI_TEXTBOX_DEPTH,
-		const std::string& text = "", TextAlignment alignment = TextAlignment::CenterLeft, TextBoxFlags editFlags = TextBoxFlags::None, const ColorData& backgroundColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT],
-		const ColorData& borderColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT]);
+		const std::string& text = "", TextAlignment alignment = TextAlignment::CenterLeft, TextBoxFlags editFlags = TextBoxFlags::None, const ColorData& backgroundColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT_],
+		const ColorData& borderColor = PredefinedColors::Colors[PredefinedColors::TRANSPARENT_]);
 
 	bool ShowButton(EntityID ID);
 	bool HideButton(EntityID ID);

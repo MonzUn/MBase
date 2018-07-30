@@ -12,7 +12,7 @@ namespace MEngine
 			RED,
 			GREEN,
 			BLUE,
-			TRANSPARENT,
+			TRANSPARENT_, // Underscore is to avoid conflicts with Microsoft macro
 
 			COUNT
 		};
@@ -65,7 +65,7 @@ namespace MEngine
 			ColorData(RED),
 			ColorData(GREEN),
 			ColorData(BLUE),
-			ColorData(TRANSPARENT),
+			ColorData(TRANSPARENT_),
 		};
 	}
 }

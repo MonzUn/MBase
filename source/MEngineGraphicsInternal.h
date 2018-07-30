@@ -69,8 +69,8 @@ namespace MEngineGraphics
 		MEngine::TextureID TextureID;
 
 		// Rectangle
-		MEngine::ColorData FillColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
-		MEngine::ColorData BorderColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT];
+		MEngine::ColorData FillColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT_];
+		MEngine::ColorData BorderColor	= MEngine::PredefinedColors::Colors[MEngine::PredefinedColors::TRANSPARENT_];
 
 		// Text
 		TextRenderMode	TextRenderMode			= TextRenderMode::INVALID;

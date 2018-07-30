@@ -41,8 +41,8 @@ namespace MEngine
 	public:
 		bool IsFullyTransparent() const { return BorderColor.IsFullyTransparent() && FillColor.IsFullyTransparent(); }
 
-		ColorData BorderColor	= ColorData(PredefinedColors::TRANSPARENT);
-		ColorData FillColor		= ColorData(PredefinedColors::TRANSPARENT);
+		ColorData BorderColor	= ColorData(PredefinedColors::TRANSPARENT_);
+		ColorData FillColor		= ColorData(PredefinedColors::TRANSPARENT_);
 		bool RenderIgnore		= false;
 	};
 
