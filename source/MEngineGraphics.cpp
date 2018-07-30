@@ -371,7 +371,16 @@ void MEngineGraphics::HandleSurfaceToTextureConversions()
 		SdlApiLock.lock();
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(m_Renderer, job->Surface );
 		SdlApiLock.unlock();
-		MEngineGraphics::AddTexture(texture, (job->StoreSurfaceInRAM ? job->Surface : nullptr), job->ReservedID);
+		if (texture != nullptr)
+		{
+			MEngineGraphics::AddTexture(texture, (job->StoreSurfaceInRAM ? job->Surface : nullptr), job->ReservedID);
+		}
+		else
+		{
+			MLOG_ERROR("Failed to create texture from surface", LOG_CATEGORY_GRAPHICS);
+			SDL_FreeSurface(job->Surface);
+			continue;
+		}
 
 		if (!job->StoreSurfaceInRAM)
 			SDL_FreeSurface(job->Surface);
@@ -423,7 +432,6 @@ void MEngineGraphics::CreateRenderJobs()
 		{
 			job->DestinationRect = { posSizeComp->PosX, posSizeComp->PosY, posSizeComp->Width, posSizeComp->Height };
 			job->Depth = posSizeComp->PosZ;
-
 		}
 		else
 		{
@@ -597,7 +605,7 @@ void MEngineGraphics::ExecuteRenderJobs()
 		{
 			int result = SDL_RenderCopy(m_Renderer, (*m_Textures)[job->TextureID]->Texture, nullptr, &job->DestinationRect);
 			if (result != 0)
-				MLOG_ERROR("Failed to render texture with ID: " << job->TextureID << '\n' << "SDL error = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
+				MLOG_ERROR("Failed to render texture with ID: " << job->TextureID << '\n' << "SDL error Code = " << result << "; SDL error description = \"" << SDL_GetError() << "\" \n", LOG_CATEGORY_GRAPHICS);
 		}
 
 		if ((job->JobMask & JobTypeMask::TEXT) != 0)
