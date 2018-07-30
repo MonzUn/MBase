@@ -17,8 +17,8 @@ namespace MEngine
 	class ComponentBase : public Component
 	{
 	public:
-		virtual void Initialize() {};
-		virtual void Destroy() {};
+		virtual void Initialize() override {};
+		virtual void Destroy() override {};
 
 		static void Register(const ComponentBase<Derived>& templateInstance, const char* componentName, uint32_t maxCount = 10)
 		{
