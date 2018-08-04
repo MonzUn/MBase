@@ -322,13 +322,16 @@ bool MEngineGraphics::Initialize(const char* appName, int32_t windowPosX, int32_
 	}
 	SDL_GetWindowSize(m_Window, &m_WindowWidth, &m_WindowHeight);
 	
-	m_Renderer = SDL_CreateRenderer(m_Window, -1, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC);
+	m_Renderer = SDL_CreateRenderer(m_Window, 0, SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC); // Create an initialization option enum for all supported indices (0 = D3d11, 1 = OGL, 2 = OGLes, 3 = Software)
 	if (m_Renderer == nullptr)
 	{
 		MLOG_ERROR("MEngine initialization failed; SDL_CreateRenderer Error: " + std::string(SDL_GetError()), LOG_CATEGORY_GRAPHICS);
 		return false;
 	}
 
+	SDL_RendererInfo renderInfo;
+	SDL_GetRendererInfo(m_Renderer, &renderInfo);
+	MLOG_INFO("Graphics initialized using " << renderInfo.name << " renderer", LOG_CATEGORY_GRAPHICS);
 	return true;
 }
 
