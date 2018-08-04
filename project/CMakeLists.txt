@@ -24,9 +24,6 @@ endif(MSVC)
 file(RELATIVE_PATH IncludeDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/include")
 get_filename_component(IncludeDirectoryAbsolute ${IncludeDirectoryRelative} ABSOLUTE)
 
-# Externals directory
-set(SharedExternalsPathAbsolute "${ProjectRootAbsolute}/external/windows/shared")
-
 # Debug Library directory
 file(RELATIVE_PATH DebugLibraryDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/lib/debug/x64")
 get_filename_component(DebugLibraryDirectoryAbsolute ${DebugLibraryDirectoryRelative} ABSOLUTE)
@@ -34,10 +31,6 @@ get_filename_component(DebugLibraryDirectoryAbsolute ${DebugLibraryDirectoryRela
 # Release Library directory
 file(RELATIVE_PATH ReleaseLibraryDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/lib/release/x64")
 get_filename_component(ReleaseLibraryDirectoryAbsolute ${ReleaseLibraryDirectoryRelative} ABSOLUTE)
-
-# Shared Library directory
-file(RELATIVE_PATH SharedLibraryDirectoryRelative ${${PROJECT_NAME}_SOURCE_DIR} "${ProjectRootAbsolute}/lib/shared/x64")
-get_filename_component(SharedLibraryDirectoryAbsolute ${SharedLibraryDirectoryRelative} ABSOLUTE)
 
 # Find SDL2
 set(SDL2Includes "${IncludeDirectoryAbsolute}/SDL2")
