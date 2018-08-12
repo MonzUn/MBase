@@ -164,6 +164,12 @@ bool MEngine::AddSystemToGameMode(GameModeID gameModeID, SystemID systemID, uint
 {
 	uint32_t shiftedPriority = priority + MENGINE_MIN_SYSTEM_PRIORITY;
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
+	if (!m_SystemIDBank->IsIDActive(systemID))
+	{
+		MLOG_WARNING("Attempted to add system to game mode using an invalid SystemID; Game mode ID = " << gameModeID << "; system ID = " << systemID, LOG_CATEGORY_SYSTEM_MANAGER);
+		return false;
+	}
+
 	if (!m_GameModeIDBank->IsIDActive(gameModeID))
 	{
 		MLOG_WARNING("Attempted to add system to non existent game mode; Game mode ID = " << gameModeID << "; system ID = " << systemID, LOG_CATEGORY_SYSTEM_MANAGER);
