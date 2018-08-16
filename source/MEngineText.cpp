@@ -16,7 +16,7 @@
 
 #define LOG_CATEGORY_TEXT "MEngineText"
 
-constexpr uint32_t FontCacheBufferSize = std::numeric_limits<uint32_t>::max();
+constexpr uint32_t FontCacheBufferSize = 5000000;
 
 namespace MEngine
 {
