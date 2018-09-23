@@ -10,7 +10,7 @@ namespace MEngine
 	struct TextureData
 	{
 		TextureData() {}
-		TextureData(int32_t width, int32_t height, const void* pixels = nullptr, bool renderIgnore = false) : Width(width), Height(height), Pixels(pixels) {}
+		TextureData(int32_t width, int32_t height, const void* pixels = nullptr) : Width(width), Height(height), Pixels(pixels) {}
 
 		const void* Pixels			= nullptr;
 		int32_t		Width			= -1;
