@@ -8,10 +8,13 @@
 
 namespace MEngine
 {
+	typedef MUtility::MUtilityIDBank<uint32_t> ComponentIDBank;
+
 	class ComponentBuffer
 	{
 	public:
 		ComponentBuffer(const Component& templateComponent, uint32_t templateComponentSize, uint32_t startingCapacity, const char* componentName, ComponentMask componentMask);
+		ComponentBuffer(const ComponentBuffer& other) = default;
 		~ComponentBuffer();
 
 		ComponentBuffer operator=(const ComponentBuffer& other);
@@ -21,7 +24,9 @@ namespace MEngine
 
 		Component* GetComponent(uint32_t componentIndex) const;
 		MUtility::Byte* GetBuffer() const;
-		uint32_t GetCount() const;
+		const ComponentIDBank& GetIDs() const;
+		uint32_t GetTotalCount() const;
+		uint32_t GetActiveCount() const;
 
 		void Resize(uint32_t newCapacity = 0); // newCapacity = 0 will double the capacity
 
@@ -30,11 +35,10 @@ namespace MEngine
 		Component*					TemplateComponent	= nullptr;
 
 	private:
-		const uint32_t				m_ComponentByteSize = 0;
+		const uint32_t	m_ComponentByteSize = 0;
 
 		MUtility::Byte*	m_Buffer	= nullptr;
 		uint32_t		m_Capacity	= 0;
-		uint32_t		m_NextIndex = 0;
-		std::vector<EntityID> m_Owners;
+		ComponentIDBank	m_IDs;
 	};
 }

@@ -6,6 +6,7 @@
 #include "TextBoxSystem.h"
 #include "FrameCounter.h"
 #include <MUtilityIDBank.h>
+#include <MUtilityLog.h>
 #include <algorithm>
 #include <set>
 #include <vector>
@@ -145,7 +146,7 @@ void MEngine::RequestResumeSystem(SystemID ID)
 GameModeID MEngine::CreateGameMode()
 {
 	GameModeID gameModeID = m_GameModeIDBank->GetID();
-	if (m_GameModeIDBank->IsIDLast(gameModeID))
+	if (m_GameModeIDBank->IsIDHighest(gameModeID))
 		m_GameModes->emplace_back(GameModeSystemList());
 	else
 		m_GameModes->emplace(m_GameModes->begin() + gameModeID, GameModeSystemList());

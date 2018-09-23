@@ -93,6 +93,12 @@ TextureID MEngine::GetTextureFromPath(const std::string& pathWithExtension)
 
 void MEngine::UnloadTexture(TextureID textureID)
 {
+	if (!m_TextureIDBank->IsIDValid(textureID))
+	{
+		MLOG_WARNING("Attempted to unload texture using an invalid texture ID; ID = " << textureID, LOG_CATEGORY_GRAPHICS);
+		return;
+	}
+
 	HandleSurfaceToTextureConversions();
 
 	MEngineTexture*& texture = (*m_Textures)[textureID];
@@ -104,7 +110,7 @@ void MEngine::UnloadTexture(TextureID textureID)
 	}
 	else
 	{
-		if (m_TextureIDBank->IsIDRecycled(textureID))
+		if (m_TextureIDBank->IsIDInactive(textureID))
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but the texture with that ID has already been unloaded", LOG_CATEGORY_GRAPHICS);
 		else
 			MLOG_WARNING("Attempted to unload texture with ID " << textureID << " but no texture with that ID exists", LOG_CATEGORY_GRAPHICS);
@@ -198,10 +204,13 @@ const TextureData MEngine::GetTextureData(TextureID textureID)
 
 	TextureData toReturn;
 	MEngineTexture* texture = nullptr;
-	if (textureID.IsValid() && textureID <static_cast<int64_t>(m_Textures->size()))
+	if (textureID.IsValid() && textureID < static_cast<int64_t>(m_Textures->size()))
 	{
 		const MEngineTexture& texture = *(*m_Textures)[textureID];
-		toReturn = TextureData(texture.Surface->w, texture.Surface->h, texture.Surface->pixels);
+		if(texture.Surface != nullptr)
+			toReturn = TextureData(texture.Surface->w, texture.Surface->h, texture.Surface->pixels);
+		else
+			toReturn = TextureData(texture.Width, texture.Height);
 	}
 	else
 		MLOG_WARNING("Attempted to get Texture from invalid texture ID; ID = " << textureID, LOG_CATEGORY_GRAPHICS);

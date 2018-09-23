@@ -31,7 +31,7 @@ ComponentBuffer::ComponentBuffer(const Component& templateComponent, uint32_t te
 
 ComponentBuffer::~ComponentBuffer()
 {
-	for (uint32_t i = 0; i < GetCount(); ++i)
+	for (uint32_t i = 0; i < GetTotalCount(); ++i)
 	{
 		reinterpret_cast<Component*>(&(m_Buffer[m_ComponentByteSize * i]))->Destroy();
 	}
@@ -48,8 +48,7 @@ ComponentBuffer ComponentBuffer::operator=(const ComponentBuffer& other)
 
 uint32_t ComponentBuffer::AllocateComponent(EntityID ownerID)
 {
-	uint32_t insertIndex = m_NextIndex++;
-	m_Owners.push_back(ownerID);
+	uint32_t insertIndex = m_IDs.GetID();
 	if (insertIndex == m_Capacity)
 		Resize();
 
@@ -60,39 +59,25 @@ uint32_t ComponentBuffer::AllocateComponent(EntityID ownerID)
 bool ComponentBuffer::ReturnComponent(uint32_t componentIndex)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentIndex >= m_NextIndex)
+	if (!m_IDs.IsIDActive(componentIndex))
 	{
 		MLOG_ERROR("Attempted to return component at an inactive index; component name = \"" << ComponentName << '\"', LOG_CATEGORY_COMPONENT_BUFFER);
 		return false;
 	}
 #endif
 
+	// Destroy the component and copy in the template object to the newly freed position
 	reinterpret_cast<Component*>(&(m_Buffer[m_ComponentByteSize * componentIndex]))->Destroy();
-	if (componentIndex == m_NextIndex - 1)
-	{
-		m_Owners.pop_back();
-	}
-	else
-	{
-		// Move the last component to the index of the removed component
-		memcpy(m_Buffer + componentIndex * m_ComponentByteSize, m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, m_ComponentByteSize);
-		m_Owners.erase(m_Owners.begin() + componentIndex);
+	memcpy(m_Buffer + componentIndex * m_ComponentByteSize, TemplateComponent, m_ComponentByteSize);
 
-		// Tell the owner of the moved component where it has been moved to
-		EntityID ownerID = m_Owners[componentIndex];
-		MEngineEntityManager::UpdateComponentIndex(ownerID, ComponentType, componentIndex);
-	}
-	// Copy in the template object to the newly freed position
-	memcpy(m_Buffer + (m_NextIndex - 1) * m_ComponentByteSize, TemplateComponent, m_ComponentByteSize);
-
-	--m_NextIndex;
+	m_IDs.ReturnID(componentIndex);
 	return true;
 }
 
 Component* ComponentBuffer::GetComponent(uint32_t componentIndex) const
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
-	if (componentIndex >= m_NextIndex)
+	if (!m_IDs.IsIDActive(componentIndex))
 		MLOG_ERROR("Attempted to get component at an inactive index; component name = \"" << ComponentName << '\"', LOG_CATEGORY_COMPONENT_BUFFER);
 #endif
 	return reinterpret_cast<Component*>(&(m_Buffer[componentIndex * m_ComponentByteSize]));
@@ -103,9 +88,19 @@ MUtility::Byte* ComponentBuffer::GetBuffer() const
 	return m_Buffer;
 }
 
-uint32_t ComponentBuffer::GetCount() const
+const ComponentIDBank& ComponentBuffer::GetIDs() const
 {
-	return m_NextIndex;
+	return m_IDs;
+}
+
+uint32_t ComponentBuffer::GetTotalCount() const
+{
+	return m_IDs.GetTotalCount();
+}
+
+uint32_t ComponentBuffer::GetActiveCount() const
+{
+	return m_IDs.GetActiveCount();
 }
 
 void ComponentBuffer::Resize(uint32_t newCapacity)

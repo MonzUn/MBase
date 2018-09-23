@@ -69,7 +69,8 @@ bool MEngine::UnregisterComponentType(ComponentMask componentType) // TODODB: De
 	return false;
 }
 
-MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t* outComponentCount) // TODODB: Maybe return Component* instead?
+// TODODB: Maybe return Component* instead?
+MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, const ComponentIDBank* outIDs)
 {
 #if COMPILE_MODE == COMPILE_MODE_DEBUG
 	if (componentType == MENGINE_INVALID_COMPONENT_MASK)
@@ -88,8 +89,7 @@ MUtility::Byte* MEngine::GetComponentBuffer(ComponentMask componentType, int32_t
 	{
 		if ((*m_Buffers)[i]->ComponentType == componentType)
 		{
-			if(outComponentCount != nullptr)
-				*outComponentCount = static_cast<int32_t>((*m_Buffers)[i]->GetCount());
+			outIDs = &(*m_Buffers)[i]->GetIDs();
 			return (*m_Buffers)[i]->GetBuffer();
 		}
 	}
