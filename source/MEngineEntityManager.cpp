@@ -144,24 +144,24 @@ void MEngine::GetEntitiesMatchingMask(ComponentMask componentMask, std::vector<E
 		bool isMatch = false;
 		switch (matchMode)
 		{
-			case MaskMatchMode::Any:
+			case MaskMatchMode::Any: // The entity has at least one of the components in the paramter mask
 			{
 				isMatch = ((currentMask & componentMask) != 0);
 			} break;
 
-			case MaskMatchMode::Partial:
+			case MaskMatchMode::Partial: // The entity has at least all the components in the parameter mask but may also have more components on top of those
 			{
 				isMatch = ((currentMask & componentMask) == componentMask);
 			} break;
 
-			case MaskMatchMode::Exact:
+			case MaskMatchMode::Exact: // The entity has exaclty the components in the parameter mask and no additional components
 			{
 				isMatch = ((currentMask & componentMask) == componentMask && MUtility::PopCount(componentMask) == MUtility::PopCount(currentMask));
 			} break;
 
 		default:
 			MLOG_ERROR("Received unknown matchMode", LOG_CATEGORY_ENTITY_MANAGER);
-			break;
+			return;
 		}
 
 		if (isMatch)
